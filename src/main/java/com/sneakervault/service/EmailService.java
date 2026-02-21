@@ -31,9 +31,13 @@ public class EmailService {
 
     @Async
     public void sendOrderConfirmation(ShoeOrder order) {
+        boolean hu = "hu".equals(order.getLanguage());
         String customerEmail = order.getCustomerEmail();
         if (customerEmail != null && !customerEmail.isBlank()) {
-            sendEmail(customerEmail, "SneakerVault - Order #" + order.getId() + " Confirmation", buildHtml(order));
+            String subject = hu
+                    ? "SneakerVault - #" + order.getId() + " Rendelés visszaigazolás"
+                    : "SneakerVault - Order #" + order.getId() + " Confirmation";
+            sendEmail(customerEmail, subject, buildHtml(order, hu));
         }
         sendNotification(order);
     }
@@ -41,7 +45,7 @@ public class EmailService {
     private void sendNotification(ShoeOrder order) {
         if (notifyAddresses == null || notifyAddresses.isBlank()) return;
         String subject = "SneakerVault - New Order #" + order.getId();
-        String html = buildHtml(order);
+        String html = buildHtml(order, false);
         for (String addr : notifyAddresses.split(",")) {
             String trimmed = addr.trim();
             if (!trimmed.isBlank()) {
@@ -69,7 +73,15 @@ public class EmailService {
         }
     }
 
-    private String buildHtml(ShoeOrder order) {
+    private String buildHtml(ShoeOrder order, boolean hu) {
+        String lblConfirmation = hu ? "Rendel\u00e9s visszaigazol\u00e1s" : "Order Confirmation";
+        String lblOrder = hu ? "Rendel\u00e9s #" : "Order #";
+        String lblProduct = hu ? "Term\u00e9k" : "Product";
+        String lblSize = hu ? "M\u00e9ret" : "Size";
+        String lblPrice = hu ? "\u00c1r" : "Price";
+        String lblTotal = hu ? "\u00d6sszesen: " : "Total: ";
+        String lblThankYou = hu ? "K\u00f6sz\u00f6nj\u00fck a rendel\u00e9sedet!" : "Thank you for your order!";
+
         StringBuilder items = new StringBuilder();
         for (OrderItem item : order.getItems()) {
             items.append("<tr>")
@@ -88,8 +100,8 @@ public class EmailService {
              + "<h1 style=\"color:#fff;margin:0;font-size:24px;\">Sneaker<span style=\"color:#e94560;\">Vault</span></h1>"
              + "</div>"
              + "<div style=\"padding:32px;\">"
-             + "<h2 style=\"color:#1a1a2e;margin:0 0 8px;\">Order Confirmation</h2>"
-             + "<p style=\"color:#666;margin:0 0 24px;\">Order #" + order.getId() + "</p>"
+             + "<h2 style=\"color:#1a1a2e;margin:0 0 8px;\">" + lblConfirmation + "</h2>"
+             + "<p style=\"color:#666;margin:0 0 24px;\">" + lblOrder + order.getId() + "</p>"
              + "<div style=\"background:#f8f9fa;border-radius:8px;padding:16px;margin-bottom:24px;\">"
              + "<p style=\"margin:0 0 4px;font-weight:600;color:#1a1a2e;\">" + esc(order.getCustomerName()) + "</p>"
              + "<p style=\"margin:0 0 4px;color:#666;font-size:14px;\">" + address + "</p>"
@@ -97,16 +109,17 @@ public class EmailService {
              + "</div>"
              + "<table style=\"width:100%;border-collapse:collapse;margin-bottom:24px;\">"
              + "<thead><tr style=\"background:#f8f9fa;\">"
-             + "<th style=\"padding:10px 12px;text-align:left;font-size:12px;color:#666;text-transform:uppercase;\">Product</th>"
-             + "<th style=\"padding:10px 12px;text-align:center;font-size:12px;color:#666;text-transform:uppercase;\">Size</th>"
-             + "<th style=\"padding:10px 12px;text-align:right;font-size:12px;color:#666;text-transform:uppercase;\">Price</th>"
+             + "<th style=\"padding:10px 12px;text-align:left;font-size:12px;color:#666;text-transform:uppercase;\">" + lblProduct + "</th>"
+             + "<th style=\"padding:10px 12px;text-align:center;font-size:12px;color:#666;text-transform:uppercase;\">" + lblSize + "</th>"
+             + "<th style=\"padding:10px 12px;text-align:right;font-size:12px;color:#666;text-transform:uppercase;\">" + lblPrice + "</th>"
              + "</tr></thead><tbody>"
              + items
              + "</tbody></table>"
              + "<div style=\"text-align:right;padding:16px;background:#f8f9fa;border-radius:8px;\">"
-             + "<span style=\"font-size:14px;color:#666;\">Total: </span>"
+             + "<span style=\"font-size:14px;color:#666;\">" + lblTotal + "</span>"
              + "<span style=\"font-size:20px;font-weight:800;color:#e94560;\">" + total + "</span>"
              + "</div>"
+             + "<p style=\"text-align:center;color:#666;margin-top:24px;font-size:14px;\">" + lblThankYou + "</p>"
              + "</div>"
              + "<div style=\"background:#f8f9fa;padding:16px 32px;text-align:center;color:#999;font-size:12px;\">"
              + "SneakerVault &copy; 2026"

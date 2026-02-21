@@ -12,6 +12,7 @@ public class CheckoutRequest {
     private String customerCity;
     private String customerStreet;
     private String customerNotes;
+    private String language;
 
     public String getCurrency() { return currency; }
     public void setCurrency(String currency) { this.currency = currency; }
@@ -39,4 +40,7 @@ public class CheckoutRequest {
 
     public String getCustomerNotes() { return customerNotes; }
     public void setCustomerNotes(String customerNotes) { this.customerNotes = customerNotes; }
+
+    public String getLanguage() { return language; }
+    public void setLanguage(String language) { this.language = language; }
 }

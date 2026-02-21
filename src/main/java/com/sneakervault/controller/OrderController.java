@@ -81,6 +81,7 @@ public class OrderController {
         order.setCustomerCity(req.getCustomerCity());
         order.setCustomerStreet(req.getCustomerStreet());
         order.setCustomerNotes(req.getCustomerNotes());
+        order.setLanguage(req.getLanguage());
 
         soldShoes.forEach(s -> s.setSold(true));
         shoeRepository.saveAll(soldShoes);

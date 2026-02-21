@@ -545,6 +545,7 @@ async function submitOrder(e) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 currency: currentCurrency,
+                language: currentLang,
                 items: cart.map(item => ({ shoeId: item.id })),
                 customerName: document.getElementById('customerName').value,
                 customerEmail: document.getElementById('customerEmail').value,

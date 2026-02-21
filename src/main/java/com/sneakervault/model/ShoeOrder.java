@@ -27,6 +27,8 @@ public class ShoeOrder {
     @Column(length = 1000)
     private String customerNotes;
 
+    private String language;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
 
@@ -70,4 +72,7 @@ public class ShoeOrder {
 
     public String getCustomerNotes() { return customerNotes; }
     public void setCustomerNotes(String customerNotes) { this.customerNotes = customerNotes; }
+
+    public String getLanguage() { return language; }
+    public void setLanguage(String language) { this.language = language; }
 }

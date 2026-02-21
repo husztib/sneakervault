@@ -733,6 +733,7 @@
                 <button class="btn btn-danger" id="resetAllBtn" onclick="resetAllPrices()"></button>
             </div>
         </div>
+        <div class="stats-row" id="inventoryStats"></div>
         <div class="table-wrap">
             <table class="admin-table">
                 <thead id="priceTableHead"></thead>
@@ -947,6 +948,8 @@ const i18n = {
         shoeSaved: 'Cipő mentve!',
         saveChanges: 'Változtatások mentése',
         resetPrices: 'Ár visszaállítása',
+        inventoryValue: 'Készletérték',
+        inventoryCount: 'Készleten',
         footer: 'SneakerVault \u00a9 2026 \u2014 Admin Panel',
         gender: { 'Férfi': 'Férfi', 'Női': 'Női', 'GS': 'GS/Youth' }
     },
@@ -1021,6 +1024,8 @@ const i18n = {
         shoeSaved: 'Shoe saved!',
         saveChanges: 'Save Changes',
         resetPrices: 'Reset Prices',
+        inventoryValue: 'Inventory Value',
+        inventoryCount: 'In Stock',
         footer: 'SneakerVault \u00a9 2026 \u2014 Admin Panel',
         gender: { 'Férfi': 'Men', 'Női': 'Women', 'GS': 'GS/Youth' }
     }
@@ -1086,12 +1091,31 @@ function fmtDate(iso) {
     return d.toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
+// ====== INVENTORY STATS ======
+function renderInventoryStats() {
+    const inStock = shoes.filter(s => !s.sold && !s.suspended);
+    const totalHUF = inStock.reduce((sum, s) => sum + (s.price || 0), 0);
+    const totalEUR = inStock.reduce((sum, s) => sum + (s.priceEUR || 0), 0);
+
+    document.getElementById('inventoryStats').innerHTML = `
+        <div class="stat-card">
+            <div class="stat-value">${currentCurrency === 'EUR' ? fmtEUR(totalEUR) : fmtHUF(totalHUF)}</div>
+            <div class="stat-label">${t('inventoryValue')}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">${inStock.length} / ${shoes.length}</div>
+            <div class="stat-label">${t('inventoryCount')}</div>
+        </div>
+    `;
+}
+
 // ====== PRICE TABLE ======
 function isModified(shoe) {
     return shoe.price !== shoe.defaultPrice || shoe.priceEUR !== shoe.defaultPriceEUR;
 }
 
 function renderPriceTable() {
+    renderInventoryStats();
     const head = document.getElementById('priceTableHead');
     head.innerHTML = `<tr>
         <th>${t('image')}</th>

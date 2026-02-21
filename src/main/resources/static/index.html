@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="hu" data-theme="dark">
+<html lang="hu" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -905,7 +905,7 @@ function displayGender(g) { return t('genderDisplay')[g] || g; }
 
 // ====== STATE ======
 let shoes = [];
-let currentTheme = localStorage.getItem('sv-theme') || 'dark';
+let currentTheme = localStorage.getItem('sv-theme') || 'light';
 let currentLang = localStorage.getItem('sv-lang') || 'hu';
 let currentCurrency = localStorage.getItem('sv-currency') || 'HUF';
 let activeFilters = { brand: 'all', type: 'all', gender: 'all', size: null };

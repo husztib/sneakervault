@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="hu" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SneakerVault - Premium Cipő Áruház</title>
+    <style>
+        :root, [data-theme="dark"] {
+            --primary: #1a1a2e;
+            --accent: #e94560;
+            --accent-hover: #c73850;
+            --bg: #0f0f1a;
+            --card-bg: #16213e;
+            --card-hover: #1a2744;
+            --text: #eee;
+            --text-muted: #8892a4;
+            --border: #2a2a4a;
+            --success: #00d68f;
+            --badge-jordan: #c9302c;
+            --badge-nike: #f37021;
+            --badge-adidas: #1d1d1b;
+            --badge-vans: #c1272d;
+            --header-start: #1a1a2e;
+            --header-end: #16213e;
+            --hero-start: #1a1a2e;
+            --hero-mid: #16213e;
+            --hero-end: #0f3460;
+            --hero-glow1: rgba(233,69,96,0.08);
+            --hero-glow2: rgba(15,52,96,0.15);
+            --overlay-subtle: rgba(255,255,255,0.04);
+            --overlay-light: rgba(255,255,255,0.06);
+            --overlay-medium: rgba(255,255,255,0.08);
+            --overlay-strong: rgba(255,255,255,0.12);
+            --shadow-card: rgba(0,0,0,0.3);
+            --modal-overlay: rgba(0,0,0,0.7);
+            --cart-overlay: rgba(0,0,0,0.5);
+            --badge-adidas-border: #555;
+            --scrollbar-thumb: #2a2a4a;
+            --scrollbar-hover: #8892a4;
+        }
+
+        [data-theme="light"] {
+            --primary: #ffffff;
+            --bg: #f0f2f5;
+            --card-bg: #ffffff;
+            --card-hover: #f8f9fa;
+            --text: #1a1a2e;
+            --text-muted: #6b7280;
+            --border: #dde1e7;
+            --header-start: #ffffff;
+            --header-end: #f5f6f8;
+            --hero-start: #e8eaf0;
+            --hero-mid: #dde0e8;
+            --hero-end: #c8cfe0;
+            --hero-glow1: rgba(233,69,96,0.06);
+            --hero-glow2: rgba(15,52,96,0.08);
+            --overlay-subtle: rgba(0,0,0,0.02);
+            --overlay-light: rgba(0,0,0,0.04);
+            --overlay-medium: rgba(0,0,0,0.05);
+            --overlay-strong: rgba(0,0,0,0.08);
+            --shadow-card: rgba(0,0,0,0.08);
+            --modal-overlay: rgba(0,0,0,0.4);
+            --cart-overlay: rgba(0,0,0,0.3);
+            --badge-adidas: #333;
+            --badge-adidas-border: #888;
+            --scrollbar-thumb: #ccc;
+            --scrollbar-hover: #999;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* HEADER */
+        header {
+            background: linear-gradient(135deg, var(--header-start) 0%, var(--header-end) 100%);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        .header-top {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            white-space: nowrap;
+        }
+
+        .logo span { color: var(--accent); }
+
+        .search-container {
+            flex: 1;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            background: var(--overlay-medium);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-container input:focus {
+            border-color: var(--accent);
+            background: var(--overlay-strong);
+            box-shadow: 0 0 0 3px rgba(233,69,96,0.15);
+        }
+
+        .search-container input::placeholder { color: var(--text-muted); }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* SETTINGS TOGGLES */
+        .settings-toggles {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .toggle-group {
+            display: flex;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+
+        .toggle-opt {
+            padding: 6px 10px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.3px;
+        }
+
+        .toggle-opt:hover { color: var(--text); }
+
+        .toggle-opt.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .cart-btn {
+            position: relative;
+            background: none;
+            border: 2px solid var(--border);
+            color: var(--text);
+            padding: 10px 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+        }
+
+        .cart-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        .cart-count {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: var(--accent);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* HERO BANNER */
+        .hero {
+            background: linear-gradient(135deg, var(--hero-start) 0%, var(--hero-mid) 50%, var(--hero-end) 100%);
+            padding: 48px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: background 0.3s;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 50%, var(--hero-glow1) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 50%, var(--hero-glow2) 0%, transparent 50%);
+            animation: heroBg 20s ease infinite;
+        }
+
+        @keyframes heroBg {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-5%, 5%); }
+        }
+
+        .hero-content { position: relative; z-index: 1; }
+
+        .hero h1 {
+            font-size: clamp(28px, 5vw, 48px);
+            font-weight: 800;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--text), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            color: var(--text-muted);
+            font-size: 16px;
+            max-width: 500px;
+            margin: 0 auto 24px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 32px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-num {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* FILTERS */
+        .filters-section {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 20px 0;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 18px;
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+
+        .filter-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .filter-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 8px 4px;
+        }
+
+        .filter-divider {
+            width: 1px;
+            height: 28px;
+            background: var(--border);
+            margin: 0 8px;
+        }
+
+        .size-filters {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .size-btn {
+            width: 44px;
+            height: 36px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .size-btn:hover { border-color: var(--accent); color: var(--text); }
+        .size-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+        .active-filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .active-filter-tag {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            background: rgba(233,69,96,0.15);
+            border: 1px solid rgba(233,69,96,0.3);
+            border-radius: 16px;
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .active-filter-tag button {
+            background: none;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 1;
+        }
+
+        .clear-all {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 4px 8px;
+        }
+
+        .clear-all:hover { color: var(--accent); }
+
+        .results-count {
+            font-size: 14px;
+            color: var(--text-muted);
+            padding: 16px 0 4px;
+        }
+
+        .results-count strong { color: var(--text); }
+
+        /* SORT */
+        .sort-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        .sort-select {
+            padding: 8px 12px;
+            background: var(--overlay-light);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .sort-select option { background: var(--primary); color: var(--text); }
+
+        /* GRID */
+        .products-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        /* CARD */
+        .product-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(233,69,96,0.3);
+            box-shadow: 0 12px 40px var(--shadow-card);
+        }
+
+        .product-image {
+            aspect-ratio: 4/3;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.06);
+        }
+
+        .brand-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: white;
+        }
+
+        .brand-badge.jordan { background: var(--badge-jordan); }
+        .brand-badge.nike { background: var(--badge-nike); }
+        .brand-badge.adidas { background: var(--badge-adidas); border: 1px solid var(--badge-adidas-border); }
+        .brand-badge.vans { background: var(--badge-vans); }
+
+        .type-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 600;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            backdrop-filter: blur(4px);
+        }
+
+        .product-info {
+            padding: 16px;
+        }
+
+        .product-name {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+
+        .product-colorway {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .product-meta {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .meta-tag {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: var(--overlay-light);
+            color: var(--text-muted);
+        }
+
+        .product-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .product-price {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .product-price .currency {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .add-to-cart {
+            padding: 10px 20px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .add-to-cart:hover { background: var(--accent-hover); transform: scale(1.05); }
+        .add-to-cart:active { transform: scale(0.98); }
+
+        /* MODAL */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: var(--modal-overlay);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.show { display: flex; }
+
+        .modal {
+            background: var(--card-bg);
+            border-radius: 20px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: var(--overlay-strong);
+            border: none;
+            color: var(--text);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover { background: var(--accent); color: white; }
+
+        .modal-image {
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+        }
+
+        .modal-image img {
+            max-width: 100%;
+            max-height: 350px;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+
+        .modal-body {
+            padding: 0 32px 32px;
+        }
+
+        .modal-body h2 {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .modal-body .colorway {
+            color: var(--text-muted);
+            font-size: 15px;
+            margin-bottom: 16px;
+        }
+
+        .modal-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .detail-item {
+            background: var(--overlay-subtle);
+            padding: 12px;
+            border-radius: 10px;
+        }
+
+        .detail-item label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .detail-item span {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .modal-price {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .modal-add-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-add-btn:hover { background: var(--accent-hover); }
+
+        /* CART DRAWER */
+        .cart-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: var(--cart-overlay);
+            z-index: 300;
+        }
+
+        .cart-overlay.show { display: block; }
+
+        .cart-drawer {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 380px;
+            max-width: 90vw;
+            height: 100vh;
+            background: var(--primary);
+            z-index: 301;
+            transition: right 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid var(--border);
+        }
+
+        .cart-drawer.open { right: 0; }
+
+        .cart-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-header h3 { font-size: 18px; font-weight: 700; }
+
+        .cart-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .cart-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            background: var(--overlay-subtle);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .cart-item-img {
+            width: 70px;
+            height: 70px;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .cart-item-img img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; }
+
+        .cart-item-info { flex: 1; }
+        .cart-item-info h4 { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+        .cart-item-info .ci-size { font-size: 11px; color: var(--text-muted); }
+        .cart-item-info .ci-price { font-size: 15px; font-weight: 700; color: var(--accent); margin-top: 4px; }
+
+        .cart-item-remove {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .cart-item-remove:hover { color: var(--accent); }
+
+        .cart-empty {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 40px 20px;
+            font-size: 14px;
+        }
+
+        .cart-footer {
+            padding: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .cart-total span:last-child { color: var(--accent); }
+
+        .checkout-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .checkout-btn:hover { background: var(--accent-hover); }
+
+        /* NO RESULTS */
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .no-results h3 { font-size: 20px; margin-bottom: 8px; }
+        .no-results p { color: var(--text-muted); }
+
+        /* TOAST */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--success);
+            color: #000;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 400;
+            transition: transform 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .toast.show { transform: translateX(-50%) translateY(0); }
+
+        /* FOOTER */
+        footer {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .header-top { flex-wrap: wrap; padding: 12px 16px; }
+            .search-container { order: 3; flex-basis: 100%; max-width: 100%; }
+            .header-actions { gap: 8px; }
+            .settings-toggles { gap: 4px; }
+            .toggle-opt { padding: 5px 7px; font-size: 10px; }
+            .hero { padding: 32px 16px; }
+            .stats { gap: 20px; }
+            .products-grid { padding: 16px; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+            .product-info { padding: 12px; }
+            .product-name { font-size: 13px; }
+            .product-price { font-size: 18px; }
+            .add-to-cart { padding: 8px 14px; font-size: 12px; }
+            .filter-divider { display: none; }
+            .modal-body { padding: 0 20px 20px; }
+            .modal-image { padding: 20px; min-height: 200px; }
+            .modal-image img { max-width: 200px; }
+        }
+
+        @media (max-width: 400px) {
+            .products-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-top">
+        <div class="logo">Sneaker<span>Vault</span></div>
+        <div class="search-container">
+            <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" id="searchInput">
+        </div>
+        <div class="header-actions">
+            <div class="settings-toggles">
+                <div class="toggle-group" id="themeToggle">
+                    <button class="toggle-opt active" data-val="dark">Dark</button>
+                    <button class="toggle-opt" data-val="light">Light</button>
+                </div>
+                <div class="toggle-group" id="langToggle">
+                    <button class="toggle-opt active" data-val="hu">HU</button>
+                    <button class="toggle-opt" data-val="en">EN</button>
+                </div>
+                <div class="toggle-group" id="currToggle">
+                    <button class="toggle-opt active" data-val="HUF">HUF</button>
+                    <button class="toggle-opt" data-val="EUR">EUR</button>
+                </div>
+            </div>
+            <button class="cart-btn" onclick="toggleCart()">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+                <div class="cart-count" id="cartCount" style="display:none">0</div>
+            </button>
+        </div>
+    </div>
+</header>
+
+<section class="hero">
+    <div class="hero-content">
+        <h1 id="heroTitle"></h1>
+        <p id="heroDesc"></p>
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-num" id="totalProducts">35</div>
+                <div class="stat-label" id="statProducts"></div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">4</div>
+                <div class="stat-label" id="statBrands"></div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">100%</div>
+                <div class="stat-label" id="statOriginal"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="filters-section">
+    <div class="filter-row" id="filterRow"></div>
+    <div class="size-filters" id="sizeFilters"></div>
+    <div class="active-filters" id="activeFilters"></div>
+    <div class="sort-row">
+        <div class="results-count" id="resultsCount"></div>
+        <select class="sort-select" id="sortSelect"></select>
+    </div>
+</section>
+
+<main class="products-grid" id="productsGrid"></main>
+
+<footer>
+    <p id="footerText"></p>
+    <p style="margin-top: 8px"><a href="admin.html" style="color: var(--text-muted); font-size: 12px; text-decoration: none; opacity: 0.5;">Admin</a></p>
+</footer>
+
+<!-- Product Modal -->
+<div class="modal-overlay" id="productModal">
+    <div class="modal" id="modalContent"></div>
+</div>
+
+<!-- Cart Overlay -->
+<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+<div class="cart-drawer" id="cartDrawer">
+    <div class="cart-header">
+        <h3 id="cartTitle"></h3>
+        <button class="cart-close" onclick="toggleCart()">&times;</button>
+    </div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-footer">
+        <div class="cart-total">
+            <span id="cartTotalLabel"></span>
+            <span id="cartTotal"></span>
+        </div>
+        <button class="checkout-btn" id="checkoutBtn" onclick="checkout()"></button>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ====== TRANSLATIONS ======
+const i18n = {
+    hu: {
+        searchPlaceholder: 'Keresés modell, szín, méret alapján...',
+        heroTitle: 'Premium Sneaker Kollekció',
+        heroDesc: 'Eredeti Nike, Jordan, Adidas és Vans cipők. Minden darab 100% eredeti, dobozos.',
+        statProducts: 'Termék',
+        statBrands: 'Márka',
+        statOriginal: 'Eredeti',
+        brandLabel: 'Márka:',
+        typeLabel: 'Típus:',
+        genderLabel: 'Nem:',
+        sizeLabel: 'EUR méret:',
+        all: 'Mind',
+        men: 'Férfi',
+        women: 'Női',
+        gsYouth: 'GS/Youth',
+        sortName: 'Név szerint',
+        sortPriceAsc: 'Ár: alacsony → magas',
+        sortPriceDesc: 'Ár: magas → alacsony',
+        sortSizeAsc: 'Méret: kicsi → nagy',
+        sortSizeDesc: 'Méret: nagy → kicsi',
+        resultsCount: (n) => `<strong>${n}</strong> termék található`,
+        noResults: 'Nincs találat',
+        noResultsHint: 'Próbálj más szűrési feltételeket használni',
+        addToCart: 'Kosárba',
+        addToCartFull: 'Kosárba helyezés',
+        cart: 'Kosár',
+        total: 'Összesen:',
+        checkout: 'Megrendelés',
+        emptyCart: 'A kosarad üres',
+        toastAdded: (name) => `${name} hozzáadva a kosárhoz!`,
+        toastEmpty: 'A kosarad üres!',
+        toastOrder: (total) => `Rendelés elküldve! Összeg: ${total}`,
+        footer: 'SneakerVault © 2026 — Minden jog fenntartva. Minden termék eredeti.',
+        styleCode: 'Stíluskód',
+        sizeUS: 'US méret',
+        sizeEUR: 'EUR méret',
+        brand: 'Márka',
+        type: 'Típus',
+        gender: 'Nem',
+        genderDisplay: { 'Férfi': 'Férfi', 'Női': 'Női', 'GS': 'GS/Youth' }
+    },
+    en: {
+        searchPlaceholder: 'Search by model, color, size...',
+        heroTitle: 'Premium Sneaker Collection',
+        heroDesc: 'Authentic Nike, Jordan, Adidas and Vans sneakers. Every pair 100% original, boxed.',
+        statProducts: 'Products',
+        statBrands: 'Brands',
+        statOriginal: 'Authentic',
+        brandLabel: 'Brand:',
+        typeLabel: 'Type:',
+        genderLabel: 'Gender:',
+        sizeLabel: 'EUR size:',
+        all: 'All',
+        men: 'Men',
+        women: 'Women',
+        gsYouth: 'GS/Youth',
+        sortName: 'Name',
+        sortPriceAsc: 'Price: low → high',
+        sortPriceDesc: 'Price: high → low',
+        sortSizeAsc: 'Size: small → large',
+        sortSizeDesc: 'Size: large → small',
+        resultsCount: (n) => `<strong>${n}</strong> products found`,
+        noResults: 'No results',
+        noResultsHint: 'Try different filter settings',
+        addToCart: 'Add to cart',
+        addToCartFull: 'Add to cart',
+        cart: 'Cart',
+        total: 'Total:',
+        checkout: 'Checkout',
+        emptyCart: 'Your cart is empty',
+        toastAdded: (name) => `${name} added to cart!`,
+        toastEmpty: 'Your cart is empty!',
+        toastOrder: (total) => `Order submitted! Total: ${total}`,
+        footer: 'SneakerVault © 2026 — All rights reserved. Every product is authentic.',
+        styleCode: 'Style Code',
+        sizeUS: 'US Size',
+        sizeEUR: 'EUR Size',
+        brand: 'Brand',
+        type: 'Type',
+        gender: 'Gender',
+        genderDisplay: { 'Férfi': 'Men', 'Női': 'Women', 'GS': 'GS/Youth' }
+    }
+};
+
+function t(key) { return i18n[currentLang][key]; }
+function displayGender(g) { return t('genderDisplay')[g] || g; }
+
+// ====== IMAGE MAP ======
+const imageMap = {
+    "554725-201": "https://sneakerbardetroit.com/wp-content/uploads/2021/12/Air-Jordan-1-Mid-GS-554725-201-Release-Date-4.jpeg",
+    "BQ6472-121": "https://sneakerbardetroit.com/wp-content/uploads/2021/10/Air-Jordan-1-Mid-Coconut-Milk-BQ6472-121-Release-Date-4.jpeg",
+    "555112-401": "https://sneakerbardetroit.com/wp-content/uploads/2022/09/Air-Jordan-1-Mid-GS-Ice-Blue-555112-401-Release-Date-4.jpeg",
+    "DD1869-103": "https://sneakerbardetroit.com/wp-content/uploads/2021/04/Nike-Dunk-High-White-Black-DD1869-103-Release-Date-Price-4.jpg",
+    "CW1590-100": "https://www.nicekicks.com/files/2024/01/Nike-Dunk-Low-GS-Panda-CW1590-100-01.jpg",
+    "DH9765-003": "https://sneakerbardetroit.com/wp-content/uploads/2022/06/Nike-Dunk-Low-GS-DH9765-003-Release-Date-4.jpeg",
+    "GW1814": "https://modernnotoriety.com/wp-content/uploads/2022/05/adidas-Yeezy-700-V3-Fade-Carbon-GW1814-Release-Date.jpg",
+    "DD1503-120": "https://sneakerbardetroit.com/wp-content/uploads/2022/07/Nike-Dunk-Low-Medium-Olive-DD1503-120-Release-Date.jpeg",
+    "DD1391-100": "https://sneakerbardetroit.com/wp-content/uploads/2021/02/Nike-Dunk-Low-Panda-DD1391-100-Release-Date.jpeg",
+    "DN3706-401": "https://sneakerbardetroit.com/wp-content/uploads/2022/07/Air-Jordan-1-Mid-Blue-White-Red-DN3706-401-Release-Date-4.jpeg",
+    "DD1399-105": "https://sneakerbardetroit.com/wp-content/uploads/2022/01/Nike-Dunk-High-Panda-DD1399-105-WMNS-DD1869-103-Release-Date.jpg",
+    "DD1399-107": "https://sneakerbardetroit.com/wp-content/uploads/2021/11/Nike-Dunk-High-Cargo-Khaki-DD1399-107-Release-Date.jpeg",
+    "DC0774-602": "https://sneakerbardetroit.com/wp-content/uploads/2020/11/Air-Jordan-1-Low-Canyon-Rust-DC0774-602-Release-Date-4.jpg",
+    "DM1200-016": "https://sneakerbardetroit.com/wp-content/uploads/2022/03/Air-Jordan-1-Mid-Elephant-Toe-DM1200-016-Release-Date.jpeg",
+    "VN000D5INVY": "https://shop-authority.com/cdn/shop/files/VN000D5INVYB_1_jpg.webp?v=1746236023&width=1920",
+    "555088-603": "https://sneakerbardetroit.com/wp-content/uploads/2021/05/Air-Jordan-1-Light-Fusion-Red-555088-603-Release-Date-Price.jpg",
+    "555088-118": "https://sneakerbardetroit.com/wp-content/uploads/2020/11/Air-Jordan-1-Volt-Gold-555088-118-Release-Date-Price-4.jpg",
+    "DC7294-103": "https://sneakerbardetroit.com/wp-content/uploads/2021/08/Air-Jordan-1-Mid-White-Green-Grey-DC7294-103-Release-Date-4.jpg",
+    "553558-612": "https://sneakerbardetroit.com/wp-content/uploads/2021/07/Air-Jordan-1-Low-Bred-Toe-553558-612-Release-Date-4.jpg",
+    "554724-096": "https://sneakerbardetroit.com/wp-content/uploads/2021/07/Air-Jordan-1-Mid-Black-Grey-Red-554724-096-Release-Date.jpg",
+    "DC0774-114": "https://sneakerbardetroit.com/wp-content/uploads/2021/12/Air-Jordan-1-Low-Marina-Blue-DC0774-114-Release-Date-4.jpeg",
+    "DJ6188-003": "https://sneakerbardetroit.com/wp-content/uploads/2022/08/Nike-Dunk-Low-Grey-White-DJ6188-003-Release-Date-4.jpeg",
+    "398614-126": "https://sneakerbardetroit.com/wp-content/uploads/2025/05/air-jordan-3-cardinal-red-2022.webp",
+    "BQ6472-115": "https://sneakerbardetroit.com/wp-content/uploads/2022/08/Air-Jordan-1-Mid-Grey-Sail-WMNS-BQ6472-115-Release-Date-4.jpeg",
+    "DB2179-105": "https://cdn.sanity.io/images/pu5wtzfc/production/69a71afcb663138eed15f92e99a7be649126aa22-1200x1200.jpg",
+    "553560-701": "https://sneakerbardetroit.com/wp-content/uploads/2022/08/Air-Jordan-1-Low-Taxi-553558-701-Release-Date-4.jpeg",
+    "DD1503-116": "https://sneakerbardetroit.com/wp-content/uploads/2021/10/Nike-Dunk-Low-Light-Violet-DD1503-116-Release-Date-4.jpeg",
+    "554725-077": "https://static.sneakerjagers.com/products/660x660/187423.jpg"
+};
+
+// ====== SHOE DATA ======
+const shoes = [
+    { id: 1, name: "Air Jordan 1 Mid", variant: "GS", color: "White Onyx/Light Curry-White", styleCode: "554725-201", sizeUS: "4Y", sizeEUR: 36, brand: "Jordan", type: "Mid", gender: "GS", price: 63550, priceEUR: 155 },
+    { id: 2, name: "WMNS Air Jordan 1 Mid", variant: "", color: "Coconut Milk/Black", styleCode: "BQ6472-121", sizeUS: "6W", sizeEUR: 36.5, brand: "Jordan", type: "Mid", gender: "Női", price: 61090, priceEUR: 149 },
+    { id: 3, name: "Air Jordan 1 Mid", variant: "GS", color: "Ice Blue/Black-Sail-White", styleCode: "555112-401", sizeUS: "5.5Y", sizeEUR: 38, brand: "Jordan", type: "Mid", gender: "GS", price: 61090, priceEUR: 149 },
+    { id: 4, name: "W Nike Dunk High", variant: "", color: "White/Black-University Red", styleCode: "DD1869-103", sizeUS: "7.5W", sizeEUR: 38.5, brand: "Nike", type: "High", gender: "Női", price: 47150, priceEUR: 115 },
+    { id: 5, name: "Nike Dunk Low", variant: "GS", color: "White/Black-White", styleCode: "CW1590-100", sizeUS: "4.5Y", sizeEUR: 36.5, brand: "Nike", type: "Low", gender: "GS", price: 44690, priceEUR: 109 },
+    { id: 6, name: "Nike Dunk Low", variant: "GS", color: "Phantom/Black-Safety Orange", styleCode: "DH9765-003", sizeUS: "4.5Y", sizeEUR: 36.5, brand: "Nike", type: "Low", gender: "GS", price: 59450, priceEUR: 145 },
+    { id: 7, name: "W Nike Dunk High", variant: "", color: "White/Black-University Red", styleCode: "DD1869-103", sizeUS: "8.5W", sizeEUR: 40, brand: "Nike", type: "High", gender: "Női", price: 47150, priceEUR: 115 },
+    { id: 8, name: "Adidas YZY 700 V3", variant: "", color: "Fadcar", styleCode: "GW1814", sizeUS: "4.5", sizeEUR: 36.7, brand: "Adidas", type: "Low", gender: "Férfi", price: 41000, priceEUR: 100 },
+    { id: 9, name: "W Nike Dunk Low", variant: "", color: "White/Medium Olive-White", styleCode: "DD1503-120", sizeUS: "9W", sizeEUR: 40.5, brand: "Nike", type: "Low", gender: "Női", price: 63550, priceEUR: 155 },
+    { id: 10, name: "Nike Dunk Low Retro", variant: "", color: "White/Black-White", styleCode: "DD1391-100", sizeUS: "10.5", sizeEUR: 44.5, brand: "Nike", type: "Low", gender: "Férfi", price: 52890, priceEUR: 129 },
+    { id: 11, name: "Air Jordan 1 Mid SE", variant: "", color: "French Blue/Fire Red-White", styleCode: "DN3706-401", sizeUS: "11", sizeEUR: 45, brand: "Jordan", type: "Mid", gender: "Férfi", price: 38950, priceEUR: 95 },
+    { id: 12, name: "Nike Dunk Hi Retro", variant: "", color: "White/Black-Total Orange", styleCode: "DD1399-105", sizeUS: "11.5M", sizeEUR: 45.5, brand: "Nike", type: "High", gender: "Férfi", price: 73800, priceEUR: 180 },
+    { id: 13, name: "Nike Dunk Hi Retro", variant: "", color: "White/Cargo Khaki", styleCode: "DD1399-107", sizeUS: "10.5M", sizeEUR: 44.5, brand: "Nike", type: "High", gender: "Férfi", price: 73390, priceEUR: 179 },
+    { id: 14, name: "WMNS Air Jordan 1 Low", variant: "", color: "Canyon Rust/Black-Purple Smoke", styleCode: "DC0774-602", sizeUS: "8W", sizeEUR: 39, brand: "Jordan", type: "Low", gender: "Női", price: 82000, priceEUR: 200 },
+    { id: 15, name: "Air Jordan 1 Mid SE", variant: "", color: "Black/University Red-White", styleCode: "DM1200-016", sizeUS: "10.5", sizeEUR: 44.5, brand: "Jordan", type: "Mid", gender: "Férfi", price: 34850, priceEUR: 85 },
+    { id: 16, name: "WMNS Air Jordan 1 Mid", variant: "", color: "Coconut Milk/Black", styleCode: "BQ6472-121", sizeUS: "6W", sizeEUR: 36.5, brand: "Jordan", type: "Mid", gender: "Női", price: 61090, priceEUR: 149 },
+    { id: 17, name: "Vans SK8-Hi", variant: "", color: "Navy", styleCode: "VN000D5INVY", sizeUS: "10", sizeEUR: 43, brand: "Vans", type: "High", gender: "Férfi", price: 32800, priceEUR: 80 },
+    { id: 18, name: "Air Jordan 1 Retro High OG", variant: "", color: "Lt Fusion Red/Black-White", styleCode: "555088-603", sizeUS: "8.5", sizeEUR: 42, brand: "Jordan", type: "High", gender: "Férfi", price: 30750, priceEUR: 75 },
+    { id: 19, name: "Air Jordan 1 Retro High OG", variant: "", color: "White/Black-Volt", styleCode: "555088-118", sizeUS: "8.5", sizeEUR: 42, brand: "Jordan", type: "High", gender: "Férfi", price: 63550, priceEUR: 155 },
+    { id: 20, name: "Air Jordan 1 Mid SE", variant: "", color: "White/Pine Green-Lt Smoke Grey", styleCode: "DC7294-103", sizeUS: "10.5", sizeEUR: 44.5, brand: "Jordan", type: "Mid", gender: "Férfi", price: 34850, priceEUR: 85 },
+    { id: 21, name: "Air Jordan 1 Low", variant: "", color: "Gym Red/White-Black", styleCode: "553558-612", sizeUS: "7.5", sizeEUR: 40.5, brand: "Jordan", type: "Low", gender: "Férfi", price: 32800, priceEUR: 80 },
+    { id: 22, name: "Air Jordan 1 Mid", variant: "", color: "Black/Gym Red-Particle Grey", styleCode: "554724-096", sizeUS: "11", sizeEUR: 45, brand: "Jordan", type: "Mid", gender: "Férfi", price: 41000, priceEUR: 100 },
+    { id: 23, name: "W Nike Dunk High", variant: "", color: "White/Black-University Red", styleCode: "DD1869-103", sizeUS: "7.5W", sizeEUR: 38.5, brand: "Nike", type: "High", gender: "Női", price: 47150, priceEUR: 115 },
+    { id: 24, name: "WMNS Air Jordan 1 Low", variant: "", color: "White/DK Marina Blue-White", styleCode: "DC0774-114", sizeUS: "8W", sizeEUR: 39, brand: "Jordan", type: "Low", gender: "Női", price: 82000, priceEUR: 200 },
+    { id: 25, name: "Nike Dunk Low Retro", variant: "", color: "Wolf Grey/White-Wolf Grey", styleCode: "DJ6188-003", sizeUS: "9", sizeEUR: 42.5, brand: "Nike", type: "Low", gender: "Férfi", price: 89790, priceEUR: 219 },
+    { id: 26, name: "WMNS Air Jordan 1 Mid", variant: "", color: "Coconut Milk/Black", styleCode: "BQ6472-121", sizeUS: "6W", sizeEUR: 36.5, brand: "Jordan", type: "Mid", gender: "Női", price: 61090, priceEUR: 149 },
+    { id: 27, name: "Air Jordan 3 Retro", variant: "GS", color: "White/Light Curry-Cardinal Red", styleCode: "398614-126", sizeUS: "7Y", sizeEUR: 40, brand: "Jordan", type: "Mid", gender: "GS", price: 63550, priceEUR: 155 },
+    { id: 28, name: "WMNS Air Jordan 1 Mid", variant: "", color: "Sail/Stealth-White", styleCode: "BQ6472-115", sizeUS: "6.5W", sizeEUR: 37.5, brand: "Jordan", type: "Mid", gender: "Női", price: 67650, priceEUR: 165 },
+    { id: 29, name: "Nike Dunk High", variant: "GS", color: "White/Cargo Khaki", styleCode: "DB2179-105", sizeUS: "5Y", sizeEUR: 37.5, brand: "Nike", type: "High", gender: "GS", price: 44690, priceEUR: 109 },
+    { id: 30, name: "Air Jordan 1 Low", variant: "GS", color: "Taxi/Black-White", styleCode: "553560-701", sizeUS: "5Y", sizeEUR: 37.5, brand: "Jordan", type: "Low", gender: "GS", price: 69290, priceEUR: 169 },
+    { id: 31, name: "W Nike Dunk Low", variant: "", color: "White/Venice", styleCode: "DD1503-116", sizeUS: "7W", sizeEUR: 38, brand: "Nike", type: "Low", gender: "Női", price: 84050, priceEUR: 205 },
+    { id: 32, name: "Air Jordan 1 Mid", variant: "GS", color: "Black/Hyper Royal-White", styleCode: "554725-077", sizeUS: "6.5Y", sizeEUR: 39, brand: "Jordan", type: "Mid", gender: "GS", price: 63550, priceEUR: 155 },
+    { id: 33, name: "Air Jordan 1 Mid SE", variant: "", color: "French Blue/Fire Red-White", styleCode: "DN3706-401", sizeUS: "10", sizeEUR: 44, brand: "Jordan", type: "Mid", gender: "Férfi", price: 38950, priceEUR: 95 },
+    { id: 34, name: "Air Jordan 1 Mid", variant: "", color: "Black/Gym Red-Particle Grey", styleCode: "554724-096", sizeUS: "10.5", sizeEUR: 44.5, brand: "Jordan", type: "Mid", gender: "Férfi", price: 41000, priceEUR: 100 },
+    { id: 35, name: "W Nike Dunk Low", variant: "", color: "White/Venice", styleCode: "DD1503-116", sizeUS: "7W", sizeEUR: 38, brand: "Nike", type: "Low", gender: "Női", price: 84050, priceEUR: 205 },
+];
+
+function getImageUrl(shoe) {
+    return imageMap[shoe.styleCode] || '';
+}
+
+// Apply admin price overrides from localStorage
+(function applyPriceOverrides() {
+    const overrides = JSON.parse(localStorage.getItem('sv-price-overrides') || '{}');
+    shoes.forEach(shoe => {
+        const ov = overrides[shoe.id];
+        if (ov) {
+            if (ov.price !== undefined) shoe.price = ov.price;
+            if (ov.priceEUR !== undefined) shoe.priceEUR = ov.priceEUR;
+        }
+    });
+})();
+
+// ====== STATE ======
+let currentTheme = localStorage.getItem('sv-theme') || 'dark';
+let currentLang = localStorage.getItem('sv-lang') || 'hu';
+let currentCurrency = localStorage.getItem('sv-currency') || 'HUF';
+let activeFilters = { brand: 'all', type: 'all', gender: 'all', size: null };
+let searchQuery = '';
+let sortBy = 'name';
+let cart = [];
+
+const allSizes = [...new Set(shoes.map(s => s.sizeEUR))].sort((a, b) => a - b);
+
+// ====== PRICE FORMATTING ======
+function formatPrice(shoe) {
+    if (currentCurrency === 'EUR') {
+        return `<span class="currency">€ </span>${shoe.priceEUR}`;
+    }
+    return `<span class="currency">Ft </span>${shoe.price.toLocaleString('hu-HU')}`;
+}
+
+function formatPriceModal(shoe) {
+    if (currentCurrency === 'EUR') {
+        return `<span style="font-size:18px">€</span> ${shoe.priceEUR}`;
+    }
+    return `<span style="font-size:18px">Ft</span> ${shoe.price.toLocaleString('hu-HU')}`;
+}
+
+function formatPriceCart(shoe) {
+    if (currentCurrency === 'EUR') return `€${shoe.priceEUR}`;
+    return `${shoe.price.toLocaleString('hu-HU')} Ft`;
+}
+
+function formatTotal(items) {
+    if (currentCurrency === 'EUR') {
+        const total = items.reduce((sum, item) => sum + item.priceEUR, 0);
+        return `€${total}`;
+    }
+    const total = items.reduce((sum, item) => sum + item.price, 0);
+    return `${total.toLocaleString('hu-HU')} Ft`;
+}
+
+// ====== THEME ======
+function applyTheme(theme) {
+    currentTheme = theme;
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('sv-theme', theme);
+    updateToggleUI('themeToggle', theme);
+}
+
+// ====== LANG ======
+function applyLang(lang) {
+    currentLang = lang;
+    document.documentElement.lang = lang === 'hu' ? 'hu' : 'en';
+    document.title = lang === 'hu' ? 'SneakerVault - Premium Cipő Áruház' : 'SneakerVault - Premium Shoe Store';
+    localStorage.setItem('sv-lang', lang);
+    updateToggleUI('langToggle', lang);
+    refreshUI();
+}
+
+// ====== CURRENCY ======
+function applyCurrency(curr) {
+    currentCurrency = curr;
+    localStorage.setItem('sv-currency', curr);
+    updateToggleUI('currToggle', curr);
+    refreshUI();
+}
+
+// ====== TOGGLE UI HELPER ======
+function updateToggleUI(groupId, activeVal) {
+    document.querySelectorAll(`#${groupId} .toggle-opt`).forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.val === activeVal);
+    });
+}
+
+// ====== REFRESH ALL UI TEXT ======
+function refreshUI() {
+    // Search placeholder
+    document.getElementById('searchInput').placeholder = t('searchPlaceholder');
+
+    // Hero
+    document.getElementById('heroTitle').textContent = t('heroTitle');
+    document.getElementById('heroDesc').textContent = t('heroDesc');
+    document.getElementById('statProducts').textContent = t('statProducts');
+    document.getElementById('statBrands').textContent = t('statBrands');
+    document.getElementById('statOriginal').textContent = t('statOriginal');
+
+    // Footer
+    document.getElementById('footerText').textContent = t('footer');
+
+    // Cart drawer
+    document.getElementById('cartTitle').textContent = t('cart');
+    document.getElementById('cartTotalLabel').textContent = t('total');
+    document.getElementById('checkoutBtn').textContent = t('checkout');
+
+    // Sort select
+    renderSortSelect();
+
+    // Filters
+    renderFilterRow();
+    renderSizeFilters();
+
+    // Products & cart
+    renderProducts();
+    updateCartUI();
+}
+
+// ====== RENDER FILTERS ======
+function renderFilterRow() {
+    const genderMap = { 'Férfi': t('men'), 'Női': t('women'), 'GS': t('gsYouth') };
+    const row = document.getElementById('filterRow');
+    row.innerHTML = `
+        <span class="filter-label">${t('brandLabel')}</span>
+        <div class="filter-group" id="brandFilters">
+            <button class="filter-btn ${activeFilters.brand === 'all' ? 'active' : ''}" data-brand="all">${t('all')}</button>
+            <button class="filter-btn ${activeFilters.brand === 'Jordan' ? 'active' : ''}" data-brand="Jordan">Jordan</button>
+            <button class="filter-btn ${activeFilters.brand === 'Nike' ? 'active' : ''}" data-brand="Nike">Nike</button>
+            <button class="filter-btn ${activeFilters.brand === 'Adidas' ? 'active' : ''}" data-brand="Adidas">Adidas</button>
+            <button class="filter-btn ${activeFilters.brand === 'Vans' ? 'active' : ''}" data-brand="Vans">Vans</button>
+        </div>
+        <div class="filter-divider"></div>
+        <span class="filter-label">${t('typeLabel')}</span>
+        <div class="filter-group" id="typeFilters">
+            <button class="filter-btn ${activeFilters.type === 'all' ? 'active' : ''}" data-type="all">${t('all')}</button>
+            <button class="filter-btn ${activeFilters.type === 'High' ? 'active' : ''}" data-type="High">High</button>
+            <button class="filter-btn ${activeFilters.type === 'Mid' ? 'active' : ''}" data-type="Mid">Mid</button>
+            <button class="filter-btn ${activeFilters.type === 'Low' ? 'active' : ''}" data-type="Low">Low</button>
+        </div>
+        <div class="filter-divider"></div>
+        <span class="filter-label">${t('genderLabel')}</span>
+        <div class="filter-group" id="genderFilters">
+            <button class="filter-btn ${activeFilters.gender === 'all' ? 'active' : ''}" data-gender="all">${t('all')}</button>
+            <button class="filter-btn ${activeFilters.gender === 'Férfi' ? 'active' : ''}" data-gender="Férfi">${genderMap['Férfi']}</button>
+            <button class="filter-btn ${activeFilters.gender === 'Női' ? 'active' : ''}" data-gender="Női">${genderMap['Női']}</button>
+            <button class="filter-btn ${activeFilters.gender === 'GS' ? 'active' : ''}" data-gender="GS">${genderMap['GS']}</button>
+        </div>
+    `;
+
+    // Re-attach event listeners
+    document.querySelectorAll('#brandFilters .filter-btn').forEach(btn => {
+        btn.onclick = () => { activeFilters.brand = btn.dataset.brand; renderFilterRow(); renderProducts(); };
+    });
+    document.querySelectorAll('#typeFilters .filter-btn').forEach(btn => {
+        btn.onclick = () => { activeFilters.type = btn.dataset.type; renderFilterRow(); renderProducts(); };
+    });
+    document.querySelectorAll('#genderFilters .filter-btn').forEach(btn => {
+        btn.onclick = () => { activeFilters.gender = btn.dataset.gender; renderFilterRow(); renderProducts(); };
+    });
+}
+
+function renderSortSelect() {
+    const sel = document.getElementById('sortSelect');
+    sel.innerHTML = `
+        <option value="name">${t('sortName')}</option>
+        <option value="price-asc">${t('sortPriceAsc')}</option>
+        <option value="price-desc">${t('sortPriceDesc')}</option>
+        <option value="size-asc">${t('sortSizeAsc')}</option>
+        <option value="size-desc">${t('sortSizeDesc')}</option>
+    `;
+    sel.value = sortBy;
+}
+
+function renderSizeFilters() {
+    const container = document.getElementById('sizeFilters');
+    container.innerHTML = `<span class="filter-label" style="margin-right:4px">${t('sizeLabel')}</span>`;
+    allSizes.forEach(size => {
+        const btn = document.createElement('button');
+        btn.className = 'size-btn' + (activeFilters.size === size ? ' active' : '');
+        btn.textContent = size;
+        btn.dataset.size = size;
+        btn.onclick = () => {
+            activeFilters.size = activeFilters.size === size ? null : size;
+            renderSizeFilters();
+            renderProducts();
+        };
+        container.appendChild(btn);
+    });
+}
+
+// ====== INIT ======
+function init() {
+    applyTheme(currentTheme);
+    updateToggleUI('langToggle', currentLang);
+    updateToggleUI('currToggle', currentCurrency);
+
+    setupSettingsListeners();
+    setupEventListeners();
+    refreshUI();
+}
+
+function setupSettingsListeners() {
+    document.querySelectorAll('#themeToggle .toggle-opt').forEach(btn => {
+        btn.onclick = () => applyTheme(btn.dataset.val);
+    });
+    document.querySelectorAll('#langToggle .toggle-opt').forEach(btn => {
+        btn.onclick = () => applyLang(btn.dataset.val);
+    });
+    document.querySelectorAll('#currToggle .toggle-opt').forEach(btn => {
+        btn.onclick = () => applyCurrency(btn.dataset.val);
+    });
+}
+
+function setupEventListeners() {
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        searchQuery = e.target.value.toLowerCase();
+        renderProducts();
+    });
+
+    document.getElementById('sortSelect').addEventListener('change', (e) => {
+        sortBy = e.target.value;
+        renderProducts();
+    });
+
+    document.getElementById('productModal').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closeModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') { closeModal(); if (document.getElementById('cartDrawer').classList.contains('open')) toggleCart(); }
+    });
+}
+
+function getFilteredProducts() {
+    let filtered = shoes.filter(shoe => {
+        if (activeFilters.brand !== 'all' && shoe.brand !== activeFilters.brand) return false;
+        if (activeFilters.type !== 'all' && shoe.type !== activeFilters.type) return false;
+        if (activeFilters.gender !== 'all' && shoe.gender !== activeFilters.gender) return false;
+        if (activeFilters.size !== null && shoe.sizeEUR !== activeFilters.size) return false;
+        if (searchQuery) {
+            const haystack = `${shoe.name} ${shoe.color} ${shoe.styleCode} ${shoe.sizeUS} ${shoe.sizeEUR} ${shoe.brand} ${shoe.type} ${shoe.gender}`.toLowerCase();
+            return haystack.includes(searchQuery);
+        }
+        return true;
+    });
+
+    switch (sortBy) {
+        case 'price-asc': filtered.sort((a, b) => currentCurrency === 'EUR' ? a.priceEUR - b.priceEUR : a.price - b.price); break;
+        case 'price-desc': filtered.sort((a, b) => currentCurrency === 'EUR' ? b.priceEUR - a.priceEUR : b.price - a.price); break;
+        case 'size-asc': filtered.sort((a, b) => a.sizeEUR - b.sizeEUR); break;
+        case 'size-desc': filtered.sort((a, b) => b.sizeEUR - a.sizeEUR); break;
+        default: filtered.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    return filtered;
+}
+
+function renderProducts() {
+    const grid = document.getElementById('productsGrid');
+    const products = getFilteredProducts();
+
+    document.getElementById('resultsCount').innerHTML = t('resultsCount')(products.length);
+
+    if (products.length === 0) {
+        grid.innerHTML = `<div class="no-results"><h3>${t('noResults')}</h3><p>${t('noResultsHint')}</p></div>`;
+        return;
+    }
+
+    grid.innerHTML = products.map(shoe => `
+        <div class="product-card" onclick="openModal(${shoe.id})">
+            <div class="product-image">
+                <img src="${getImageUrl(shoe)}" alt="${shoe.name} ${shoe.color}" loading="lazy">
+                <span class="brand-badge ${shoe.brand.toLowerCase()}">${shoe.brand}</span>
+                <span class="type-badge">${shoe.type}</span>
+            </div>
+            <div class="product-info">
+                <div class="product-name">${shoe.name}${shoe.variant ? ` (${shoe.variant})` : ''}</div>
+                <div class="product-colorway">${shoe.color}</div>
+                <div class="product-meta">
+                    <span class="meta-tag">US ${shoe.sizeUS}</span>
+                    <span class="meta-tag">EUR ${shoe.sizeEUR}</span>
+                    <span class="meta-tag">${displayGender(shoe.gender)}</span>
+                </div>
+                <div class="product-bottom">
+                    <div class="product-price">${formatPrice(shoe)}</div>
+                    <button class="add-to-cart" onclick="event.stopPropagation(); addToCart(${shoe.id})">${t('addToCart')}</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function openModal(id) {
+    const shoe = shoes.find(s => s.id === id);
+    if (!shoe) return;
+
+    const modal = document.getElementById('modalContent');
+    modal.innerHTML = `
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+        <div class="modal-image">
+            <img src="${getImageUrl(shoe)}" alt="${shoe.name} ${shoe.color}">
+        </div>
+        <div class="modal-body">
+            <h2>${shoe.name}${shoe.variant ? ` (${shoe.variant})` : ''}</h2>
+            <div class="colorway">${shoe.color}</div>
+            <div class="modal-details">
+                <div class="detail-item"><label>${t('styleCode')}</label><span>${shoe.styleCode}</span></div>
+                <div class="detail-item"><label>${t('sizeUS')}</label><span>${shoe.sizeUS}</span></div>
+                <div class="detail-item"><label>${t('sizeEUR')}</label><span>${shoe.sizeEUR}</span></div>
+                <div class="detail-item"><label>${t('brand')}</label><span>${shoe.brand}</span></div>
+                <div class="detail-item"><label>${t('type')}</label><span>${shoe.type}</span></div>
+                <div class="detail-item"><label>${t('gender')}</label><span>${displayGender(shoe.gender)}</span></div>
+            </div>
+            <div class="modal-price">${formatPriceModal(shoe)}</div>
+            <button class="modal-add-btn" onclick="addToCart(${shoe.id}); closeModal();">${t('addToCartFull')}</button>
+        </div>
+    `;
+
+    document.getElementById('productModal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    document.getElementById('productModal').classList.remove('show');
+    document.body.style.overflow = '';
+}
+
+function addToCart(id) {
+    const shoe = shoes.find(s => s.id === id);
+    if (!shoe) return;
+    cart.push({ ...shoe, cartId: Date.now() + Math.random() });
+    updateCartUI();
+    showToast(t('toastAdded')(shoe.name));
+}
+
+function removeFromCart(cartId) {
+    cart = cart.filter(item => item.cartId !== cartId);
+    updateCartUI();
+}
+
+function updateCartUI() {
+    const countEl = document.getElementById('cartCount');
+    const itemsEl = document.getElementById('cartItems');
+    const totalEl = document.getElementById('cartTotal');
+
+    countEl.textContent = cart.length;
+    countEl.style.display = cart.length > 0 ? 'flex' : 'none';
+
+    totalEl.textContent = formatTotal(cart);
+
+    if (cart.length === 0) {
+        itemsEl.innerHTML = `<div class="cart-empty">${t('emptyCart')}</div>`;
+        return;
+    }
+
+    itemsEl.innerHTML = cart.map(item => `
+        <div class="cart-item">
+            <div class="cart-item-img">
+                <img src="${getImageUrl(item)}" alt="${item.name}">
+            </div>
+            <div class="cart-item-info">
+                <h4>${item.name}</h4>
+                <div class="ci-size">EUR ${item.sizeEUR} | US ${item.sizeUS}</div>
+                <div class="ci-price">${formatPriceCart(item)}</div>
+            </div>
+            <button class="cart-item-remove" onclick="removeFromCart(${item.cartId})">&times;</button>
+        </div>
+    `).join('');
+}
+
+function toggleCart() {
+    document.getElementById('cartOverlay').classList.toggle('show');
+    document.getElementById('cartDrawer').classList.toggle('open');
+}
+
+function checkout() {
+    if (cart.length === 0) {
+        showToast(t('toastEmpty'));
+        return;
+    }
+    // Save order to localStorage
+    const orders = JSON.parse(localStorage.getItem('sv-orders') || '[]');
+    orders.push({
+        id: 'ord_' + Date.now(),
+        date: new Date().toISOString(),
+        currency: currentCurrency,
+        items: cart.map(item => ({
+            shoeId: item.id, name: item.name, color: item.color,
+            styleCode: item.styleCode, sizeEUR: item.sizeEUR, sizeUS: item.sizeUS,
+            price: item.price, priceEUR: item.priceEUR
+        })),
+        totalHUF: cart.reduce((s, i) => s + i.price, 0),
+        totalEUR: cart.reduce((s, i) => s + i.priceEUR, 0)
+    });
+    localStorage.setItem('sv-orders', JSON.stringify(orders));
+
+    showToast(t('toastOrder')(formatTotal(cart)));
+    cart = [];
+    updateCartUI();
+    toggleCart();
+}
+
+function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+init();
+</script>
+</body>
+</html>

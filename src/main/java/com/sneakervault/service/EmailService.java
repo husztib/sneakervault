@@ -1,0 +1,105 @@
+package com.sneakervault.service;
+
+import com.sneakervault.model.OrderItem;
+import com.sneakervault.model.ShoeOrder;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+
+@Service
+public class EmailService {
+
+    private static final Logger log = LoggerFactory.getLogger(EmailService.class);
+
+    private final JavaMailSender mailSender;
+
+    @Value("${sneakervault.mail.from:}")
+    private String fromAddress;
+
+    public EmailService(JavaMailSender mailSender) {
+        this.mailSender = mailSender;
+    }
+
+    @Async
+    public void sendOrderConfirmation(ShoeOrder order) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(fromAddress);
+            helper.setTo(order.getCustomerEmail());
+            helper.setSubject("SneakerVault - Order #" + order.getId() + " Confirmation");
+            helper.setText(buildHtml(order), true);
+
+            mailSender.send(message);
+            log.info("Order confirmation email sent for order #{} to {}", order.getId(), order.getCustomerEmail());
+        } catch (MessagingException e) {
+            log.error("Failed to send order confirmation email for order #{}: {}", order.getId(), e.getMessage());
+        } catch (Exception e) {
+            log.error("Unexpected error sending email for order #{}: {}", order.getId(), e.getMessage());
+        }
+    }
+
+    private String buildHtml(ShoeOrder order) {
+        StringBuilder items = new StringBuilder();
+        for (OrderItem item : order.getItems()) {
+            items.append("<tr>")
+                 .append("<td style=\"padding:10px 12px;border-bottom:1px solid #eee;\">").append(esc(item.getName())).append("</td>")
+                 .append("<td style=\"padding:10px 12px;border-bottom:1px solid #eee;text-align:center;\">EU ").append(item.getSizeEUR()).append("</td>")
+                 .append("<td style=\"padding:10px 12px;border-bottom:1px solid #eee;text-align:right;\">").append(formatPrice(item.getPrice(), item.getPriceEUR(), order.getCurrency())).append("</td>")
+                 .append("</tr>");
+        }
+
+        String address = esc(order.getCustomerZip()) + " " + esc(order.getCustomerCity()) + ", " + esc(order.getCustomerStreet());
+        String total = formatPrice(order.getTotalHUF(), order.getTotalEUR(), order.getCurrency());
+
+        return "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"></head><body style=\"margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f5f5;\">"
+             + "<div style=\"max-width:600px;margin:0 auto;background:#ffffff;\">"
+             + "<div style=\"background:#1a1a2e;padding:24px 32px;text-align:center;\">"
+             + "<h1 style=\"color:#fff;margin:0;font-size:24px;\">Sneaker<span style=\"color:#e94560;\">Vault</span></h1>"
+             + "</div>"
+             + "<div style=\"padding:32px;\">"
+             + "<h2 style=\"color:#1a1a2e;margin:0 0 8px;\">Order Confirmation</h2>"
+             + "<p style=\"color:#666;margin:0 0 24px;\">Order #" + order.getId() + "</p>"
+             + "<div style=\"background:#f8f9fa;border-radius:8px;padding:16px;margin-bottom:24px;\">"
+             + "<p style=\"margin:0 0 4px;font-weight:600;color:#1a1a2e;\">" + esc(order.getCustomerName()) + "</p>"
+             + "<p style=\"margin:0 0 4px;color:#666;font-size:14px;\">" + address + "</p>"
+             + "<p style=\"margin:0;color:#666;font-size:14px;\">" + esc(order.getCustomerPhone()) + "</p>"
+             + "</div>"
+             + "<table style=\"width:100%;border-collapse:collapse;margin-bottom:24px;\">"
+             + "<thead><tr style=\"background:#f8f9fa;\">"
+             + "<th style=\"padding:10px 12px;text-align:left;font-size:12px;color:#666;text-transform:uppercase;\">Product</th>"
+             + "<th style=\"padding:10px 12px;text-align:center;font-size:12px;color:#666;text-transform:uppercase;\">Size</th>"
+             + "<th style=\"padding:10px 12px;text-align:right;font-size:12px;color:#666;text-transform:uppercase;\">Price</th>"
+             + "</tr></thead><tbody>"
+             + items
+             + "</tbody></table>"
+             + "<div style=\"text-align:right;padding:16px;background:#f8f9fa;border-radius:8px;\">"
+             + "<span style=\"font-size:14px;color:#666;\">Total: </span>"
+             + "<span style=\"font-size:20px;font-weight:800;color:#e94560;\">" + total + "</span>"
+             + "</div>"
+             + "</div>"
+             + "<div style=\"background:#f8f9fa;padding:16px 32px;text-align:center;color:#999;font-size:12px;\">"
+             + "SneakerVault &copy; 2026"
+             + "</div>"
+             + "</div></body></html>";
+    }
+
+    private String formatPrice(int huf, int eur, String currency) {
+        if ("EUR".equals(currency)) {
+            return "&euro;" + eur;
+        }
+        return String.format("%,d", huf).replace(',', ' ') + " Ft";
+    }
+
+    private String esc(String s) {
+        if (s == null) return "";
+        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
+    }
+}

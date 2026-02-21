@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="hu" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SneakerVault - Admin</title>
+    <style>
+        :root, [data-theme="dark"] {
+            --primary: #1a1a2e;
+            --accent: #e94560;
+            --accent-hover: #c73850;
+            --bg: #0f0f1a;
+            --card-bg: #16213e;
+            --card-hover: #1a2744;
+            --text: #eee;
+            --text-muted: #8892a4;
+            --border: #2a2a4a;
+            --success: #00d68f;
+            --badge-jordan: #c9302c;
+            --badge-nike: #f37021;
+            --badge-adidas: #1d1d1b;
+            --badge-vans: #c1272d;
+            --header-start: #1a1a2e;
+            --header-end: #16213e;
+            --overlay-subtle: rgba(255,255,255,0.04);
+            --overlay-light: rgba(255,255,255,0.06);
+            --overlay-medium: rgba(255,255,255,0.08);
+            --overlay-strong: rgba(255,255,255,0.12);
+            --shadow-card: rgba(0,0,0,0.3);
+            --badge-adidas-border: #555;
+            --scrollbar-thumb: #2a2a4a;
+            --scrollbar-hover: #8892a4;
+        }
+
+        [data-theme="light"] {
+            --primary: #ffffff;
+            --bg: #f0f2f5;
+            --card-bg: #ffffff;
+            --card-hover: #f8f9fa;
+            --text: #1a1a2e;
+            --text-muted: #6b7280;
+            --border: #dde1e7;
+            --header-start: #ffffff;
+            --header-end: #f5f6f8;
+            --overlay-subtle: rgba(0,0,0,0.02);
+            --overlay-light: rgba(0,0,0,0.04);
+            --overlay-medium: rgba(0,0,0,0.05);
+            --overlay-strong: rgba(0,0,0,0.08);
+            --shadow-card: rgba(0,0,0,0.08);
+            --badge-adidas: #333;
+            --badge-adidas-border: #888;
+            --scrollbar-thumb: #ccc;
+            --scrollbar-hover: #999;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--header-start) 0%, var(--header-end) 100%);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        .header-top {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .logo-area { display: flex; align-items: center; gap: 10px; }
+        .logo { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; white-space: nowrap; }
+        .logo span { color: var(--accent); }
+
+        .admin-badge {
+            background: var(--accent);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .header-actions { display: flex; align-items: center; gap: 10px; }
+        .settings-toggles { display: flex; gap: 6px; align-items: center; }
+
+        .toggle-group {
+            display: flex;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+
+        .toggle-opt {
+            padding: 6px 10px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.3px;
+        }
+
+        .toggle-opt:hover { color: var(--text); }
+        .toggle-opt.active { background: var(--accent); color: white; }
+
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .back-link:hover { border-color: var(--accent); color: var(--accent); }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 24px 20px; }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .section-title { font-size: 22px; font-weight: 800; }
+
+        .section-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+        .filter-input {
+            padding: 10px 14px;
+            background: var(--overlay-medium);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 14px;
+            outline: none;
+            min-width: 240px;
+            transition: all 0.3s;
+        }
+
+        .filter-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(233,69,96,0.15);
+        }
+
+        .filter-input::placeholder { color: var(--text-muted); }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+        .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-danger { background: transparent; border: 1px solid #e74c3c; color: #e74c3c; }
+        .btn-danger:hover { background: #e74c3c; color: white; }
+        .btn-sm { padding: 5px 10px; font-size: 11px; }
+        .btn-success { background: var(--success); color: #000; }
+        .btn-success:hover { filter: brightness(1.1); }
+
+        .table-wrap {
+            overflow-x: auto;
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            margin-bottom: 32px;
+        }
+
+        .admin-table { width: 100%; border-collapse: collapse; }
+
+        .admin-table th {
+            background: var(--overlay-light);
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+        }
+
+        .admin-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        .admin-table tbody tr { transition: background 0.15s; }
+        .admin-table tbody tr:hover td { background: var(--overlay-subtle); }
+        .admin-table tbody tr:last-child td { border-bottom: none; }
+
+        .admin-table tbody tr.modified-row td:first-child {
+            box-shadow: inset 3px 0 0 var(--accent);
+        }
+
+        .shoe-thumb { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; cursor: pointer; transition: opacity 0.2s; }
+        .shoe-thumb:hover { opacity: 0.7; }
+        .shoe-name-cell { max-width: 200px; }
+        .shoe-name-cell .name { font-weight: 700; font-size: 13px; line-height: 1.3; }
+        .shoe-name-cell .color { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+        .price-input {
+            width: 100px;
+            padding: 6px 10px;
+            background: var(--overlay-medium);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 600;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .price-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(233,69,96,0.15);
+        }
+
+        .price-input.modified {
+            border-color: var(--accent);
+            background: rgba(233,69,96,0.06);
+        }
+
+        .row-actions { display: flex; gap: 4px; }
+
+        .modified-indicator {
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--accent);
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px 20px;
+            transition: border-color 0.2s;
+        }
+
+        .stat-card:hover { border-color: rgba(233,69,96,0.3); }
+        .stat-card .stat-value { font-size: 26px; font-weight: 800; color: var(--accent); margin-bottom: 4px; }
+        .stat-card .stat-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+
+        .order-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+
+        .order-card:hover { border-color: rgba(233,69,96,0.2); }
+
+        .order-header {
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            flex-wrap: wrap;
+            transition: background 0.15s;
+        }
+
+        .order-header:hover { background: var(--overlay-subtle); }
+
+        .order-id { font-family: monospace; font-size: 12px; color: var(--text-muted); min-width: 100px; }
+        .order-date { font-size: 13px; font-weight: 600; min-width: 150px; }
+
+        .order-item-count {
+            font-size: 12px;
+            color: var(--text-muted);
+            background: var(--overlay-light);
+            padding: 3px 10px;
+            border-radius: 12px;
+        }
+
+        .order-total-display { font-size: 15px; font-weight: 800; color: var(--accent); margin-left: auto; }
+        .expand-icon { font-size: 12px; color: var(--text-muted); transition: transform 0.2s; }
+        .expand-icon.open { transform: rotate(180deg); }
+
+        .order-detail {
+            display: none;
+            padding: 0 18px 14px;
+            border-top: 1px solid var(--border);
+        }
+
+        .order-detail.show { display: block; }
+
+        .order-detail-item {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--overlay-light);
+            font-size: 13px;
+        }
+
+        .order-detail-item:last-child { border-bottom: none; }
+        .order-detail-item img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; }
+        .order-detail-item .odi-info { flex: 1; }
+        .order-detail-item .odi-name { font-weight: 600; font-size: 13px; }
+        .order-detail-item .odi-meta { font-size: 11px; color: var(--text-muted); }
+        .order-detail-item .odi-price { font-weight: 700; color: var(--accent); white-space: nowrap; }
+
+        .no-orders { text-align: center; color: var(--text-muted); padding: 40px 20px; font-size: 14px; }
+
+        .sales-table { width: 100%; border-collapse: collapse; }
+
+        .sales-table th {
+            background: var(--overlay-light);
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .sales-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 13px; }
+        .sales-table tbody tr:hover td { background: var(--overlay-subtle); }
+        .sales-table tbody tr:last-child td { border-bottom: none; }
+
+        .tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover { color: var(--text); }
+        .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--success);
+            color: #000;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 400;
+            transition: transform 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .toast.show { transform: translateX(-50%) translateY(0); }
+
+        footer {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+            .header-top { flex-wrap: wrap; padding: 12px 16px; }
+            .settings-toggles { gap: 4px; }
+            .toggle-opt { padding: 5px 7px; font-size: 10px; }
+            .container { padding: 16px; }
+            .section-header { flex-direction: column; align-items: flex-start; }
+            .filter-input { min-width: 100%; }
+            .stats-row { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .stat-card { padding: 14px; }
+            .stat-card .stat-value { font-size: 20px; }
+            .table-wrap { background: transparent; border: none; border-radius: 0; }
+            .admin-table, .admin-table thead, .admin-table tbody, .admin-table th, .admin-table td, .admin-table tr {
+                display: block;
+            }
+            .admin-table thead { display: none; }
+            .admin-table tr {
+                background: var(--card-bg);
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                padding: 12px;
+                margin-bottom: 10px;
+            }
+            .admin-table td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border: none;
+                padding: 5px 0;
+            }
+            .admin-table td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                font-size: 11px;
+                color: var(--text-muted);
+                text-transform: uppercase;
+                min-width: 80px;
+            }
+            .admin-table td.img-cell::before { content: ''; min-width: 0; }
+            .price-input { width: 80px; }
+            .order-header { gap: 8px; }
+            .order-total-display { margin-left: 0; }
+        }
+
+        .edit-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .edit-modal-overlay.show { display: flex; }
+
+        .edit-modal {
+            background: var(--card-bg);
+            border-radius: 20px;
+            max-width: 750px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            position: relative;
+            padding: 24px;
+        }
+
+        .edit-modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: var(--overlay-strong);
+            border: none;
+            color: var(--text);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.2s;
+        }
+
+        .edit-modal-close:hover { background: var(--accent); color: white; }
+
+        .edit-modal h3 { font-size: 18px; font-weight: 700; margin-bottom: 16px; padding-right: 40px; }
+
+        .edit-section { margin-bottom: 20px; }
+        .edit-section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+
+        .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        .edit-field { display: flex; flex-direction: column; gap: 4px; }
+        .edit-field label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
+        .edit-field input, .edit-field select {
+            padding: 8px 12px;
+            background: var(--overlay-medium);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .edit-field input:focus, .edit-field select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(233,69,96,0.15);
+        }
+
+        .edit-price-row { display: flex; gap: 10px; align-items: flex-end; }
+        .edit-price-row .edit-field { flex: 1; }
+
+        .suspend-toggle { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+        .suspend-toggle input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+        .suspend-toggle label { font-size: 14px; font-weight: 600; cursor: pointer; }
+        .suspend-hint { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+        .suspended-badge {
+            display: inline-block;
+            background: #f39c12;
+            color: #000;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+
+        .edit-save-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+        .edit-save-btn:hover { background: var(--accent-hover); }
+
+        .img-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .img-grid-item {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid var(--border);
+            transition: border-color 0.2s;
+            aspect-ratio: 1;
+        }
+
+        .img-grid-item.is-primary { border-color: var(--accent); }
+
+        .img-grid-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .primary-badge {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            background: var(--accent);
+            color: white;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .img-grid-actions {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            gap: 2px;
+            background: rgba(0,0,0,0.6);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .img-grid-item:hover .img-grid-actions { opacity: 1; }
+
+        .img-grid-actions button {
+            flex: 1;
+            padding: 6px;
+            border: none;
+            background: transparent;
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .img-grid-actions button:hover { background: rgba(255,255,255,0.15); }
+        .img-grid-actions button.del-btn:hover { background: rgba(231,76,60,0.6); }
+
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .upload-zone:hover, .upload-zone.drag-over {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(233,69,96,0.04);
+        }
+
+        .sold-badge {
+            display: inline-block;
+            background: #e74c3c;
+            color: white;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+
+        .btn-delete-order {
+            padding: 4px 10px;
+            background: transparent;
+            border: 1px solid #e74c3c;
+            color: #e74c3c;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            margin-left: 8px;
+        }
+
+        .btn-delete-order:hover { background: #e74c3c; color: white; }
+
+        .upload-zone input { display: none; }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-top">
+        <div class="logo-area">
+            <div class="logo">Sneaker<span>Vault</span></div>
+            <span class="admin-badge">Admin</span>
+        </div>
+        <div class="header-actions">
+            <div class="settings-toggles">
+                <div class="toggle-group" id="themeToggle">
+                    <button class="toggle-opt active" data-val="dark">Dark</button>
+                    <button class="toggle-opt" data-val="light">Light</button>
+                </div>
+                <div class="toggle-group" id="langToggle">
+                    <button class="toggle-opt active" data-val="hu">HU</button>
+                    <button class="toggle-opt" data-val="en">EN</button>
+                </div>
+                <div class="toggle-group" id="currToggle">
+                    <button class="toggle-opt active" data-val="HUF">HUF</button>
+                    <button class="toggle-opt" data-val="EUR">EUR</button>
+                </div>
+            </div>
+            <a href="index.html" class="back-link" id="backLink"></a>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <section id="pricesSection">
+        <div class="section-header">
+            <h2 class="section-title" id="pricesSectionTitle"></h2>
+            <div class="section-actions">
+                <input type="text" class="filter-input" id="tableFilter">
+                <button class="btn btn-danger" id="resetAllBtn" onclick="resetAllPrices()"></button>
+            </div>
+        </div>
+        <div class="table-wrap">
+            <table class="admin-table">
+                <thead id="priceTableHead"></thead>
+                <tbody id="priceTableBody"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="salesSection">
+        <div class="section-header">
+            <h2 class="section-title" id="salesSectionTitle"></h2>
+            <div class="section-actions">
+                <button class="btn btn-danger" id="clearHistoryBtn" onclick="clearHistory()"></button>
+            </div>
+        </div>
+
+        <div class="stats-row" id="salesStats"></div>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="orders" id="tabOrders"></button>
+            <button class="tab-btn" data-tab="perShoe" id="tabPerShoe"></button>
+        </div>
+
+        <div class="tab-content active" id="tabContentOrders">
+            <div id="ordersContainer"></div>
+        </div>
+
+        <div class="tab-content" id="tabContentPerShoe">
+            <div class="table-wrap">
+                <table class="sales-table">
+                    <thead id="perShoeHead"></thead>
+                    <tbody id="perShoeBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
+
+<footer>
+    <p id="footerText"></p>
+</footer>
+
+<div class="edit-modal-overlay" id="editModalOverlay">
+    <div class="edit-modal">
+        <button class="edit-modal-close" onclick="closeEditModal()">&times;</button>
+        <h3 id="editModalTitle"></h3>
+
+        <div class="edit-section">
+            <div class="edit-section-title" id="editSectionImages"></div>
+            <div class="img-grid" id="imgGrid"></div>
+            <div class="upload-zone" id="uploadZone">
+                <div id="uploadHintText"></div>
+                <input type="file" id="uploadInput" accept="image/*">
+            </div>
+        </div>
+
+        <div class="edit-section">
+            <div class="edit-section-title" id="editSectionProduct"></div>
+            <div class="edit-grid">
+                <div class="edit-field">
+                    <label id="editLabelName"></label>
+                    <input type="text" id="editName">
+                </div>
+                <div class="edit-field">
+                    <label id="editLabelVariant"></label>
+                    <input type="text" id="editVariant">
+                </div>
+                <div class="edit-field">
+                    <label id="editLabelColor"></label>
+                    <input type="text" id="editColor">
+                </div>
+                <div class="edit-field">
+                    <label id="editLabelStyleCode"></label>
+                    <input type="text" id="editStyleCode">
+                </div>
+                <div class="edit-field">
+                    <label id="editLabelBrand"></label>
+                    <select id="editBrand">
+                        <option value="Jordan">Jordan</option>
+                        <option value="Nike">Nike</option>
+                        <option value="Adidas">Adidas</option>
+                        <option value="Vans">Vans</option>
+                    </select>
+                </div>
+                <div class="edit-field">
+                    <label id="editLabelType"></label>
+                    <select id="editType">
+                        <option value="High">High</option>
+                        <option value="Mid">Mid</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
+                <div class="edit-field">
+                    <label id="editLabelSizeUS"></label>
+                    <input type="text" id="editSizeUS">
+                </div>
+                <div class="edit-field">
+                    <label id="editLabelSizeEUR"></label>
+                    <input type="number" id="editSizeEUR" step="0.5">
+                </div>
+                <div class="edit-field">
+                    <label id="editLabelGender"></label>
+                    <select id="editGender">
+                        <option value="Férfi">Férfi</option>
+                        <option value="Női">Női</option>
+                        <option value="GS">GS</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="edit-section">
+            <div class="edit-section-title" id="editSectionPricing"></div>
+            <div class="edit-price-row">
+                <div class="edit-field">
+                    <label id="editLabelPriceHUF"></label>
+                    <input type="number" id="editPriceHUF" step="100" min="0">
+                </div>
+                <div class="edit-field">
+                    <label id="editLabelPriceEUR"></label>
+                    <input type="number" id="editPriceEUR" step="1" min="0">
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="resetEditPrices()" id="editResetPriceBtn"></button>
+            </div>
+        </div>
+
+        <div class="edit-section">
+            <div class="edit-section-title" id="editSectionStatus"></div>
+            <div class="suspend-toggle">
+                <input type="checkbox" id="editSuspended">
+                <label for="editSuspended" id="editLabelSuspend"></label>
+            </div>
+            <div class="suspend-hint" id="editSuspendHint"></div>
+        </div>
+
+        <button class="edit-save-btn" onclick="saveEditModal()" id="editSaveBtn"></button>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const i18n = {
+    hu: {
+        backToStore: '\u2190 Bolt',
+        productPrices: 'Termék Árak',
+        salesHistory: 'Értékesítési Előzmények',
+        filterPlaceholder: 'Szűrés név, kód alapján...',
+        resetAll: 'Összes ár visszaállítása',
+        resetConfirm: 'Biztosan visszaállítod az összes árat az alapértelmezettre?',
+        allPricesReset: 'Összes ár visszaállítva!',
+        clearHistory: 'Előzmények törlése',
+        clearHistoryConfirm: 'Biztosan törlöd az összes értékesítési előzményt?',
+        historyCleared: 'Előzmények törölve!',
+        priceSaved: 'Ár mentve!',
+        priceReset: 'Ár visszaállítva!',
+        image: 'Kép',
+        shoeName: 'Cipő',
+        styleCode: 'Kód',
+        size: 'Méret',
+        brand: 'Márka',
+        priceHUF: 'Ár (HUF)',
+        priceEUR: 'Ár (EUR)',
+        actions: 'Műveletek',
+        save: 'Mentés',
+        reset: 'Alapért.',
+        modified: 'módosított',
+        totalRevenue: 'Összes bevétel',
+        totalOrders: 'Rendelések',
+        totalItemsSold: 'Eladott termék',
+        ordersTab: 'Rendelések',
+        perShoeTab: 'Termékenkénti',
+        noOrders: 'Nincs értékesítési előzmény',
+        orderItems: 'tétel',
+        timesSold: 'Eladva',
+        revenue: 'Bevétel',
+        lastSold: 'Utolsó eladás',
+        manageImages: 'Képek kezelése',
+        upload: 'Feltöltés',
+        setPrimary: 'Elsődleges',
+        deleteImage: 'Törlés',
+        primaryLabel: 'ELSŐDLEGES',
+        deleteOrder: 'Törlés',
+        deleteOrderConfirm: 'Biztosan törlöd ezt a rendelést? A cipők visszakerülnek az elérhető termékek közé.',
+        orderDeleted: 'Rendelés törölve!',
+        soldBadge: 'ELADVA',
+        customerInfo: 'Vevő adatai',
+        customerName: 'Név',
+        customerEmail: 'Email',
+        customerPhone: 'Telefon',
+        customerAddress: 'Cím',
+        customerNotes: 'Megjegyzés',
+        uploadHint: 'Kattints vagy húzd ide a képet feltöltéshez',
+        imageUploaded: 'Kép feltöltve!',
+        imageDeleted: 'Kép törölve!',
+        primarySet: 'Elsődleges kép beállítva!',
+        edit: 'Szerkesztés',
+        editShoe: 'Cipő szerkesztése',
+        productInfo: 'Termék adatok',
+        pricing: 'Árazás',
+        statusLabel: 'Állapot',
+        images: 'Képek',
+        variant: 'Variáns',
+        colorLabel: 'Szín',
+        typeLabel: 'Típus',
+        sizeUS: 'US Méret',
+        sizeEUR: 'EU Méret',
+        genderLabel: 'Nem',
+        suspendSale: 'Eladás felfüggesztése',
+        suspendHint: 'Ha be van kapcsolva, a termék nem jelenik meg a boltban.',
+        suspendedBadge: 'FELFÜGGESZTVE',
+        shoeSaved: 'Cipő mentve!',
+        saveChanges: 'Változtatások mentése',
+        resetPrices: 'Ár visszaállítása',
+        footer: 'SneakerVault \u00a9 2026 \u2014 Admin Panel',
+        gender: { 'Férfi': 'Férfi', 'Női': 'Női', 'GS': 'GS/Youth' }
+    },
+    en: {
+        backToStore: '\u2190 Store',
+        productPrices: 'Product Prices',
+        salesHistory: 'Sales History',
+        filterPlaceholder: 'Filter by name, code...',
+        resetAll: 'Reset All Prices',
+        resetConfirm: 'Are you sure you want to reset all prices to defaults?',
+        allPricesReset: 'All prices reset!',
+        clearHistory: 'Clear History',
+        clearHistoryConfirm: 'Are you sure you want to clear all sales history?',
+        historyCleared: 'History cleared!',
+        priceSaved: 'Price saved!',
+        priceReset: 'Price reset!',
+        image: 'Image',
+        shoeName: 'Shoe',
+        styleCode: 'Code',
+        size: 'Size',
+        brand: 'Brand',
+        priceHUF: 'Price (HUF)',
+        priceEUR: 'Price (EUR)',
+        actions: 'Actions',
+        save: 'Save',
+        reset: 'Reset',
+        modified: 'modified',
+        totalRevenue: 'Total Revenue',
+        totalOrders: 'Orders',
+        totalItemsSold: 'Items Sold',
+        ordersTab: 'Orders',
+        perShoeTab: 'Per Product',
+        noOrders: 'No sales history yet',
+        orderItems: 'items',
+        timesSold: 'Sold',
+        revenue: 'Revenue',
+        lastSold: 'Last Sold',
+        manageImages: 'Manage Images',
+        upload: 'Upload',
+        setPrimary: 'Primary',
+        deleteImage: 'Delete',
+        primaryLabel: 'PRIMARY',
+        deleteOrder: 'Delete',
+        deleteOrderConfirm: 'Are you sure you want to delete this order? The shoes will become available again.',
+        orderDeleted: 'Order deleted!',
+        soldBadge: 'SOLD',
+        customerInfo: 'Customer Info',
+        customerName: 'Name',
+        customerEmail: 'Email',
+        customerPhone: 'Phone',
+        customerAddress: 'Address',
+        customerNotes: 'Notes',
+        uploadHint: 'Click or drag image here to upload',
+        imageUploaded: 'Image uploaded!',
+        imageDeleted: 'Image deleted!',
+        primarySet: 'Primary image set!',
+        edit: 'Edit',
+        editShoe: 'Edit Shoe',
+        productInfo: 'Product Info',
+        pricing: 'Pricing',
+        statusLabel: 'Status',
+        images: 'Images',
+        variant: 'Variant',
+        colorLabel: 'Color',
+        typeLabel: 'Type',
+        sizeUS: 'US Size',
+        sizeEUR: 'EU Size',
+        genderLabel: 'Gender',
+        suspendSale: 'Suspend Sale',
+        suspendHint: 'When enabled, this product will not appear in the store.',
+        suspendedBadge: 'SUSPENDED',
+        shoeSaved: 'Shoe saved!',
+        saveChanges: 'Save Changes',
+        resetPrices: 'Reset Prices',
+        footer: 'SneakerVault \u00a9 2026 \u2014 Admin Panel',
+        gender: { 'Férfi': 'Men', 'Női': 'Women', 'GS': 'GS/Youth' }
+    }
+};
+
+function t(key) { return i18n[currentLang][key]; }
+
+// ====== STATE ======
+let shoes = [];
+let currentTheme = localStorage.getItem('sv-theme') || 'dark';
+let currentLang = localStorage.getItem('sv-lang') || 'hu';
+let currentCurrency = localStorage.getItem('sv-currency') || 'HUF';
+let tableFilterQuery = '';
+
+// ====== LOAD DATA FROM API ======
+async function loadShoes() {
+    const res = await fetch('/api/shoes?includeSold=true');
+    shoes = await res.json();
+    renderPriceTable();
+}
+
+// ====== THEME / LANG / CURRENCY ======
+function applyTheme(theme) {
+    currentTheme = theme;
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('sv-theme', theme);
+    updateToggleUI('themeToggle', theme);
+}
+
+function applyLang(lang) {
+    currentLang = lang;
+    document.documentElement.lang = lang === 'hu' ? 'hu' : 'en';
+    localStorage.setItem('sv-lang', lang);
+    updateToggleUI('langToggle', lang);
+    refreshUI();
+}
+
+function applyCurrency(curr) {
+    currentCurrency = curr;
+    localStorage.setItem('sv-currency', curr);
+    updateToggleUI('currToggle', curr);
+    refreshUI();
+}
+
+function updateToggleUI(groupId, activeVal) {
+    document.querySelectorAll(`#${groupId} .toggle-opt`).forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.val === activeVal);
+    });
+}
+
+// ====== FORMAT HELPERS ======
+function fmtHUF(val) { return val.toLocaleString('hu-HU') + ' Ft'; }
+function fmtEUR(val) { return '\u20ac' + val; }
+function fmtPrice(huf, eur) {
+    return currentCurrency === 'EUR' ? fmtEUR(eur) : fmtHUF(huf);
+}
+
+function fmtDate(iso) {
+    const d = new Date(iso);
+    if (currentLang === 'hu') {
+        return d.toLocaleString('hu-HU', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+    return d.toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+// ====== PRICE TABLE ======
+function isModified(shoe) {
+    return shoe.price !== shoe.defaultPrice || shoe.priceEUR !== shoe.defaultPriceEUR;
+}
+
+function renderPriceTable() {
+    const head = document.getElementById('priceTableHead');
+    head.innerHTML = `<tr>
+        <th>${t('image')}</th>
+        <th>${t('shoeName')}</th>
+        <th>${t('styleCode')}</th>
+        <th>${t('size')}</th>
+        <th>${t('brand')}</th>
+        <th>${t('priceHUF')}</th>
+        <th>${t('priceEUR')}</th>
+        <th>${t('actions')}</th>
+    </tr>`;
+
+    const body = document.getElementById('priceTableBody');
+    const filtered = shoes.filter(shoe => {
+        if (!tableFilterQuery) return true;
+        const h = `${shoe.name} ${shoe.color} ${shoe.styleCode} ${shoe.brand} ${shoe.sizeEUR}`.toLowerCase();
+        return h.includes(tableFilterQuery);
+    });
+
+    body.innerHTML = filtered.map(shoe => {
+        const mod = isModified(shoe);
+        const suspBadge = shoe.suspended ? `<span class="suspended-badge">${t('suspendedBadge')}</span>` : '';
+        const soldBadge = shoe.sold ? `<span class="sold-badge">${t('soldBadge')}</span>` : '';
+        return `<tr class="${mod ? 'modified-row' : ''}" id="row-${shoe.id}">
+            <td class="img-cell" data-label=""><img class="shoe-thumb" src="${shoe.imageUrl || ''}" alt="" loading="lazy" onclick="event.stopPropagation(); openEditModal(${shoe.id})"></td>
+            <td data-label="${t('shoeName')}">
+                <div class="shoe-name-cell">
+                    <div class="name">${shoe.name}${shoe.variant ? ' (' + shoe.variant + ')' : ''}${mod ? '<span class="modified-indicator" title="' + t('modified') + '"></span>' : ''}${soldBadge}${suspBadge}</div>
+                    <div class="color">${shoe.color}</div>
+                </div>
+            </td>
+            <td data-label="${t('styleCode')}">${shoe.styleCode}</td>
+            <td data-label="${t('size')}">EU ${shoe.sizeEUR} / US ${shoe.sizeUS}</td>
+            <td data-label="${t('brand')}">${shoe.brand}</td>
+            <td data-label="${t('priceHUF')}">${fmtHUF(shoe.price)}</td>
+            <td data-label="${t('priceEUR')}">${fmtEUR(shoe.priceEUR)}</td>
+            <td data-label="${t('actions')}">
+                <div class="row-actions">
+                    <button class="btn btn-primary btn-sm" onclick="openEditModal(${shoe.id})">${t('edit')}</button>
+                </div>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+async function resetAllPrices() {
+    if (!confirm(t('resetConfirm'))) return;
+
+    const res = await fetch('/api/shoes/reset-prices', { method: 'POST' });
+
+    if (res.ok) {
+        shoes = await res.json();
+        renderPriceTable();
+        showToast(t('allPricesReset'));
+    }
+}
+
+// ====== SALES HISTORY ======
+async function loadSalesData() {
+    const [statsRes, ordersRes, perShoeRes] = await Promise.all([
+        fetch('/api/orders/stats'),
+        fetch('/api/orders'),
+        fetch('/api/orders/per-shoe')
+    ]);
+
+    const stats = await statsRes.json();
+    const orders = await ordersRes.json();
+    const perShoe = await perShoeRes.json();
+
+    renderSalesStats(stats);
+    renderOrders(orders);
+    renderPerShoeSales(perShoe);
+}
+
+function renderSalesStats(stats) {
+    document.getElementById('salesStats').innerHTML = `
+        <div class="stat-card">
+            <div class="stat-value">${currentCurrency === 'EUR' ? fmtEUR(stats.totalEUR) : fmtHUF(stats.totalHUF)}</div>
+            <div class="stat-label">${t('totalRevenue')}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">${stats.totalOrders}</div>
+            <div class="stat-label">${t('totalOrders')}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">${stats.totalItemsSold}</div>
+            <div class="stat-label">${t('totalItemsSold')}</div>
+        </div>
+    `;
+}
+
+function renderOrders(orders) {
+    const container = document.getElementById('ordersContainer');
+
+    if (orders.length === 0) {
+        container.innerHTML = `<div class="no-orders">${t('noOrders')}</div>`;
+        return;
+    }
+
+    container.innerHTML = orders.map(order => {
+        const hasCustomer = order.customerName;
+        const customerBadge = hasCustomer ? `<span style="font-size:12px;color:var(--text-muted);margin-left:4px;">\u2014 ${order.customerName}</span>` : '';
+        const customerBlock = hasCustomer ? `
+            <div style="background:var(--overlay-subtle);border-radius:10px;padding:14px 16px;margin:12px 0;">
+                <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">${t('customerInfo')}</div>
+                <div style="display:grid;grid-template-columns:100px 1fr;gap:6px 12px;font-size:13px;">
+                    <span style="color:var(--text-muted);font-weight:600;">${t('customerName')}</span><span>${order.customerName}</span>
+                    ${order.customerEmail ? `<span style="color:var(--text-muted);font-weight:600;">${t('customerEmail')}</span><span>${order.customerEmail}</span>` : ''}
+                    ${order.customerPhone ? `<span style="color:var(--text-muted);font-weight:600;">${t('customerPhone')}</span><span>${order.customerPhone}</span>` : ''}
+                    <span style="color:var(--text-muted);font-weight:600;">${t('customerAddress')}</span><span>${order.customerZip || ''} ${order.customerCity || ''}, ${order.customerStreet || ''}</span>
+                    ${order.customerNotes ? `<span style="color:var(--text-muted);font-weight:600;">${t('customerNotes')}</span><span>${order.customerNotes}</span>` : ''}
+                </div>
+            </div>` : '';
+
+        return `
+        <div class="order-card">
+            <div class="order-header" onclick="toggleOrder(${order.id})">
+                <div class="order-id">#${order.id}</div>
+                <div class="order-date">${fmtDate(order.orderDate)}${customerBadge}</div>
+                <div class="order-item-count">${order.items.length} ${t('orderItems')}</div>
+                <div class="order-total-display">${fmtPrice(order.totalHUF, order.totalEUR)}</div>
+                <button class="btn-delete-order" onclick="event.stopPropagation(); deleteOrder(${order.id})">${t('deleteOrder')}</button>
+                <span class="expand-icon" id="icon-${order.id}">&#9660;</span>
+            </div>
+            <div class="order-detail" id="detail-${order.id}">
+                ${customerBlock}
+                ${order.items.map(item => `
+                    <div class="order-detail-item">
+                        <img src="${item.imageUrl || ''}" alt="" loading="lazy">
+                        <div class="odi-info">
+                            <div class="odi-name">${item.name}</div>
+                            <div class="odi-meta">${item.styleCode} | EU ${item.sizeEUR} | US ${item.sizeUS}</div>
+                        </div>
+                        <div class="odi-price">${fmtPrice(item.price, item.priceEUR)}</div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function toggleOrder(orderId) {
+    const detail = document.getElementById('detail-' + orderId);
+    const icon = document.getElementById('icon-' + orderId);
+    detail.classList.toggle('show');
+    icon.classList.toggle('open');
+}
+
+function renderPerShoeSales(perShoe) {
+    document.getElementById('perShoeHead').innerHTML = `<tr>
+        <th>${t('shoeName')}</th>
+        <th>${t('styleCode')}</th>
+        <th>${t('timesSold')}</th>
+        <th>${t('revenue')}</th>
+        <th>${t('lastSold')}</th>
+    </tr>`;
+
+    const body = document.getElementById('perShoeBody');
+    if (perShoe.length === 0) {
+        body.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:30px">${t('noOrders')}</td></tr>`;
+        return;
+    }
+
+    body.innerHTML = perShoe.map(s => `<tr>
+        <td data-label="${t('shoeName')}">
+            <div class="shoe-name-cell">
+                <div class="name">${s.name}</div>
+                <div class="color">${s.color}</div>
+            </div>
+        </td>
+        <td data-label="${t('styleCode')}">${s.styleCode}</td>
+        <td data-label="${t('timesSold')}">${s.timesSold}x</td>
+        <td data-label="${t('revenue')}">${fmtPrice(s.totalHUF, s.totalEUR)}</td>
+        <td data-label="${t('lastSold')}">${fmtDate(s.lastDate)}</td>
+    </tr>`).join('');
+}
+
+async function deleteOrder(orderId) {
+    if (!confirm(t('deleteOrderConfirm'))) return;
+
+    const res = await fetch(`/api/orders/${orderId}`, { method: 'DELETE' });
+
+    if (res.ok) {
+        await loadSalesData();
+        await loadShoes();
+        showToast(t('orderDeleted'));
+    }
+}
+
+async function clearHistory() {
+    if (!confirm(t('clearHistoryConfirm'))) return;
+
+    const res = await fetch('/api/orders', { method: 'DELETE' });
+
+    if (res.ok) {
+        await loadSalesData();
+        await loadShoes();
+        showToast(t('historyCleared'));
+    }
+}
+
+// ====== TABS ======
+function setupTabs() {
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            const tabName = btn.dataset.tab;
+            document.getElementById('tabContent' + tabName.charAt(0).toUpperCase() + tabName.slice(1)).classList.add('active');
+        };
+    });
+}
+
+// ====== TOAST ======
+function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+// ====== REFRESH UI ======
+function refreshUI() {
+    document.getElementById('backLink').textContent = t('backToStore');
+    document.getElementById('pricesSectionTitle').textContent = t('productPrices');
+    document.getElementById('salesSectionTitle').textContent = t('salesHistory');
+    document.getElementById('tableFilter').placeholder = t('filterPlaceholder');
+    document.getElementById('resetAllBtn').textContent = t('resetAll');
+    document.getElementById('clearHistoryBtn').textContent = t('clearHistory');
+    document.getElementById('tabOrders').textContent = t('ordersTab');
+    document.getElementById('tabPerShoe').textContent = t('perShoeTab');
+    document.getElementById('footerText').textContent = t('footer');
+
+    renderPriceTable();
+    loadSalesData();
+}
+
+// ====== INIT ======
+function init() {
+    applyTheme(currentTheme);
+    updateToggleUI('langToggle', currentLang);
+    updateToggleUI('currToggle', currentCurrency);
+
+    document.querySelectorAll('#themeToggle .toggle-opt').forEach(btn => {
+        btn.onclick = () => applyTheme(btn.dataset.val);
+    });
+    document.querySelectorAll('#langToggle .toggle-opt').forEach(btn => {
+        btn.onclick = () => applyLang(btn.dataset.val);
+    });
+    document.querySelectorAll('#currToggle .toggle-opt').forEach(btn => {
+        btn.onclick = () => applyCurrency(btn.dataset.val);
+    });
+
+    document.getElementById('tableFilter').addEventListener('input', (e) => {
+        tableFilterQuery = e.target.value.toLowerCase();
+        renderPriceTable();
+    });
+
+    setupTabs();
+    loadShoes();
+    refreshUI();
+}
+
+// ====== EDIT MODAL ======
+let currentEditShoeId = null;
+
+async function openEditModal(shoeId) {
+    currentEditShoeId = shoeId;
+    const shoe = shoes.find(s => s.id === shoeId);
+    if (!shoe) return;
+
+    document.getElementById('editModalTitle').textContent = t('editShoe') + ' — ' + shoe.name;
+    document.getElementById('editSectionImages').textContent = t('images');
+    document.getElementById('editSectionProduct').textContent = t('productInfo');
+    document.getElementById('editSectionPricing').textContent = t('pricing');
+    document.getElementById('editSectionStatus').textContent = t('statusLabel');
+    document.getElementById('editLabelName').textContent = t('shoeName');
+    document.getElementById('editLabelVariant').textContent = t('variant');
+    document.getElementById('editLabelColor').textContent = t('colorLabel');
+    document.getElementById('editLabelStyleCode').textContent = t('styleCode');
+    document.getElementById('editLabelBrand').textContent = t('brand');
+    document.getElementById('editLabelType').textContent = t('typeLabel');
+    document.getElementById('editLabelSizeUS').textContent = t('sizeUS');
+    document.getElementById('editLabelSizeEUR').textContent = t('sizeEUR');
+    document.getElementById('editLabelGender').textContent = t('genderLabel');
+    document.getElementById('editLabelPriceHUF').textContent = t('priceHUF');
+    document.getElementById('editLabelPriceEUR').textContent = t('priceEUR');
+    document.getElementById('editResetPriceBtn').textContent = t('resetPrices');
+    document.getElementById('editLabelSuspend').textContent = t('suspendSale');
+    document.getElementById('editSuspendHint').textContent = t('suspendHint');
+    document.getElementById('editSaveBtn').textContent = t('saveChanges');
+    document.getElementById('uploadHintText').textContent = t('uploadHint');
+
+    document.getElementById('editName').value = shoe.name || '';
+    document.getElementById('editVariant').value = shoe.variant || '';
+    document.getElementById('editColor').value = shoe.color || '';
+    document.getElementById('editStyleCode').value = shoe.styleCode || '';
+    document.getElementById('editBrand').value = shoe.brand || '';
+    document.getElementById('editType').value = shoe.type || '';
+    document.getElementById('editSizeUS').value = shoe.sizeUS || '';
+    document.getElementById('editSizeEUR').value = shoe.sizeEUR || '';
+    document.getElementById('editGender').value = shoe.gender || '';
+    document.getElementById('editPriceHUF').value = shoe.price || 0;
+    document.getElementById('editPriceEUR').value = shoe.priceEUR || 0;
+    document.getElementById('editSuspended').checked = Boolean(shoe.suspended);
+
+    document.getElementById('editModalOverlay').classList.add('show');
+    await renderImgGrid(shoeId);
+}
+
+function closeEditModal() {
+    document.getElementById('editModalOverlay').classList.remove('show');
+    currentEditShoeId = null;
+}
+
+function resetEditPrices() {
+    const shoe = shoes.find(s => s.id === currentEditShoeId);
+    if (!shoe) return;
+    document.getElementById('editPriceHUF').value = shoe.defaultPrice;
+    document.getElementById('editPriceEUR').value = shoe.defaultPriceEUR;
+}
+
+async function saveEditModal() {
+    if (!currentEditShoeId) return;
+
+    const body = {
+        name: document.getElementById('editName').value,
+        variant: document.getElementById('editVariant').value,
+        color: document.getElementById('editColor').value,
+        styleCode: document.getElementById('editStyleCode').value,
+        brand: document.getElementById('editBrand').value,
+        type: document.getElementById('editType').value,
+        sizeUS: document.getElementById('editSizeUS').value,
+        sizeEUR: parseFloat(document.getElementById('editSizeEUR').value),
+        gender: document.getElementById('editGender').value,
+        price: parseInt(document.getElementById('editPriceHUF').value),
+        priceEUR: parseInt(document.getElementById('editPriceEUR').value),
+        suspended: document.getElementById('editSuspended').checked
+    };
+
+    const res = await fetch(`/api/shoes/${currentEditShoeId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+    });
+
+    if (res.ok) {
+        const updated = await res.json();
+        const idx = shoes.findIndex(s => s.id === currentEditShoeId);
+        if (idx >= 0) shoes[idx] = updated;
+        renderPriceTable();
+        closeEditModal();
+        showToast(t('shoeSaved'));
+    }
+}
+
+document.getElementById('editModalOverlay').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeEditModal();
+});
+
+async function renderImgGrid(shoeId) {
+    const res = await fetch(`/api/shoes/${shoeId}/images`);
+    const images = await res.json();
+    const grid = document.getElementById('imgGrid');
+
+    if (images.length === 0) {
+        grid.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:10px 0">No images</div>';
+        return;
+    }
+
+    grid.innerHTML = images.map(img => `
+        <div class="img-grid-item ${img.primaryImage ? 'is-primary' : ''}">
+            <img src="${img.imageUrl}" alt="" loading="lazy">
+            ${img.primaryImage ? '<span class="primary-badge">' + t('primaryLabel') + '</span>' : ''}
+            <div class="img-grid-actions">
+                ${!img.primaryImage ? '<button onclick="setImgPrimary(' + shoeId + ',' + img.id + ')">' + t('setPrimary') + '</button>' : ''}
+                <button class="del-btn" onclick="deleteImg(${shoeId},${img.id})">${t('deleteImage')}</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function uploadImg(shoeId, file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await fetch(`/api/shoes/${shoeId}/images`, {
+        method: 'POST',
+        body: formData
+    });
+
+    if (res.ok) {
+        await renderImgGrid(shoeId);
+        await loadShoes();
+        showToast(t('imageUploaded'));
+    }
+}
+
+async function deleteImg(shoeId, imgId) {
+    const res = await fetch(`/api/shoes/${shoeId}/images/${imgId}`, { method: 'DELETE' });
+    if (res.ok) {
+        await renderImgGrid(shoeId);
+        await loadShoes();
+        showToast(t('imageDeleted'));
+    }
+}
+
+async function setImgPrimary(shoeId, imgId) {
+    const res = await fetch(`/api/shoes/${shoeId}/images/${imgId}/primary`, { method: 'PUT' });
+    if (res.ok) {
+        await renderImgGrid(shoeId);
+        await loadShoes();
+        showToast(t('primarySet'));
+    }
+}
+
+// Upload zone setup
+const uploadZone = document.getElementById('uploadZone');
+const uploadInput = document.getElementById('uploadInput');
+
+uploadZone.addEventListener('click', () => uploadInput.click());
+
+uploadInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0 && currentEditShoeId) {
+        uploadImg(currentEditShoeId, e.target.files[0]);
+        e.target.value = '';
+    }
+});
+
+uploadZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadZone.classList.add('drag-over');
+});
+
+uploadZone.addEventListener('dragleave', () => {
+    uploadZone.classList.remove('drag-over');
+});
+
+uploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove('drag-over');
+    if (e.dataTransfer.files.length > 0 && currentEditShoeId) {
+        uploadImg(currentEditShoeId, e.dataTransfer.files[0]);
+    }
+});
+
+init();
+</script>
+</body>
+</html>

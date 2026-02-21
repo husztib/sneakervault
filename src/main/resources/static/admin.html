@@ -694,9 +694,86 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
+
+        .login-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-overlay.hidden { display: none; }
+
+        .login-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px 36px;
+            max-width: 380px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .login-box .logo { font-size: 28px; margin-bottom: 6px; }
+        .login-box .login-subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+
+        .login-box input {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--overlay-medium);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 15px;
+            outline: none;
+            transition: all 0.2s;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .login-box input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(233,69,96,0.15);
+        }
+
+        .login-box button {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .login-box button:hover { background: var(--accent-hover); }
+
+        .login-error {
+            color: #e74c3c;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 10px;
+            display: none;
+        }
     </style>
 </head>
 <body>
+
+<div class="login-overlay" id="loginOverlay">
+    <div class="login-box">
+        <div class="logo">Sneaker<span>Vault</span></div>
+        <div class="login-subtitle">Admin Panel</div>
+        <input type="password" id="loginPassword" placeholder="Jelszó / Password" autofocus>
+        <button onclick="doLogin()" id="loginBtn">Belépés / Login</button>
+        <div class="login-error" id="loginError">Hibás jelszó / Wrong password</div>
+    </div>
+</div>
 
 <header>
     <div class="header-top">
@@ -1563,7 +1640,42 @@ uploadZone.addEventListener('drop', (e) => {
     }
 });
 
-init();
+// ====== LOGIN ======
+async function doLogin() {
+    const pw = document.getElementById('loginPassword').value;
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true;
+
+    try {
+        const res = await fetch('/api/admin/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: pw })
+        });
+
+        if (res.ok) {
+            sessionStorage.setItem('sv-admin-auth', '1');
+            document.getElementById('loginOverlay').classList.add('hidden');
+            init();
+        } else {
+            document.getElementById('loginError').style.display = 'block';
+            btn.disabled = false;
+        }
+    } catch (e) {
+        document.getElementById('loginError').style.display = 'block';
+        btn.disabled = false;
+    }
+}
+
+document.getElementById('loginPassword').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') doLogin();
+});
+
+// Auto-init if already authenticated in this session
+if (sessionStorage.getItem('sv-admin-auth') === '1') {
+    document.getElementById('loginOverlay').classList.add('hidden');
+    init();
+}
 </script>
 </body>
 </html>

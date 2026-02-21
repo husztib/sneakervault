@@ -25,6 +25,9 @@ public class EmailService {
     @Value("${sneakervault.mail.notify:}")
     private String notifyAddresses;
 
+    @Value("${sneakervault.admin.url:}")
+    private String adminUrl;
+
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
@@ -46,6 +49,13 @@ public class EmailService {
         if (notifyAddresses == null || notifyAddresses.isBlank()) return;
         String subject = "SneakerVault - New Order #" + order.getId();
         String html = buildHtml(order, false);
+
+        if (adminUrl != null && !adminUrl.isBlank()) {
+            html = html.replace("SneakerVault &copy; 2026",
+                    "<a href=\"" + adminUrl + "\" style=\"color:#e94560;text-decoration:none;font-weight:600;\">Open Admin Panel</a>"
+                    + "<br>SneakerVault &copy; 2026");
+        }
+
         for (String addr : notifyAddresses.split(",")) {
             String trimmed = addr.trim();
             if (!trimmed.isBlank()) {

@@ -87,9 +87,7 @@ public class OrderController {
 
         ShoeOrder savedOrder = orderRepository.save(order);
 
-        if (savedOrder.getCustomerEmail() != null && !savedOrder.getCustomerEmail().isBlank()) {
-            emailService.sendOrderConfirmation(savedOrder);
-        }
+        emailService.sendOrderConfirmation(savedOrder);
 
         return ResponseEntity.ok(savedOrder);
     }

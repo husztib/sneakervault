@@ -22,27 +22,50 @@ public class EmailService {
     @Value("${sneakervault.mail.from:}")
     private String fromAddress;
 
+    @Value("${sneakervault.mail.notify:}")
+    private String notifyAddresses;
+
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
 
     @Async
     public void sendOrderConfirmation(ShoeOrder order) {
+        String customerEmail = order.getCustomerEmail();
+        if (customerEmail != null && !customerEmail.isBlank()) {
+            sendEmail(customerEmail, "SneakerVault - Order #" + order.getId() + " Confirmation", buildHtml(order));
+        }
+        sendNotification(order);
+    }
+
+    private void sendNotification(ShoeOrder order) {
+        if (notifyAddresses == null || notifyAddresses.isBlank()) return;
+        String subject = "SneakerVault - New Order #" + order.getId();
+        String html = buildHtml(order);
+        for (String addr : notifyAddresses.split(",")) {
+            String trimmed = addr.trim();
+            if (!trimmed.isBlank()) {
+                sendEmail(trimmed, subject, html);
+            }
+        }
+    }
+
+    private void sendEmail(String to, String subject, String html) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setFrom(fromAddress);
-            helper.setTo(order.getCustomerEmail());
-            helper.setSubject("SneakerVault - Order #" + order.getId() + " Confirmation");
-            helper.setText(buildHtml(order), true);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(html, true);
 
             mailSender.send(message);
-            log.info("Order confirmation email sent for order #{} to {}", order.getId(), order.getCustomerEmail());
+            log.info("Email sent: '{}' to {}", subject, to);
         } catch (MessagingException e) {
-            log.error("Failed to send order confirmation email for order #{}: {}", order.getId(), e.getMessage());
+            log.error("Failed to send email to {}: {}", to, e.getMessage());
         } catch (Exception e) {
-            log.error("Unexpected error sending email for order #{}: {}", order.getId(), e.getMessage());
+            log.error("Unexpected error sending email to {}: {}", to, e.getMessage());
         }
     }
 

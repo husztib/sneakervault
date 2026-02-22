@@ -605,6 +605,15 @@ function init() {
 }
 
 init();
+
+// ====== ANALYTICS TRACKING ======
+(function(){
+    let sid = sessionStorage.getItem('_bx_sid');
+    if (!sid) { sid = Math.random().toString(36).substr(2); sessionStorage.setItem('_bx_sid', sid); }
+    navigator.sendBeacon('/api/analytics/track', new Blob([JSON.stringify({
+        url: location.pathname, referrer: document.referrer, userAgent: navigator.userAgent, sessionId: sid
+    })], {type:'application/json'}));
+})();
 </script>
 </body>
 </html>

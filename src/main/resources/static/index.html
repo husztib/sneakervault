@@ -684,6 +684,26 @@
             font-size: 13px;
         }
 
+        .footer-contact {
+            margin-bottom: 12px;
+        }
+
+        .footer-contact a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: opacity 0.2s;
+        }
+
+        .footer-contact a:hover { opacity: 0.8; }
+
+        .footer-sep {
+            color: var(--text-muted);
+            margin: 0 10px;
+            opacity: 0.4;
+        }
+
         @media (max-width: 768px) {
             .header-top { flex-wrap: wrap; padding: 12px 16px; }
             .search-container { order: 3; flex-basis: 100%; max-width: 100%; }
@@ -782,6 +802,11 @@
 <main class="products-grid" id="productsGrid"></main>
 
 <footer>
+    <div class="footer-contact">
+        <a href="mailto:info@botix.hu">info@botix.hu</a>
+        <span class="footer-sep">|</span>
+        <a href="tel:+36304149661">+36 30 414 9661</a>
+    </div>
     <p id="footerText"></p>
     <p style="margin-top: 8px"><a href="admin.html" style="color: var(--text-muted); font-size: 12px; text-decoration: none; opacity: 0.5;">Admin</a></p>
 </footer>
@@ -1329,6 +1354,15 @@ function showToast(msg) {
 }
 
 init();
+
+// ====== ANALYTICS TRACKING ======
+(function(){
+    let sid = sessionStorage.getItem('_bx_sid');
+    if (!sid) { sid = Math.random().toString(36).substr(2); sessionStorage.setItem('_bx_sid', sid); }
+    navigator.sendBeacon('/api/analytics/track', new Blob([JSON.stringify({
+        url: location.pathname, referrer: document.referrer, userAgent: navigator.userAgent, sessionId: sid
+    })], {type:'application/json'}));
+})();
 </script>
 </body>
 </html>

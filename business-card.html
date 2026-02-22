@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SneakerVault - Business Card</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+
+        body {
+            background: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            gap: 40px;
+            padding: 40px 20px;
+        }
+
+        h2 { color: #333; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+
+        .card {
+            width: 340px;
+            height: 194px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        /* ====== FRONT ====== */
+        .card-front {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            display: flex;
+            padding: 24px;
+            gap: 20px;
+        }
+
+        .card-front .left { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+
+        .card-front .logo {
+            font-size: 20px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+        .card-front .logo span { color: #e94560; }
+
+        .card-front .info { display: flex; flex-direction: column; gap: 4px; }
+
+        .card-front .person-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .card-front .detail {
+            font-size: 10px;
+            color: rgba(255,255,255,0.6);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.2px;
+        }
+
+        .card-front .detail .icon {
+            width: 12px;
+            text-align: center;
+            color: #e94560;
+            font-weight: 700;
+            font-size: 10px;
+            flex-shrink: 0;
+        }
+
+        .card-front .right {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .card-front .qr-box {
+            background: #fff;
+            border-radius: 8px;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-front .qr-box canvas, .card-front .qr-box img {
+            display: block;
+        }
+
+        .card-front .scan-text {
+            font-size: 8px;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .accent-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #e94560, #c73850);
+        }
+
+        /* ====== BACK ====== */
+        .card-back {
+            background: #ffffff;
+            border: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+        }
+
+        .card-back .logo-back {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1a1a2e;
+            letter-spacing: -0.5px;
+        }
+        .card-back .logo-back span { color: #e94560; }
+
+        .card-back .tagline {
+            font-size: 10px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: 600;
+        }
+
+        .card-back .url {
+            font-size: 9px;
+            color: #aaa;
+            letter-spacing: 0.3px;
+            margin-top: 4px;
+        }
+
+        .card-back .accent-line-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #e94560, #c73850);
+        }
+
+        .card-back .corner-decor {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 2px solid rgba(233,69,96,0.1);
+        }
+        .card-back .corner-decor.tl { top: 14px; left: 14px; border-right: none; border-bottom: none; border-radius: 4px 0 0 0; }
+        .card-back .corner-decor.br { bottom: 14px; right: 14px; border-left: none; border-top: none; border-radius: 0 0 4px 0; }
+
+        .print-hint {
+            color: #999;
+            font-size: 12px;
+            max-width: 400px;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        @media print {
+            body { background: white !important; gap: 20px; padding: 10px; }
+            h2, .print-hint { display: none; }
+            .card { box-shadow: none !important; border: 1px solid #ccc !important; }
+            .card-front { background: #1a1a2e !important; }
+            .accent-line, .accent-line-top { background: #e94560 !important; }
+        }
+    </style>
+</head>
+<body>
+
+<h2>Eleje</h2>
+<div class="card card-front" id="cardFront">
+    <div class="left">
+        <div class="logo">Sneaker<span>Vault</span></div>
+        <div class="info">
+            <div class="person-name">Husz&aacute;r Botond</div>
+            <div class="detail"><span class="icon">&#9742;</span> +36 30 414 9661</div>
+            <div class="detail"><span class="icon">&#9993;</span> huszbot@gmail.com</div>
+            <div class="detail"><span class="icon">&#9737;</span> sneakervault.hu</div>
+        </div>
+    </div>
+    <div class="right">
+        <div class="qr-box" id="qrCode"></div>
+        <div class="scan-text">Scan me</div>
+    </div>
+    <div class="accent-line"></div>
+</div>
+
+<h2>H&aacute;tulja</h2>
+<div class="card card-back">
+    <div class="accent-line-top"></div>
+    <div class="corner-decor tl"></div>
+    <div class="logo-back">Sneaker<span>Vault</span></div>
+    <div class="tagline">Premium Sneaker Store</div>
+    <div class="url">huszarnas.myqnapcloud.com</div>
+    <div class="corner-decor br"></div>
+</div>
+
+<div class="print-hint">
+    <strong>PDF ment&eacute;s:</strong> Ctrl+P (vagy Cmd+P Mac-en) &rarr; &quot;Ment&eacute;s PDF-be&quot; / &quot;Save as PDF&quot;<br>
+    Standard n&eacute;vjegyk&aacute;rtya m&eacute;ret: 90 &times; 50 mm
+</div>
+
+<script>
+    var qr = qrcode(0, 'M');
+    qr.addData('http://huszarnas.myqnapcloud.com:9090/');
+    qr.make();
+
+    var size = 100;
+    var cellSize = Math.floor(size / qr.getModuleCount());
+    var img = qr.createImgTag(cellSize, 0);
+
+    document.getElementById('qrCode').innerHTML = img;
+</script>
+</body>
+</html>

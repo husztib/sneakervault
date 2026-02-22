@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BotiX - Brand Guide</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f5f5;
+            color: #0a0a0a;
+        }
+
+        /* ====== HERO ====== */
+        .hero {
+            background: #0a0a0a;
+            padding: 80px 40px;
+            text-align: center;
+        }
+
+        .hero-logo {
+            font-size: 64px;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: -3px;
+            margin-bottom: 8px;
+        }
+
+        .hero-x {
+            background: linear-gradient(135deg, #ff4d00, #ff8c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-tagline {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            font-weight: 600;
+        }
+
+        /* ====== SECTIONS ====== */
+        .section {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 60px 40px;
+        }
+
+        .section-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #999;
+            margin-bottom: 32px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        /* ====== COLORS ====== */
+        .colors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .color-card {
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+
+        .color-swatch {
+            height: 120px;
+        }
+
+        .color-info {
+            background: #fff;
+            padding: 14px 16px;
+        }
+
+        .color-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+        .color-hex { font-size: 12px; color: #999; font-family: 'SF Mono', monospace; }
+
+        /* ====== LOGO VARIANTS ====== */
+        .logo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .logo-box {
+            border-radius: 16px;
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 160px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+
+        .logo-box.dark { background: #0a0a0a; }
+        .logo-box.light { background: #ffffff; border: 1px solid #eee; }
+
+        .logo-box img, .logo-box svg { max-width: 300px; width: 100%; }
+
+        .logo-label {
+            font-size: 11px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        /* ====== ICON ====== */
+        .icon-row {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .icon-box {
+            width: 80px;
+            height: 80px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+
+        .icon-box svg { width: 50px; height: 50px; }
+
+        .icon-box.dark { background: #0a0a0a; }
+        .icon-box.light { background: #fff; border: 1px solid #eee; }
+        .icon-box.accent { background: linear-gradient(135deg, #ff4d00, #ff8c00); }
+
+        /* ====== TYPOGRAPHY ====== */
+        .type-samples { display: flex; flex-direction: column; gap: 20px; }
+
+        .type-row {
+            display: flex;
+            align-items: baseline;
+            gap: 20px;
+            padding: 16px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .type-label {
+            min-width: 120px;
+            font-size: 11px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .type-display-900 { font-weight: 900; font-size: 36px; letter-spacing: -1px; }
+        .type-display-800 { font-weight: 800; font-size: 28px; letter-spacing: -0.5px; }
+        .type-display-700 { font-weight: 700; font-size: 20px; }
+        .type-display-600 { font-weight: 600; font-size: 16px; }
+        .type-display-400 { font-weight: 400; font-size: 14px; color: #555; }
+
+        /* ====== BUSINESS CARD ====== */
+        .cards-row {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .card {
+            width: 340px;
+            height: 194px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        /* Front */
+        .card-front {
+            background: #0a0a0a;
+            display: flex;
+            padding: 24px;
+            gap: 18px;
+        }
+
+        .card-front .left { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+
+        .card-front .logo-text {
+            font-size: 22px;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: -1px;
+        }
+
+        .card-front .logo-text .x {
+            background: linear-gradient(135deg, #ff4d00, #ff8c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card-front .info { display: flex; flex-direction: column; gap: 5px; }
+
+        .card-front .person-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .card-front .detail {
+            font-size: 10px;
+            color: rgba(255,255,255,0.5);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.2px;
+        }
+
+        .card-front .detail .dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #ff4d00;
+            flex-shrink: 0;
+        }
+
+        .card-front .right {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .card-front .qr-box {
+            background: #fff;
+            border-radius: 8px;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-front .scan-text {
+            font-size: 7px;
+            color: rgba(255,255,255,0.3);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        .accent-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ff4d00, #ff8c00);
+        }
+
+        /* Back */
+        .card-back {
+            background: #fff;
+            border: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            position: relative;
+        }
+
+        .card-back .back-logo {
+            font-size: 32px;
+            font-weight: 900;
+            color: #0a0a0a;
+            letter-spacing: -1.5px;
+        }
+
+        .card-back .back-logo .x {
+            background: linear-gradient(135deg, #ff4d00, #ff8c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card-back .back-tagline {
+            font-size: 9px;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            font-weight: 600;
+        }
+
+        .card-back .back-url {
+            font-size: 9px;
+            color: #ccc;
+            margin-top: 2px;
+            letter-spacing: 0.3px;
+        }
+
+        .card-back .accent-bar-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ff4d00, #ff8c00);
+        }
+
+        /* X watermark on back */
+        .card-back .watermark {
+            position: absolute;
+            right: -10px;
+            bottom: -10px;
+            font-size: 120px;
+            font-weight: 900;
+            color: rgba(255,77,0,0.04);
+            line-height: 1;
+            pointer-events: none;
+        }
+
+        /* ====== USAGE EXAMPLES ====== */
+        .usage-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        .usage-box {
+            border-radius: 16px;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            min-height: 140px;
+            text-align: center;
+        }
+
+        .usage-box.social {
+            background: #0a0a0a;
+            color: #fff;
+        }
+
+        .usage-box.tag {
+            background: #fff;
+            border: 1px solid #eee;
+        }
+
+        .usage-box.banner {
+            background: linear-gradient(135deg, #ff4d00, #ff8c00);
+            color: #fff;
+        }
+
+        .usage-box .usage-title { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; opacity: 0.5; }
+
+        .usage-box .usage-logo { font-size: 24px; font-weight: 900; letter-spacing: -1px; }
+
+        .usage-box.social .x-col {
+            background: linear-gradient(135deg, #ff4d00, #ff8c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .usage-box.tag .x-col { color: #ff4d00; }
+        .usage-box.banner .usage-logo { color: #fff; }
+
+        /* ====== FOOTER ====== */
+        .guide-footer {
+            text-align: center;
+            padding: 40px;
+            color: #ccc;
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .hero { padding: 50px 20px; }
+            .hero-logo { font-size: 42px; }
+            .section { padding: 40px 20px; }
+            .logo-grid { grid-template-columns: 1fr; }
+            .usage-grid { grid-template-columns: 1fr; }
+        }
+
+        @media print {
+            body { background: white !important; }
+            .hero { background: #0a0a0a !important; }
+            .card-front { background: #0a0a0a !important; }
+            .accent-bar, .accent-bar-top { background: #ff4d00 !important; }
+            .icon-box.dark { background: #0a0a0a !important; }
+            .icon-box.accent { background: #ff4d00 !important; }
+            .usage-box.social { background: #0a0a0a !important; }
+            .usage-box.banner { background: #ff4d00 !important; }
+            .card { box-shadow: none !important; border: 1px solid #ccc !important; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+    <div class="hero-logo">BOTI<span class="hero-x">X</span></div>
+    <div class="hero-tagline">Premium Sneaker Store</div>
+</div>
+
+<!-- COLORS -->
+<div class="section">
+    <div class="section-title">01 &mdash; Sz&iacute;nek / Colors</div>
+    <div class="colors-grid">
+        <div class="color-card">
+            <div class="color-swatch" style="background:#0a0a0a;"></div>
+            <div class="color-info">
+                <div class="color-name">Midnight Black</div>
+                <div class="color-hex">#0A0A0A</div>
+            </div>
+        </div>
+        <div class="color-card">
+            <div class="color-swatch" style="background:linear-gradient(135deg,#ff4d00,#ff8c00);"></div>
+            <div class="color-info">
+                <div class="color-name">X Orange</div>
+                <div class="color-hex">#FF4D00 &rarr; #FF8C00</div>
+            </div>
+        </div>
+        <div class="color-card">
+            <div class="color-swatch" style="background:#ffffff; border-bottom: 1px solid #eee;"></div>
+            <div class="color-info">
+                <div class="color-name">Clean White</div>
+                <div class="color-hex">#FFFFFF</div>
+            </div>
+        </div>
+        <div class="color-card">
+            <div class="color-swatch" style="background:#1a1a1a;"></div>
+            <div class="color-info">
+                <div class="color-name">Surface Dark</div>
+                <div class="color-hex">#1A1A1A</div>
+            </div>
+        </div>
+        <div class="color-card">
+            <div class="color-swatch" style="background:#f5f5f5; border-bottom: 1px solid #eee;"></div>
+            <div class="color-info">
+                <div class="color-name">Surface Light</div>
+                <div class="color-hex">#F5F5F5</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- LOGO VARIANTS -->
+<div class="section">
+    <div class="section-title">02 &mdash; Log&oacute; / Logo</div>
+    <div class="logo-grid">
+        <div>
+            <div class="logo-box dark">
+                <img src="logo.svg" alt="BotiX logo white">
+            </div>
+            <div class="logo-label">S&ouml;t&eacute;t h&aacute;tt&eacute;ren / On dark</div>
+        </div>
+        <div>
+            <div class="logo-box light">
+                <img src="logo-dark.svg" alt="BotiX logo dark">
+            </div>
+            <div class="logo-label">Vil&aacute;gos h&aacute;tt&eacute;ren / On light</div>
+        </div>
+    </div>
+</div>
+
+<!-- ICON -->
+<div class="section">
+    <div class="section-title">03 &mdash; Ikon / Icon Mark</div>
+    <div class="icon-row">
+        <div>
+            <div class="icon-box dark">
+                <svg viewBox="0 0 100 100">
+                    <defs><linearGradient id="ig1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#ff4d00"/><stop offset="100%" style="stop-color:#ff8c00"/></linearGradient></defs>
+                    <line x1="25" y1="25" x2="75" y2="75" stroke="url(#ig1)" stroke-width="14" stroke-linecap="round"/>
+                    <line x1="75" y1="25" x2="25" y2="75" stroke="url(#ig1)" stroke-width="14" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="logo-label">S&ouml;t&eacute;t</div>
+        </div>
+        <div>
+            <div class="icon-box light">
+                <svg viewBox="0 0 100 100">
+                    <line x1="25" y1="25" x2="75" y2="75" stroke="#0a0a0a" stroke-width="14" stroke-linecap="round"/>
+                    <line x1="75" y1="25" x2="25" y2="75" stroke="#0a0a0a" stroke-width="14" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="logo-label">Vil&aacute;gos</div>
+        </div>
+        <div>
+            <div class="icon-box accent">
+                <svg viewBox="0 0 100 100">
+                    <line x1="25" y1="25" x2="75" y2="75" stroke="#ffffff" stroke-width="14" stroke-linecap="round"/>
+                    <line x1="75" y1="25" x2="25" y2="75" stroke="#ffffff" stroke-width="14" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="logo-label">Accent</div>
+        </div>
+    </div>
+</div>
+
+<!-- TYPOGRAPHY -->
+<div class="section">
+    <div class="section-title">04 &mdash; Tipogr&aacute;fia / Typography</div>
+    <div class="type-samples">
+        <div class="type-row">
+            <div class="type-label">Black 900</div>
+            <div class="type-display-900">BotiX Premium</div>
+        </div>
+        <div class="type-row">
+            <div class="type-label">ExtraBold 800</div>
+            <div class="type-display-800">Exclusive Sneakers</div>
+        </div>
+        <div class="type-row">
+            <div class="type-label">Bold 700</div>
+            <div class="type-display-700">Authenticated &amp; Original</div>
+        </div>
+        <div class="type-row">
+            <div class="type-label">SemiBold 600</div>
+            <div class="type-display-600">Free shipping over 50 000 Ft</div>
+        </div>
+        <div class="type-row">
+            <div class="type-label">Regular 400</div>
+            <div class="type-display-400">Every sneaker in our collection is hand-picked and verified for authenticity.</div>
+        </div>
+    </div>
+</div>
+
+<!-- USAGE EXAMPLES -->
+<div class="section">
+    <div class="section-title">05 &mdash; Haszn&aacute;lat / Usage</div>
+    <div class="usage-grid">
+        <div class="usage-box social">
+            <div class="usage-title">Social / App</div>
+            <div class="usage-logo">BOTI<span class="x-col">X</span></div>
+        </div>
+        <div class="usage-box tag">
+            <div class="usage-title">Tag / Label</div>
+            <div class="usage-logo">BOTI<span class="x-col">X</span></div>
+        </div>
+        <div class="usage-box banner">
+            <div class="usage-title">Banner / CTA</div>
+            <div class="usage-logo">BOTIX</div>
+        </div>
+    </div>
+</div>
+
+<!-- BUSINESS CARD -->
+<div class="section">
+    <div class="section-title">06 &mdash; N&eacute;vjegyk&aacute;rtya / Business Card</div>
+    <div class="cards-row">
+        <div class="card card-front">
+            <div class="left">
+                <div class="logo-text">BOTI<span class="x">X</span></div>
+                <div class="info">
+                    <div class="person-name">Husz&aacute;r Botond</div>
+                    <div class="detail"><span class="dot"></span>+36 30 414 9661</div>
+                    <div class="detail"><span class="dot"></span>huszbot@gmail.com</div>
+                    <div class="detail"><span class="dot"></span>botondx.hu</div>
+                </div>
+            </div>
+            <div class="right">
+                <div class="qr-box" id="qrCode"></div>
+                <div class="scan-text">Scan me</div>
+            </div>
+            <div class="accent-bar"></div>
+        </div>
+
+        <div class="card card-back">
+            <div class="accent-bar-top"></div>
+            <div class="watermark">X</div>
+            <div class="back-logo">BOTI<span class="x">X</span></div>
+            <div class="back-tagline">Premium Sneaker Store</div>
+            <div class="back-url">huszarnas.myqnapcloud.com</div>
+        </div>
+    </div>
+</div>
+
+<div class="guide-footer">
+    BotiX Brand Guide &copy; 2026
+</div>
+
+<script>
+    var qr = qrcode(0, 'M');
+    qr.addData('http://huszarnas.myqnapcloud.com:9090/');
+    qr.make();
+    var cellSize = Math.floor(100 / qr.getModuleCount());
+    document.getElementById('qrCode').innerHTML = qr.createImgTag(cellSize, 0);
+</script>
+</body>
+</html>

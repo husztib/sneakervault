@@ -3,30 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SneakerVault - Premium Cipő Áruház</title>
+    <title>BotiX - Premium Sneaker Store</title>
     <style>
         :root, [data-theme="dark"] {
-            --primary: #1a1a2e;
-            --accent: #e94560;
-            --accent-hover: #c73850;
-            --bg: #0f0f1a;
-            --card-bg: #16213e;
-            --card-hover: #1a2744;
+            --primary: #0a0a0a;
+            --accent: #ff4d00;
+            --accent-hover: #e64500;
+            --bg: #050505;
+            --card-bg: #1a1a1a;
+            --card-hover: #222222;
             --text: #eee;
             --text-muted: #8892a4;
-            --border: #2a2a4a;
+            --border: #2a2a2a;
             --success: #00d68f;
             --badge-jordan: #c9302c;
             --badge-nike: #f37021;
             --badge-adidas: #1d1d1b;
             --badge-vans: #c1272d;
-            --header-start: #1a1a2e;
-            --header-end: #16213e;
-            --hero-start: #1a1a2e;
-            --hero-mid: #16213e;
-            --hero-end: #0f3460;
-            --hero-glow1: rgba(233,69,96,0.08);
-            --hero-glow2: rgba(15,52,96,0.15);
+            --header-start: #0a0a0a;
+            --header-end: #1a1a1a;
+            --hero-start: #0a0a0a;
+            --hero-mid: #1a1a1a;
+            --hero-end: #2a1500;
+            --hero-glow1: rgba(255,77,0,0.08);
+            --hero-glow2: rgba(42,21,0,0.15);
             --overlay-subtle: rgba(255,255,255,0.04);
             --overlay-light: rgba(255,255,255,0.06);
             --overlay-medium: rgba(255,255,255,0.08);
@@ -35,7 +35,7 @@
             --modal-overlay: rgba(0,0,0,0.7);
             --cart-overlay: rgba(0,0,0,0.5);
             --badge-adidas-border: #555;
-            --scrollbar-thumb: #2a2a4a;
+            --scrollbar-thumb: #2a2a2a;
             --scrollbar-hover: #8892a4;
         }
 
@@ -44,7 +44,7 @@
             --bg: #f0f2f5;
             --card-bg: #ffffff;
             --card-hover: #f8f9fa;
-            --text: #1a1a2e;
+            --text: #0a0a0a;
             --text-muted: #6b7280;
             --border: #dde1e7;
             --header-start: #ffffff;
@@ -52,8 +52,8 @@
             --hero-start: #e8eaf0;
             --hero-mid: #dde0e8;
             --hero-end: #c8cfe0;
-            --hero-glow1: rgba(233,69,96,0.06);
-            --hero-glow2: rgba(15,52,96,0.08);
+            --hero-glow1: rgba(255,77,0,0.06);
+            --hero-glow2: rgba(42,21,0,0.08);
             --overlay-subtle: rgba(0,0,0,0.02);
             --overlay-light: rgba(0,0,0,0.04);
             --overlay-medium: rgba(0,0,0,0.05);
@@ -117,7 +117,7 @@
         .search-container input:focus {
             border-color: var(--accent);
             background: var(--overlay-strong);
-            box-shadow: 0 0 0 3px rgba(233,69,96,0.15);
+            box-shadow: 0 0 0 3px rgba(255,77,0,0.15);
         }
 
         .search-container input::placeholder { color: var(--text-muted); }
@@ -319,7 +319,7 @@
 
         .product-card:hover {
             transform: translateY(-4px);
-            border-color: rgba(233,69,96,0.3);
+            border-color: rgba(255,77,0,0.3);
             box-shadow: 0 12px 40px var(--shadow-card);
         }
 
@@ -720,7 +720,7 @@
 
 <header>
     <div class="header-top">
-        <div class="logo">Sneaker<span>Vault</span></div>
+        <div class="logo">Boti<span>X</span></div>
         <div class="search-container">
             <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
             <input type="text" id="searchInput">
@@ -845,7 +845,7 @@ const i18n = {
         orderSuccessToast: 'Rendelésed sikeresen leadtuk! Köszönjük a vásárlást!',
         alreadyInCart: 'Ez a cipő már a kosárban van!',
         shoesSoldOut: 'Néhány cipő időközben elkelt.',
-        footer: 'SneakerVault © 2026 — Minden jog fenntartva. Minden termék eredeti.',
+        footer: 'BotiX © 2026 — Minden jog fenntartva. Minden termék eredeti.',
         styleCode: 'Stíluskód',
         sizeUS: 'US méret',
         sizeEUR: 'EUR méret',
@@ -889,7 +889,7 @@ const i18n = {
         orderSuccessToast: 'Your order has been placed successfully! Thank you!',
         alreadyInCart: 'This shoe is already in your cart!',
         shoesSoldOut: 'Some shoes have been sold in the meantime.',
-        footer: 'SneakerVault © 2026 — All rights reserved. Every product is authentic.',
+        footer: 'BotiX © 2026 — All rights reserved. Every product is authentic.',
         styleCode: 'Style Code',
         sizeUS: 'US Size',
         sizeEUR: 'EUR Size',
@@ -963,7 +963,7 @@ function applyTheme(theme) {
 function applyLang(lang) {
     currentLang = lang;
     document.documentElement.lang = lang === 'hu' ? 'hu' : 'en';
-    document.title = lang === 'hu' ? 'SneakerVault - Premium Cipő Áruház' : 'SneakerVault - Premium Shoe Store';
+    document.title = lang === 'hu' ? 'BotiX - Premium Cipő Áruház' : 'BotiX - Premium Shoe Store';
     localStorage.setItem('sv-lang', lang);
     updateToggleUI('langToggle', lang);
     refreshUI();

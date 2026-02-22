@@ -38,8 +38,8 @@ public class EmailService {
         String customerEmail = order.getCustomerEmail();
         if (customerEmail != null && !customerEmail.isBlank()) {
             String subject = hu
-                    ? "SneakerVault - #" + order.getId() + " Rendelés visszaigazolás"
-                    : "SneakerVault - Order #" + order.getId() + " Confirmation";
+                    ? "BotiX - #" + order.getId() + " Rendelés visszaigazolás"
+                    : "BotiX - Order #" + order.getId() + " Confirmation";
             sendEmail(customerEmail, subject, buildHtml(order, hu));
         }
         sendNotification(order);
@@ -47,13 +47,13 @@ public class EmailService {
 
     private void sendNotification(ShoeOrder order) {
         if (notifyAddresses == null || notifyAddresses.isBlank()) return;
-        String subject = "SneakerVault - New Order #" + order.getId();
+        String subject = "BotiX - New Order #" + order.getId();
         String html = buildHtml(order, false);
 
         if (adminUrl != null && !adminUrl.isBlank()) {
-            html = html.replace("SneakerVault &copy; 2026",
-                    "<a href=\"" + adminUrl + "\" style=\"color:#e94560;text-decoration:none;font-weight:600;\">Open Admin Panel</a>"
-                    + "<br>SneakerVault &copy; 2026");
+            html = html.replace("BotiX &copy; 2026",
+                    "<a href=\"" + adminUrl + "\" style=\"color:#ff4d00;text-decoration:none;font-weight:600;\">Open Admin Panel</a>"
+                    + "<br>BotiX &copy; 2026");
         }
 
         for (String addr : notifyAddresses.split(",")) {
@@ -106,14 +106,14 @@ public class EmailService {
 
         return "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"></head><body style=\"margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f5f5;\">"
              + "<div style=\"max-width:600px;margin:0 auto;background:#ffffff;\">"
-             + "<div style=\"background:#1a1a2e;padding:24px 32px;text-align:center;\">"
-             + "<h1 style=\"color:#fff;margin:0;font-size:24px;\">Sneaker<span style=\"color:#e94560;\">Vault</span></h1>"
+             + "<div style=\"background:#0a0a0a;padding:24px 32px;text-align:center;\">"
+             + "<h1 style=\"color:#fff;margin:0;font-size:24px;\">Boti<span style=\"color:#ff4d00;\">X</span></h1>"
              + "</div>"
              + "<div style=\"padding:32px;\">"
-             + "<h2 style=\"color:#1a1a2e;margin:0 0 8px;\">" + lblConfirmation + "</h2>"
+             + "<h2 style=\"color:#0a0a0a;margin:0 0 8px;\">" + lblConfirmation + "</h2>"
              + "<p style=\"color:#666;margin:0 0 24px;\">" + lblOrder + order.getId() + "</p>"
              + "<div style=\"background:#f8f9fa;border-radius:8px;padding:16px;margin-bottom:24px;\">"
-             + "<p style=\"margin:0 0 4px;font-weight:600;color:#1a1a2e;\">" + esc(order.getCustomerName()) + "</p>"
+             + "<p style=\"margin:0 0 4px;font-weight:600;color:#0a0a0a;\">" + esc(order.getCustomerName()) + "</p>"
              + "<p style=\"margin:0 0 4px;color:#666;font-size:14px;\">" + address + "</p>"
              + "<p style=\"margin:0;color:#666;font-size:14px;\">" + esc(order.getCustomerPhone()) + "</p>"
              + "</div>"
@@ -127,12 +127,12 @@ public class EmailService {
              + "</tbody></table>"
              + "<div style=\"text-align:right;padding:16px;background:#f8f9fa;border-radius:8px;\">"
              + "<span style=\"font-size:14px;color:#666;\">" + lblTotal + "</span>"
-             + "<span style=\"font-size:20px;font-weight:800;color:#e94560;\">" + total + "</span>"
+             + "<span style=\"font-size:20px;font-weight:800;color:#ff4d00;\">" + total + "</span>"
              + "</div>"
              + "<p style=\"text-align:center;color:#666;margin-top:24px;font-size:14px;\">" + lblThankYou + "</p>"
              + "</div>"
              + "<div style=\"background:#f8f9fa;padding:16px 32px;text-align:center;color:#999;font-size:12px;\">"
-             + "SneakerVault &copy; 2026"
+             + "BotiX &copy; 2026"
              + "</div>"
              + "</div></body></html>";
     }

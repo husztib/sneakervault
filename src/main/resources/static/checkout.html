@@ -3,27 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SneakerVault - Checkout</title>
+    <title>BotiX - Checkout</title>
     <style>
         :root, [data-theme="dark"] {
-            --primary: #1a1a2e;
-            --accent: #e94560;
-            --accent-hover: #c73850;
-            --bg: #0f0f1a;
-            --card-bg: #16213e;
-            --card-hover: #1a2744;
+            --primary: #0a0a0a;
+            --accent: #ff4d00;
+            --accent-hover: #e64500;
+            --bg: #050505;
+            --card-bg: #1a1a1a;
+            --card-hover: #222222;
             --text: #eee;
             --text-muted: #8892a4;
-            --border: #2a2a4a;
+            --border: #2a2a2a;
             --success: #00d68f;
-            --header-start: #1a1a2e;
-            --header-end: #16213e;
+            --header-start: #0a0a0a;
+            --header-end: #1a1a1a;
             --overlay-subtle: rgba(255,255,255,0.04);
             --overlay-light: rgba(255,255,255,0.06);
             --overlay-medium: rgba(255,255,255,0.08);
             --overlay-strong: rgba(255,255,255,0.12);
             --shadow-card: rgba(0,0,0,0.3);
-            --scrollbar-thumb: #2a2a4a;
+            --scrollbar-thumb: #2a2a2a;
             --scrollbar-hover: #8892a4;
         }
 
@@ -32,7 +32,7 @@
             --bg: #f0f2f5;
             --card-bg: #ffffff;
             --card-hover: #f8f9fa;
-            --text: #1a1a2e;
+            --text: #0a0a0a;
             --text-muted: #6b7280;
             --border: #dde1e7;
             --header-start: #ffffff;
@@ -215,7 +215,7 @@
 
         .form-input:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(233,69,96,0.15);
+            box-shadow: 0 0 0 3px rgba(255,77,0,0.15);
         }
 
         .form-input::placeholder { color: var(--text-muted); opacity: 0.6; }
@@ -319,7 +319,7 @@
 
 <header>
     <div class="header-top">
-        <div class="logo">Sneaker<span>Vault</span></div>
+        <div class="logo">Boti<span>X</span></div>
         <div class="header-actions">
             <div class="settings-toggles">
                 <div class="toggle-group" id="themeToggle">
@@ -379,7 +379,7 @@ const i18n = {
         emptyCartHint: 'Térj vissza a boltba és válassz cipőket!',
         goToStore: 'Vissza a boltba',
         errorToast: 'Hiba történt. Kérjük próbáld újra!',
-        footer: 'SneakerVault \u00a9 2026 \u2014 Minden jog fenntartva.'
+        footer: 'BotiX \u00a9 2026 \u2014 Minden jog fenntartva.'
     },
     en: {
         backToStore: '\u2190 Back to store',
@@ -407,7 +407,7 @@ const i18n = {
         emptyCartHint: 'Go back to the store and pick some sneakers!',
         goToStore: 'Back to store',
         errorToast: 'An error occurred. Please try again!',
-        footer: 'SneakerVault \u00a9 2026 \u2014 All rights reserved.'
+        footer: 'BotiX \u00a9 2026 \u2014 All rights reserved.'
     }
 };
 
@@ -464,7 +464,7 @@ function renderPage() {
     document.getElementById('backLink').textContent = t('backToStore');
     document.getElementById('pageTitle').textContent = t('pageTitle');
     document.getElementById('footerText').textContent = t('footer');
-    document.title = currentLang === 'hu' ? 'SneakerVault - Pénztár' : 'SneakerVault - Checkout';
+    document.title = currentLang === 'hu' ? 'BotiX - Pénztár' : 'BotiX - Checkout';
 
     const main = document.getElementById('mainContent');
 

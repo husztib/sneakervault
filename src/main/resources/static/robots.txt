@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /uploads/
+
+User-agent: Googlebot
+Allow: /
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /uploads/
+
+Sitemap: https://botix.hu/sitemap.xml

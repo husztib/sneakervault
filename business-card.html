@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SneakerVault - Business Card</title>
+    <title>BotiX - Business Card</title>
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
@@ -33,7 +33,7 @@
 
         /* ====== FRONT ====== */
         .card-front {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
             display: flex;
             padding: 24px;
             gap: 20px;
@@ -47,7 +47,7 @@
             color: #fff;
             letter-spacing: -0.5px;
         }
-        .card-front .logo span { color: #e94560; }
+        .card-front .logo span { color: #ff4d00; }
 
         .card-front .info { display: flex; flex-direction: column; gap: 4px; }
 
@@ -70,7 +70,7 @@
         .card-front .detail .icon {
             width: 12px;
             text-align: center;
-            color: #e94560;
+            color: #ff4d00;
             font-weight: 700;
             font-size: 10px;
             flex-shrink: 0;
@@ -111,7 +111,7 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: linear-gradient(90deg, #e94560, #c73850);
+            background: linear-gradient(90deg, #ff4d00, #e64500);
         }
 
         /* ====== BACK ====== */
@@ -129,10 +129,10 @@
         .card-back .logo-back {
             font-size: 28px;
             font-weight: 800;
-            color: #1a1a2e;
+            color: #0a0a0a;
             letter-spacing: -0.5px;
         }
-        .card-back .logo-back span { color: #e94560; }
+        .card-back .logo-back span { color: #ff4d00; }
 
         .card-back .tagline {
             font-size: 10px;
@@ -155,14 +155,14 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: linear-gradient(90deg, #e94560, #c73850);
+            background: linear-gradient(90deg, #ff4d00, #e64500);
         }
 
         .card-back .corner-decor {
             position: absolute;
             width: 40px;
             height: 40px;
-            border: 2px solid rgba(233,69,96,0.1);
+            border: 2px solid rgba(255,77,0,0.1);
         }
         .card-back .corner-decor.tl { top: 14px; left: 14px; border-right: none; border-bottom: none; border-radius: 4px 0 0 0; }
         .card-back .corner-decor.br { bottom: 14px; right: 14px; border-left: none; border-top: none; border-radius: 0 0 4px 0; }
@@ -179,8 +179,8 @@
             body { background: white !important; gap: 20px; padding: 10px; }
             h2, .print-hint { display: none; }
             .card { box-shadow: none !important; border: 1px solid #ccc !important; }
-            .card-front { background: #1a1a2e !important; }
-            .accent-line, .accent-line-top { background: #e94560 !important; }
+            .card-front { background: #0a0a0a !important; }
+            .accent-line, .accent-line-top { background: #ff4d00 !important; }
         }
     </style>
 </head>
@@ -189,12 +189,12 @@
 <h2>Eleje</h2>
 <div class="card card-front" id="cardFront">
     <div class="left">
-        <div class="logo">Sneaker<span>Vault</span></div>
+        <div class="logo">Boti<span>X</span></div>
         <div class="info">
             <div class="person-name">Husz&aacute;r Botond</div>
             <div class="detail"><span class="icon">&#9742;</span> +36 30 414 9661</div>
-            <div class="detail"><span class="icon">&#9993;</span> huszbot@gmail.com</div>
-            <div class="detail"><span class="icon">&#9737;</span> sneakervault.hu</div>
+            <div class="detail"><span class="icon">&#9993;</span> info@botix.hu</div>
+            <div class="detail"><span class="icon">&#9737;</span> botix.hu</div>
         </div>
     </div>
     <div class="right">
@@ -208,9 +208,9 @@
 <div class="card card-back">
     <div class="accent-line-top"></div>
     <div class="corner-decor tl"></div>
-    <div class="logo-back">Sneaker<span>Vault</span></div>
+    <div class="logo-back">Boti<span>X</span></div>
     <div class="tagline">Premium Sneaker Store</div>
-    <div class="url">huszarnas.myqnapcloud.com</div>
+    <div class="url">botix.hu</div>
     <div class="corner-decor br"></div>
 </div>
 
@@ -221,7 +221,7 @@
 
 <script>
     var qr = qrcode(0, 'M');
-    qr.addData('http://huszarnas.myqnapcloud.com:9090/');
+    qr.addData('https://botix.hu/');
     qr.make();
 
     var size = 100;

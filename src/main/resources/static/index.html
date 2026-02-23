@@ -254,22 +254,46 @@
 
         .hero-content { position: relative; z-index: 1; }
 
+        .hero-logo { margin-bottom: 16px; }
+        .hero-logo svg { height: 72px; width: auto; }
+        @media (max-width: 600px) { .hero-logo svg { height: 52px; } }
+
         .hero h1 {
-            font-size: clamp(28px, 5vw, 48px);
-            font-weight: 800;
+            font-size: clamp(20px, 3vw, 28px);
+            font-weight: 600;
             margin-bottom: 12px;
-            background: linear-gradient(135deg, var(--text), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
         .hero p { color: var(--text-muted); font-size: 16px; max-width: 500px; margin: 0 auto 24px; }
 
-        .stats { display: flex; gap: 32px; justify-content: center; flex-wrap: wrap; }
-        .stat { text-align: center; }
-        .stat-num { font-size: 28px; font-weight: 800; color: var(--accent); }
-        .stat-label { font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        .ribbon-wrap { display: inline-block; position: relative; margin-top: 4px; }
+        .ribbon {
+            display: inline-flex; align-items: center; gap: 10px;
+            background: linear-gradient(135deg, #ff4d00, #ff8533);
+            color: #fff; font-weight: 800; font-size: 15px;
+            letter-spacing: 2px; text-transform: uppercase;
+            padding: 10px 32px;
+            position: relative;
+            box-shadow: 0 4px 16px rgba(255,77,0,0.3);
+        }
+        .ribbon::before, .ribbon::after {
+            content: ''; position: absolute; top: 0; width: 0; height: 0;
+            border-style: solid;
+        }
+        .ribbon::before {
+            left: -14px;
+            border-width: 20px 14px 20px 0;
+            border-color: transparent #ff4d00 transparent transparent;
+        }
+        .ribbon::after {
+            right: -14px;
+            border-width: 20px 0 20px 14px;
+            border-color: transparent transparent transparent #ff8533;
+        }
+        .ribbon svg { flex-shrink: 0; }
 
         .filters-section { max-width: 1400px; margin: 0 auto; padding: 20px 20px 0; }
         .filter-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
@@ -809,20 +833,29 @@
 
 <section class="hero">
     <div class="hero-content">
+        <div class="hero-logo">
+            <svg viewBox="0 0 360 80" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#ff4d00"/>
+                        <stop offset="100%" style="stop-color:#ff8533"/>
+                    </linearGradient>
+                </defs>
+                <!-- BotiX text -->
+                <text x="0" y="60" font-family="system-ui,-apple-system,sans-serif" font-weight="900" font-size="68" fill="currentColor" letter-spacing="-2">Boti</text>
+                <text x="215" y="60" font-family="system-ui,-apple-system,sans-serif" font-weight="900" font-size="68" fill="url(#logoGrad)" letter-spacing="-2">X</text>
+                <!-- Swoosh underline -->
+                <path d="M2 72 Q80 62 180 66 Q280 70 355 58" stroke="url(#logoGrad)" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <!-- Dot accent -->
+                <circle cx="255" cy="12" r="5" fill="#ff4d00"/>
+            </svg>
+        </div>
         <h1 id="heroTitle"></h1>
         <p id="heroDesc"></p>
-        <div class="stats">
-            <div class="stat">
-                <div class="stat-num" id="totalProducts">35</div>
-                <div class="stat-label" id="statProducts"></div>
-            </div>
-            <div class="stat">
-                <div class="stat-num">4</div>
-                <div class="stat-label" id="statBrands"></div>
-            </div>
-            <div class="stat">
-                <div class="stat-num">100%</div>
-                <div class="stat-label" id="statOriginal"></div>
+        <div class="ribbon-wrap">
+            <div class="ribbon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <span id="ribbonText"></span>
             </div>
         </div>
     </div>
@@ -876,11 +909,9 @@
 const i18n = {
     hu: {
         searchPlaceholder: 'Keresés modell, szín, méret alapján...',
-        heroTitle: 'Premium Sneaker Kollekció',
+        heroTitle: 'Lépj szintet!',
         heroDesc: 'Eredeti Nike, Jordan, Adidas és Vans cipők. Minden darab 100% eredeti, dobozos.',
-        statProducts: 'Termék',
-        statBrands: 'Márka',
-        statOriginal: 'Eredeti',
+        ribbonText: '100% Eredeti',
         brandLabel: 'Márka:',
         typeLabel: 'Típus:',
         genderLabel: 'Nem:',
@@ -920,11 +951,9 @@ const i18n = {
     },
     en: {
         searchPlaceholder: 'Search by model, color, size...',
-        heroTitle: 'Premium Sneaker Collection',
+        heroTitle: 'Step Up Your Level!',
         heroDesc: 'Authentic Nike, Jordan, Adidas and Vans sneakers. Every pair 100% original, boxed.',
-        statProducts: 'Products',
-        statBrands: 'Brands',
-        statOriginal: 'Authentic',
+        ribbonText: '100% Authentic',
         brandLabel: 'Brand:',
         typeLabel: 'Type:',
         genderLabel: 'Gender:',
@@ -1050,9 +1079,7 @@ function refreshUI() {
     document.getElementById('searchInput').placeholder = t('searchPlaceholder');
     document.getElementById('heroTitle').textContent = t('heroTitle');
     document.getElementById('heroDesc').textContent = t('heroDesc');
-    document.getElementById('statProducts').textContent = t('statProducts');
-    document.getElementById('statBrands').textContent = t('statBrands');
-    document.getElementById('statOriginal').textContent = t('statOriginal');
+    document.getElementById('ribbonText').textContent = t('ribbonText');
     document.getElementById('footerText').textContent = t('footer');
     document.getElementById('cartTitle').textContent = t('cart');
     document.getElementById('cartTotalLabel').textContent = t('total');

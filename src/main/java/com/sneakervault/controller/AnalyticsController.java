@@ -1,7 +1,9 @@
 package com.sneakervault.controller;
 
 import com.sneakervault.model.PageView;
+import com.sneakervault.model.ShoeClick;
 import com.sneakervault.repository.PageViewRepository;
+import com.sneakervault.repository.ShoeClickRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,9 +17,11 @@ import java.util.*;
 public class AnalyticsController {
 
     private final PageViewRepository pageViewRepository;
+    private final ShoeClickRepository shoeClickRepository;
 
-    public AnalyticsController(PageViewRepository pageViewRepository) {
+    public AnalyticsController(PageViewRepository pageViewRepository, ShoeClickRepository shoeClickRepository) {
         this.pageViewRepository = pageViewRepository;
+        this.shoeClickRepository = shoeClickRepository;
     }
 
     @PostMapping("/track")
@@ -66,5 +70,24 @@ public class AnalyticsController {
         result.put("topReferrers", topReferrers);
 
         return result;
+    }
+
+    @PostMapping("/click")
+    public ResponseEntity<Void> trackClick(@RequestBody Map<String, Object> body) {
+        ShoeClick click = new ShoeClick();
+        click.setShoeId(((Number) body.get("shoeId")).longValue());
+        click.setSessionId((String) body.get("sessionId"));
+        click.setClickedAt(LocalDateTime.now());
+        shoeClickRepository.save(click);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/clicks")
+    public Map<Long, Long> getClickCounts() {
+        Map<Long, Long> counts = new LinkedHashMap<>();
+        for (Object[] row : shoeClickRepository.countClicksPerShoe()) {
+            counts.put((Long) row[0], (Long) row[1]);
+        }
+        return counts;
     }
 }

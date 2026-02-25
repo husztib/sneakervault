@@ -465,7 +465,7 @@
         }
 
         .sale-price {
-            color: #e53e3e;
+            color: var(--accent);
             font-weight: 800;
         }
 
@@ -1342,6 +1342,10 @@ let galleryIndex = 0;
 function openModal(id) {
     const shoe = shoes.find(s => s.id === id);
     if (!shoe) return;
+
+    let sid = sessionStorage.getItem('_bx_sid');
+    if (!sid) { sid = Math.random().toString(36).substr(2); sessionStorage.setItem('_bx_sid', sid); }
+    navigator.sendBeacon('/api/analytics/click', new Blob([JSON.stringify({ shoeId: id, sessionId: sid })], {type:'application/json'}));
 
     const hasGallery = shoe.images && shoe.images.length > 1;
     galleryImages = hasGallery ? shoe.images : [];

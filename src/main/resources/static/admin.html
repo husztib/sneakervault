@@ -1191,7 +1191,8 @@ const i18n = {
         salePercentLabel: 'Kedvezmény (%)',
         salePriceHUF: 'Akciós ár (HUF)',
         salePriceEUR: 'Akciós ár (EUR)',
-        saleBadge: 'AKCIÓ'
+        saleBadge: 'AKCIÓ',
+        clicks: 'Kattintások'
     },
     en: {
         backToStore: '\u2190 Store',
@@ -1287,7 +1288,8 @@ const i18n = {
         salePercentLabel: 'Discount (%)',
         salePriceHUF: 'Sale Price (HUF)',
         salePriceEUR: 'Sale Price (EUR)',
-        saleBadge: 'SALE'
+        saleBadge: 'SALE',
+        clicks: 'Clicks'
     }
 };
 
@@ -1295,15 +1297,34 @@ function t(key) { return i18n[currentLang][key]; }
 
 // ====== STATE ======
 let shoes = [];
+let shoeClicks = {};
 let currentTheme = localStorage.getItem('sv-theme') || 'light';
 let currentLang = localStorage.getItem('sv-lang') || 'hu';
 let currentCurrency = localStorage.getItem('sv-currency') || 'HUF';
 let tableFilterQuery = '';
 
+function getEffectivePrice(shoe) {
+    if (!shoe.onSale) return { huf: shoe.price, eur: shoe.priceEUR };
+    if (shoe.saleType === 'FIXED') {
+        return { huf: shoe.salePrice || shoe.price, eur: shoe.salePriceEUR || shoe.priceEUR };
+    }
+    if (shoe.saleType === 'PERCENTAGE' && shoe.salePercent) {
+        return {
+            huf: Math.round(shoe.price * (100 - shoe.salePercent) / 100),
+            eur: Math.round(shoe.priceEUR * (100 - shoe.salePercent) / 100)
+        };
+    }
+    return { huf: shoe.price, eur: shoe.priceEUR };
+}
+
 // ====== LOAD DATA FROM API ======
 async function loadShoes() {
-    const res = await fetch('/api/shoes?includeSold=true');
-    shoes = await res.json();
+    const [shoesRes, clicksRes] = await Promise.all([
+        fetch('/api/shoes?includeSold=true'),
+        fetch('/api/analytics/clicks')
+    ]);
+    shoes = await shoesRes.json();
+    shoeClicks = await clicksRes.json();
     renderPriceTable();
 }
 
@@ -1354,8 +1375,8 @@ function fmtDate(iso) {
 // ====== INVENTORY STATS ======
 function renderInventoryStats() {
     const inStock = shoes.filter(s => !s.sold && !s.suspended);
-    const totalHUF = inStock.reduce((sum, s) => sum + (s.price || 0), 0);
-    const totalEUR = inStock.reduce((sum, s) => sum + (s.priceEUR || 0), 0);
+    const totalHUF = inStock.reduce((sum, s) => sum + getEffectivePrice(s).huf, 0);
+    const totalEUR = inStock.reduce((sum, s) => sum + getEffectivePrice(s).eur, 0);
 
     document.getElementById('inventoryStats').innerHTML = `
         <div class="stat-card">
@@ -1385,6 +1406,7 @@ function renderPriceTable() {
         <th>${t('brand')}</th>
         <th>${t('priceHUF')}</th>
         <th>${t('priceEUR')}</th>
+        <th>${t('clicks')}</th>
         <th>${t('actions')}</th>
     </tr>`;
 
@@ -1411,8 +1433,9 @@ function renderPriceTable() {
             <td data-label="${t('styleCode')}">${shoe.styleCode}</td>
             <td data-label="${t('size')}">EU ${shoe.sizeEUR} / US ${shoe.sizeUS}</td>
             <td data-label="${t('brand')}">${shoe.brand}</td>
-            <td data-label="${t('priceHUF')}">${fmtHUF(shoe.price)}</td>
-            <td data-label="${t('priceEUR')}">${fmtEUR(shoe.priceEUR)}</td>
+            <td data-label="${t('priceHUF')}">${shoe.onSale ? `<span style="text-decoration:line-through;color:var(--text-muted);font-size:12px">${fmtHUF(shoe.price)}</span><br><span style="color:var(--accent);font-weight:700">${fmtHUF(getEffectivePrice(shoe).huf)}</span>${shoe.saleType === 'PERCENTAGE' && shoe.salePercent ? ` <span style="color:var(--accent);font-size:11px;font-weight:600">(-${shoe.salePercent}%)</span>` : ''}` : fmtHUF(shoe.price)}</td>
+            <td data-label="${t('priceEUR')}">${shoe.onSale ? `<span style="text-decoration:line-through;color:var(--text-muted);font-size:12px">${fmtEUR(shoe.priceEUR)}</span><br><span style="color:var(--accent);font-weight:700">${fmtEUR(getEffectivePrice(shoe).eur)}</span>` : fmtEUR(shoe.priceEUR)}</td>
+            <td data-label="${t('clicks')}" style="text-align:center;font-weight:600">${shoeClicks[shoe.id] || 0}</td>
             <td data-label="${t('actions')}">
                 <div class="row-actions">
                     <button class="btn btn-primary btn-sm" onclick="openEditModal(${shoe.id})">${t('edit')}</button>

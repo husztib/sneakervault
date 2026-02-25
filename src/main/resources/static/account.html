@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="hu" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BotiX - Fiókom</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <style>
+        :root, [data-theme="dark"] {
+            --primary: #0a0a0a;
+            --accent: #ff4d00;
+            --accent-hover: #e64500;
+            --bg: #050505;
+            --card-bg: #1a1a1a;
+            --card-hover: #222222;
+            --text: #eee;
+            --text-muted: #8892a4;
+            --border: #2a2a2a;
+            --success: #00d68f;
+            --header-start: #0a0a0a;
+            --header-end: #1a1a1a;
+            --overlay-subtle: rgba(255,255,255,0.04);
+            --overlay-light: rgba(255,255,255,0.06);
+            --overlay-medium: rgba(255,255,255,0.08);
+            --overlay-strong: rgba(255,255,255,0.12);
+            --shadow-card: rgba(0,0,0,0.3);
+            --scrollbar-thumb: #2a2a2a;
+            --scrollbar-hover: #8892a4;
+        }
+
+        [data-theme="light"] {
+            --primary: #ffffff;
+            --bg: #f0f2f5;
+            --card-bg: #ffffff;
+            --card-hover: #f8f9fa;
+            --text: #0a0a0a;
+            --text-muted: #6b7280;
+            --border: #dde1e7;
+            --header-start: #ffffff;
+            --header-end: #f5f6f8;
+            --overlay-subtle: rgba(0,0,0,0.02);
+            --overlay-light: rgba(0,0,0,0.04);
+            --overlay-medium: rgba(0,0,0,0.05);
+            --overlay-strong: rgba(0,0,0,0.08);
+            --shadow-card: rgba(0,0,0,0.08);
+            --scrollbar-thumb: #ccc;
+            --scrollbar-hover: #999;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--header-start) 0%, var(--header-end) 100%);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        .header-top {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .logo-area { display: flex; align-items: center; gap: 10px; }
+        .logo { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; white-space: nowrap; }
+        .logo a { color: var(--text); text-decoration: none; }
+        .logo span { color: var(--accent); }
+
+        .header-actions { display: flex; align-items: center; gap: 10px; }
+        .settings-toggles { display: flex; gap: 6px; align-items: center; }
+
+        .toggle-group {
+            display: flex;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+
+        .toggle-opt {
+            padding: 6px 10px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.3px;
+        }
+
+        .toggle-opt:hover { color: var(--text); }
+        .toggle-opt.active { background: var(--accent); color: white; }
+
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .back-link:hover { border-color: var(--accent); color: var(--accent); }
+
+        .container { max-width: 1000px; margin: 0 auto; padding: 24px 20px; }
+
+        .page-title { font-size: 28px; font-weight: 800; margin-bottom: 24px; }
+
+        .section {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group.full { grid-column: 1 / -1; }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input {
+            padding: 10px 14px;
+            background: var(--overlay-medium);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(255,77,0,0.15);
+        }
+
+        .form-input:read-only {
+            opacity: 0.6;
+            cursor: default;
+        }
+
+        .btn-save {
+            margin-top: 16px;
+            padding: 12px 32px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-save:hover { background: var(--accent-hover); }
+
+        .order-card {
+            background: var(--overlay-subtle);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 10px;
+            transition: border-color 0.2s;
+        }
+
+        .order-card:hover { border-color: rgba(255,77,0,0.2); }
+
+        .order-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .order-id { font-family: monospace; font-size: 13px; color: var(--text-muted); }
+        .order-date { font-size: 13px; font-weight: 600; }
+        .order-total { font-weight: 800; color: var(--accent); font-size: 16px; margin-left: auto; }
+
+        .order-status-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .order-status-badge.pending { background: #f39c12; color: #000; }
+        .order-status-badge.confirmed { background: #3498db; color: #fff; }
+        .order-status-badge.shipped { background: var(--success); color: #000; }
+
+        .order-items { border-top: 1px solid var(--border); padding-top: 10px; }
+
+        .order-item {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 6px 0;
+            font-size: 13px;
+        }
+
+        .order-item .oi-name { flex: 1; font-weight: 600; }
+        .order-item .oi-meta { font-size: 11px; color: var(--text-muted); }
+        .order-item .oi-price { font-weight: 700; color: var(--accent); white-space: nowrap; }
+
+        .no-orders {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 40px 20px;
+            font-size: 14px;
+        }
+
+        footer {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--success);
+            color: #000;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 400;
+            transition: transform 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.error { background: #e74c3c; color: white; }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
+
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .header-top { flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-top">
+        <div class="logo-area">
+            <div class="logo"><a href="index.html">Boti<span>X</span></a></div>
+        </div>
+        <div class="header-actions">
+            <div class="settings-toggles">
+                <div class="toggle-group" id="themeToggle">
+                    <button class="toggle-opt active" data-val="dark">Dark</button>
+                    <button class="toggle-opt" data-val="light">Light</button>
+                </div>
+                <div class="toggle-group" id="langToggle">
+                    <button class="toggle-opt active" data-val="hu">HU</button>
+                    <button class="toggle-opt" data-val="en">EN</button>
+                </div>
+                <div class="toggle-group" id="currToggle">
+                    <button class="toggle-opt active" data-val="HUF">HUF</button>
+                    <button class="toggle-opt" data-val="EUR">EUR</button>
+                </div>
+            </div>
+            <a href="index.html" class="back-link" id="backLink"></a>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <h1 class="page-title" id="pageTitle"></h1>
+
+    <div class="section">
+        <h2 class="section-title" id="profileTitle"></h2>
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label" id="lblName"></label>
+                <input class="form-input" type="text" id="profileName">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input class="form-input" type="email" id="profileEmail" readonly>
+            </div>
+            <div class="form-group">
+                <label class="form-label" id="lblPhone"></label>
+                <input class="form-input" type="tel" id="profilePhone">
+            </div>
+            <div class="form-group">
+                <label class="form-label" id="lblZip"></label>
+                <input class="form-input" type="text" id="profileZip">
+            </div>
+            <div class="form-group">
+                <label class="form-label" id="lblCity"></label>
+                <input class="form-input" type="text" id="profileCity">
+            </div>
+            <div class="form-group">
+                <label class="form-label" id="lblStreet"></label>
+                <input class="form-input" type="text" id="profileStreet">
+            </div>
+        </div>
+        <button class="btn-save" id="saveBtn" onclick="saveProfile()"></button>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title" id="ordersTitle"></h2>
+        <div id="ordersContainer"></div>
+    </div>
+</div>
+
+<footer>
+    <p id="footerText"></p>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const i18n = {
+    hu: {
+        backToStore: '\u2190 Bolt',
+        pageTitle: 'Fiókom',
+        profileTitle: 'Profil adatok',
+        ordersTitle: 'Rendeléseim',
+        nameLabel: 'Név',
+        phoneLabel: 'Telefon',
+        zipLabel: 'Irányítószám',
+        cityLabel: 'Város',
+        streetLabel: 'Utca, házszám',
+        saveBtn: 'Mentés',
+        saved: 'Profil mentve!',
+        saveError: 'Hiba a mentés során!',
+        noOrders: 'Még nincs rendelésed.',
+        footer: 'BotiX \u00a9 2026 \u2014 Minden jog fenntartva.',
+        orderStatusPending: 'Függőben',
+        orderStatusConfirmed: 'Megerősítve',
+        orderStatusShipped: 'Kiszállítva',
+        logout: 'Kijelentkezés'
+    },
+    en: {
+        backToStore: '\u2190 Store',
+        pageTitle: 'My Account',
+        profileTitle: 'Profile',
+        ordersTitle: 'My Orders',
+        nameLabel: 'Name',
+        phoneLabel: 'Phone',
+        zipLabel: 'Zip Code',
+        cityLabel: 'City',
+        streetLabel: 'Street, number',
+        saveBtn: 'Save',
+        saved: 'Profile saved!',
+        saveError: 'Error saving!',
+        noOrders: 'You have no orders yet.',
+        footer: 'BotiX \u00a9 2026 \u2014 All rights reserved.',
+        orderStatusPending: 'Pending',
+        orderStatusConfirmed: 'Confirmed',
+        orderStatusShipped: 'Shipped',
+        logout: 'Logout'
+    }
+};
+
+let currentTheme = localStorage.getItem('sv-theme') || 'light';
+let currentLang = localStorage.getItem('sv-lang') || 'hu';
+let currentCurrency = localStorage.getItem('sv-currency') || 'HUF';
+let currentUser = null;
+
+function t(key) { return i18n[currentLang][key]; }
+
+function fmtHUF(val) { return val.toLocaleString('hu-HU') + ' Ft'; }
+function fmtEUR(val) { return '\u20ac' + val; }
+function fmtPrice(huf, eur) { return currentCurrency === 'EUR' ? fmtEUR(eur) : fmtHUF(huf); }
+
+function fmtDate(iso) {
+    const d = new Date(iso);
+    if (currentLang === 'hu') {
+        return d.toLocaleString('hu-HU', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+    return d.toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+function applyTheme(theme) {
+    currentTheme = theme;
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('sv-theme', theme);
+    updateToggleUI('themeToggle', theme);
+}
+
+function applyLang(lang) {
+    currentLang = lang;
+    document.documentElement.lang = lang === 'hu' ? 'hu' : 'en';
+    localStorage.setItem('sv-lang', lang);
+    updateToggleUI('langToggle', lang);
+    refreshUI();
+}
+
+function applyCurrency(curr) {
+    currentCurrency = curr;
+    localStorage.setItem('sv-currency', curr);
+    updateToggleUI('currToggle', curr);
+    loadOrders();
+}
+
+function updateToggleUI(groupId, activeVal) {
+    document.querySelectorAll(`#${groupId} .toggle-opt`).forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.val === activeVal);
+    });
+}
+
+function showToast(msg, isError) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.toggle('error', !!isError);
+    toast.classList.add('show');
+    setTimeout(() => { toast.classList.remove('show'); toast.classList.remove('error'); }, 2500);
+}
+
+function refreshUI() {
+    document.getElementById('backLink').textContent = t('backToStore');
+    document.getElementById('pageTitle').textContent = t('pageTitle');
+    document.getElementById('profileTitle').textContent = t('profileTitle');
+    document.getElementById('ordersTitle').textContent = t('ordersTitle');
+    document.getElementById('lblName').textContent = t('nameLabel');
+    document.getElementById('lblPhone').textContent = t('phoneLabel');
+    document.getElementById('lblZip').textContent = t('zipLabel');
+    document.getElementById('lblCity').textContent = t('cityLabel');
+    document.getElementById('lblStreet').textContent = t('streetLabel');
+    document.getElementById('saveBtn').textContent = t('saveBtn');
+    document.getElementById('footerText').textContent = t('footer');
+    document.title = 'BotiX - ' + t('pageTitle');
+    loadOrders();
+}
+
+async function initAuth() {
+    const token = localStorage.getItem('sv-auth-token');
+    if (!token) {
+        window.location.href = 'index.html';
+        return;
+    }
+
+    try {
+        const res = await fetch('/api/customers/me', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (res.ok) {
+            currentUser = await res.json();
+            fillProfile();
+        } else {
+            localStorage.removeItem('sv-auth-token');
+            window.location.href = 'index.html';
+        }
+    } catch (e) {
+        window.location.href = 'index.html';
+    }
+}
+
+function fillProfile() {
+    if (!currentUser) return;
+    document.getElementById('profileName').value = currentUser.name || '';
+    document.getElementById('profileEmail').value = currentUser.email || '';
+    document.getElementById('profilePhone').value = currentUser.phone || '';
+    document.getElementById('profileZip').value = currentUser.zip || '';
+    document.getElementById('profileCity').value = currentUser.city || '';
+    document.getElementById('profileStreet').value = currentUser.street || '';
+}
+
+async function saveProfile() {
+    const token = localStorage.getItem('sv-auth-token');
+    if (!token) return;
+
+    const body = {
+        name: document.getElementById('profileName').value,
+        phone: document.getElementById('profilePhone').value,
+        zip: document.getElementById('profileZip').value,
+        city: document.getElementById('profileCity').value,
+        street: document.getElementById('profileStreet').value
+    };
+
+    try {
+        const res = await fetch('/api/customers/me', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify(body)
+        });
+
+        if (res.ok) {
+            currentUser = await res.json();
+            showToast(t('saved'));
+        } else {
+            showToast(t('saveError'), true);
+        }
+    } catch (e) {
+        showToast(t('saveError'), true);
+    }
+}
+
+async function loadOrders() {
+    const token = localStorage.getItem('sv-auth-token');
+    if (!token) return;
+
+    try {
+        const res = await fetch('/api/orders/by-email', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+
+        if (res.ok) {
+            const orders = await res.json();
+            renderOrders(orders);
+        }
+    } catch (e) {}
+}
+
+function renderOrders(orders) {
+    const container = document.getElementById('ordersContainer');
+
+    if (!orders || orders.length === 0) {
+        container.innerHTML = `<div class="no-orders">${t('noOrders')}</div>`;
+        return;
+    }
+
+    container.innerHTML = orders.map(order => {
+        const status = order.status || 'PENDING';
+        const statusClass = status.toLowerCase();
+        const statusLabel = t('orderStatus' + status.charAt(0) + status.slice(1).toLowerCase());
+
+        const items = order.items.map(item => `
+            <div class="order-item">
+                <div>
+                    <div class="oi-name">${item.name}</div>
+                    <div class="oi-meta">EU ${item.sizeEUR} | US ${item.sizeUS}</div>
+                </div>
+                <div class="oi-price">${fmtPrice(item.price, item.priceEUR)}</div>
+            </div>
+        `).join('');
+
+        return `
+        <div class="order-card">
+            <div class="order-header">
+                <span class="order-id">#${order.id}</span>
+                <span class="order-date">${fmtDate(order.orderDate)}</span>
+                <span class="order-status-badge ${statusClass}">${statusLabel}</span>
+                <span class="order-total">${fmtPrice(order.totalHUF, order.totalEUR)}</span>
+            </div>
+            <div class="order-items">${items}</div>
+        </div>`;
+    }).join('');
+}
+
+function init() {
+    applyTheme(currentTheme);
+    updateToggleUI('langToggle', currentLang);
+    updateToggleUI('currToggle', currentCurrency);
+
+    document.querySelectorAll('#themeToggle .toggle-opt').forEach(btn => {
+        btn.onclick = () => applyTheme(btn.dataset.val);
+    });
+    document.querySelectorAll('#langToggle .toggle-opt').forEach(btn => {
+        btn.onclick = () => applyLang(btn.dataset.val);
+    });
+    document.querySelectorAll('#currToggle .toggle-opt').forEach(btn => {
+        btn.onclick = () => applyCurrency(btn.dataset.val);
+    });
+
+    refreshUI();
+    initAuth();
+}
+
+init();
+</script>
+</body>
+</html>

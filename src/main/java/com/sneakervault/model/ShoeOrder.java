@@ -14,6 +14,9 @@ public class ShoeOrder {
 
     private LocalDateTime orderDate;
     private String currency;
+
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status = OrderStatus.PENDING;
     private Integer totalHUF;
     private Integer totalEUR;
 
@@ -75,4 +78,7 @@ public class ShoeOrder {
 
     public String getLanguage() { return language; }
     public void setLanguage(String language) { this.language = language; }
+
+    public OrderStatus getStatus() { return status; }
+    public void setStatus(OrderStatus status) { this.status = status; }
 }

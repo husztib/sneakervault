@@ -1,9 +1,8 @@
 package com.sneakervault.controller;
 
 import com.sneakervault.dto.*;
-import com.sneakervault.model.OrderItem;
-import com.sneakervault.model.Shoe;
-import com.sneakervault.model.ShoeOrder;
+import com.sneakervault.model.*;
+import com.sneakervault.repository.CustomerRepository;
 import com.sneakervault.repository.ShoeOrderRepository;
 import com.sneakervault.repository.ShoeRepository;
 import com.sneakervault.service.EmailService;
@@ -20,11 +19,14 @@ public class OrderController {
     private final ShoeOrderRepository orderRepository;
     private final ShoeRepository shoeRepository;
     private final EmailService emailService;
+    private final CustomerRepository customerRepository;
 
-    public OrderController(ShoeOrderRepository orderRepository, ShoeRepository shoeRepository, EmailService emailService) {
+    public OrderController(ShoeOrderRepository orderRepository, ShoeRepository shoeRepository,
+                           EmailService emailService, CustomerRepository customerRepository) {
         this.orderRepository = orderRepository;
         this.shoeRepository = shoeRepository;
         this.emailService = emailService;
+        this.customerRepository = customerRepository;
     }
 
     @PostMapping
@@ -142,6 +144,51 @@ public class OrderController {
         List<PerShoeSalesResponse> result = new ArrayList<>(salesMap.values());
         result.sort((a, b) -> b.getTimesSold() - a.getTimesSold());
         return result;
+    }
+
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        String statusStr = body.get("status");
+        if (statusStr == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Status is required"));
+        }
+
+        OrderStatus newStatus;
+        try {
+            newStatus = OrderStatus.valueOf(statusStr);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid status: " + statusStr));
+        }
+
+        return orderRepository.findById(id).map(order -> {
+            order.setStatus(newStatus);
+            orderRepository.save(order);
+            emailService.sendOrderStatusEmail(order);
+            return ResponseEntity.ok(Map.of("message", "Status updated", "status", newStatus.name()));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/by-email")
+    public ResponseEntity<?> getOrdersByEmail(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @RequestParam(required = false) String email) {
+        // If email param provided (admin usage), use it directly
+        if (email != null && !email.isBlank()) {
+            List<ShoeOrder> orders = orderRepository.findByCustomerEmailOrderByOrderDateDesc(email);
+            return ResponseEntity.ok(orders);
+        }
+
+        // Otherwise, use auth token to get the logged-in user's email
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
+        }
+        String token = authHeader.substring(7);
+        return customerRepository.findByAuthToken(token)
+                .map(customer -> {
+                    List<ShoeOrder> orders = orderRepository.findByCustomerEmailOrderByOrderDateDesc(customer.getEmail());
+                    return ResponseEntity.ok((Object) orders);
+                })
+                .orElse(ResponseEntity.status(401).body(Map.of("error", "Unauthorized")));
     }
 
     @DeleteMapping("/{id}")

@@ -1060,6 +1060,7 @@
                 </button>
                 <div class="user-dropdown" id="userDropdown">
                     <button class="user-dropdown-item" id="userEmail" disabled style="opacity:0.6;cursor:default"></button>
+                    <a class="user-dropdown-item" id="myAccountLink" href="account.html" style="text-decoration:none;color:var(--text);display:block;text-align:left"></a>
                     <button class="user-dropdown-item logout" id="logoutBtn" onclick="doLogout()"></button>
                 </div>
             </div>
@@ -1252,9 +1253,12 @@ const i18n = {
         authErrorInvalid: 'Hibás email vagy jelszó!',
         authErrorExists: 'Ez az email már regisztrálva van!',
         authErrorGeneral: 'Hiba történt, próbáld újra!',
-        registerSuccess: 'Sikeres regisztráció!',
+        registerSuccess: 'Ellenőrizd az email fiókodat az aktiváláshoz!',
         loginSuccess: 'Sikeres belépés!',
-        logoutSuccess: 'Kijelentkezve!'
+        logoutSuccess: 'Kijelentkezve!',
+        accountNotActivated: 'A fiók nincs aktiválva. Ellenőrizd az emailjeidet!',
+        accountActivated: 'Fiók aktiválva! Most már bejelentkezhetsz.',
+        myAccount: 'Fiókom'
     },
     en: {
         searchPlaceholder: 'Search by model, color, size...',
@@ -1312,9 +1316,12 @@ const i18n = {
         authErrorInvalid: 'Invalid email or password!',
         authErrorExists: 'This email is already registered!',
         authErrorGeneral: 'An error occurred, please try again!',
-        registerSuccess: 'Registration successful!',
+        registerSuccess: 'Please check your email to activate your account!',
         loginSuccess: 'Logged in successfully!',
-        logoutSuccess: 'Logged out!'
+        logoutSuccess: 'Logged out!',
+        accountNotActivated: 'Account not activated. Please check your email!',
+        accountActivated: 'Account activated! You can now log in.',
+        myAccount: 'My Account'
     }
 };
 
@@ -1542,13 +1549,17 @@ async function initAuth() {
 function updateAuthUI() {
     const nameEl = document.getElementById('authName');
     const emailEl = document.getElementById('userEmail');
+    const accountLink = document.getElementById('myAccountLink');
 
     if (currentUser) {
         nameEl.textContent = currentUser.name || currentUser.email;
         nameEl.style.display = 'inline';
         emailEl.textContent = currentUser.email;
+        accountLink.textContent = t('myAccount');
+        accountLink.style.display = 'block';
     } else {
         nameEl.style.display = 'none';
+        accountLink.style.display = 'none';
     }
 }
 
@@ -1613,6 +1624,9 @@ async function doLogin(e) {
             closeAuthModal();
             showToast(t('loginSuccess'));
             document.getElementById('loginForm').reset();
+        } else if (res.status === 403) {
+            errEl.textContent = t('accountNotActivated');
+            errEl.classList.add('show');
         } else {
             errEl.textContent = t('authErrorInvalid');
             errEl.classList.add('show');
@@ -1646,10 +1660,6 @@ async function doRegister(e) {
         });
 
         if (res.ok) {
-            const data = await res.json();
-            localStorage.setItem('sv-auth-token', data.token);
-            currentUser = data;
-            updateAuthUI();
             closeAuthModal();
             showToast(t('registerSuccess'));
             document.getElementById('registerForm').reset();
@@ -1733,6 +1743,13 @@ function init() {
     });
 
     initAuth();
+
+    // Handle activation redirect
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('activated') === 'true') {
+        showToast(t('accountActivated'));
+        window.history.replaceState({}, '', window.location.pathname);
+    }
 
     if (localStorage.getItem('sv-checkout-success')) {
         localStorage.removeItem('sv-checkout-success');

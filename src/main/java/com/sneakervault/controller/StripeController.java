@@ -3,6 +3,7 @@ package com.sneakervault.controller;
 import com.sneakervault.dto.CheckoutItemRequest;
 import com.sneakervault.dto.CheckoutRequest;
 import com.sneakervault.model.OrderItem;
+import com.sneakervault.model.OrderStatus;
 import com.sneakervault.model.Shoe;
 import com.sneakervault.model.ShoeOrder;
 import com.sneakervault.repository.ShoeOrderRepository;
@@ -223,6 +224,7 @@ public class StripeController {
         ShoeOrder order = new ShoeOrder();
         order.setOrderDate(LocalDateTime.now());
         order.setCurrency(currency);
+        order.setStatus(OrderStatus.PENDING);
         order.setCustomerName(metadata.getOrDefault("customerName", ""));
         order.setCustomerEmail(metadata.getOrDefault("customerEmail", ""));
         order.setCustomerPhone(metadata.getOrDefault("customerPhone", ""));

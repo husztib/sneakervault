@@ -833,6 +833,106 @@
 
         .btn-delete-order:hover { background: #e74c3c; color: white; }
 
+        .order-status-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+        .order-status-badge.pending { background: #f39c12; color: #000; }
+        .order-status-badge.confirmed { background: #3498db; color: #fff; }
+        .order-status-badge.shipped { background: var(--success); color: #000; }
+
+        .order-status-btn {
+            padding: 4px 12px;
+            border-radius: 8px;
+            border: none;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .order-status-btn.confirm-btn { background: #3498db; color: #fff; }
+        .order-status-btn.confirm-btn:hover { filter: brightness(1.15); }
+        .order-status-btn.ship-btn { background: var(--success); color: #000; }
+        .order-status-btn.ship-btn:hover { filter: brightness(1.15); }
+
+        .customer-row-clickable { cursor: pointer; }
+        .customer-row-clickable:hover td { background: var(--overlay-medium) !important; }
+
+        .activation-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .activation-badge.active { background: var(--success); color: #000; }
+        .activation-badge.inactive { background: #e74c3c; color: #fff; }
+
+        .customer-modal-section {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+        .customer-modal-section h4 {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+        .customer-modal-grid {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 6px 12px;
+            font-size: 13px;
+        }
+        .customer-modal-grid .label { color: var(--text-muted); font-weight: 600; }
+        .customer-modal-order {
+            background: var(--overlay-subtle);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+        }
+        .customer-modal-order-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 6px;
+        }
+        .customer-modal-order-items {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+        .login-history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .login-history-table th {
+            text-align: left;
+            padding: 6px 10px;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+        }
+        .login-history-table td {
+            padding: 6px 10px;
+            border-bottom: 1px solid var(--overlay-light);
+        }
+
         .upload-zone input { display: none; }
 
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -1163,6 +1263,14 @@
     </div>
 </div>
 
+<div class="edit-modal-overlay" id="customerModalOverlay">
+    <div class="edit-modal" style="max-width:700px">
+        <button class="edit-modal-close" onclick="closeCustomerModal()">&times;</button>
+        <h3 id="customerModalTitle"></h3>
+        <div id="customerModalBody"></div>
+    </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1276,7 +1384,22 @@ const i18n = {
         tabPrices: 'Termékek',
         tabSales: 'Értékesítés',
         tabAnalytics: 'Analitika',
-        tabCustomers: 'Felhasználók'
+        tabCustomers: 'Felhasználók',
+        orderStatusPending: 'Függőben',
+        orderStatusConfirmed: 'Megerősítve',
+        orderStatusShipped: 'Kiszállítva',
+        confirmOrder: 'Megerősítés',
+        markShipped: 'Kiszállítva',
+        customerDetails: 'Ügyfél részletei',
+        loginHistory: 'Bejelentkezési előzmények',
+        loginDate: 'Dátum',
+        ipAddress: 'IP cím',
+        noLogins: 'Nincs bejelentkezési előzmény',
+        noCustomerOrders: 'Nincs rendelése',
+        activated: 'Aktiválva',
+        notActivated: 'Nincs aktiválva',
+        orderStatusUpdated: 'Státusz frissítve!',
+        orders: 'Rendelései'
     },
     en: {
         backToStore: '\u2190 Store',
@@ -1387,7 +1510,22 @@ const i18n = {
         tabPrices: 'Products',
         tabSales: 'Sales',
         tabAnalytics: 'Analytics',
-        tabCustomers: 'Customers'
+        tabCustomers: 'Customers',
+        orderStatusPending: 'Pending',
+        orderStatusConfirmed: 'Confirmed',
+        orderStatusShipped: 'Shipped',
+        confirmOrder: 'Confirm',
+        markShipped: 'Mark Shipped',
+        customerDetails: 'Customer Details',
+        loginHistory: 'Login History',
+        loginDate: 'Date',
+        ipAddress: 'IP Address',
+        noLogins: 'No login history',
+        noCustomerOrders: 'No orders',
+        activated: 'Activated',
+        notActivated: 'Not activated',
+        orderStatusUpdated: 'Status updated!',
+        orders: 'Orders'
     }
 };
 
@@ -1646,13 +1784,27 @@ function renderOrders(orders) {
                 </div>
             </div>` : '';
 
+        const status = order.status || 'PENDING';
+        const statusClass = status.toLowerCase();
+        const statusLabel = t('orderStatus' + status.charAt(0) + status.slice(1).toLowerCase());
+        const statusBadge = `<span class="order-status-badge ${statusClass}">${statusLabel}</span>`;
+
+        let statusBtn = '';
+        if (status === 'PENDING') {
+            statusBtn = `<button class="order-status-btn confirm-btn" onclick="event.stopPropagation(); updateOrderStatus(${order.id}, 'CONFIRMED')">${t('confirmOrder')}</button>`;
+        } else if (status === 'CONFIRMED') {
+            statusBtn = `<button class="order-status-btn ship-btn" onclick="event.stopPropagation(); updateOrderStatus(${order.id}, 'SHIPPED')">${t('markShipped')}</button>`;
+        }
+
         return `
         <div class="order-card">
             <div class="order-header" onclick="toggleOrder(${order.id})">
                 <div class="order-id">#${order.id}</div>
                 <div class="order-date">${fmtDate(order.orderDate)}${customerBadge}</div>
+                ${statusBadge}
                 <div class="order-item-count">${order.items.length} ${t('orderItems')}</div>
                 <div class="order-total-display">${fmtPrice(order.totalHUF, order.totalEUR)}</div>
+                ${statusBtn}
                 <button class="btn-delete-order" onclick="event.stopPropagation(); deleteOrder(${order.id})">${t('deleteOrder')}</button>
                 <span class="expand-icon" id="icon-${order.id}">&#9660;</span>
             </div>
@@ -2174,6 +2326,7 @@ function renderCustomerTable() {
         <th>${t('customerPhoneCol')}</th>
         <th>${t('customerCity')}</th>
         <th>${t('customerRegistered')}</th>
+        <th>${t('statusLabel')}</th>
     </tr>`;
 
     const filtered = customers.filter(c => {
@@ -2183,21 +2336,126 @@ function renderCustomerTable() {
     });
 
     if (filtered.length === 0) {
-        body.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-muted)">${t('noCustomers')}</td></tr>`;
+        body.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">${t('noCustomers')}</td></tr>`;
         return;
     }
 
     body.innerHTML = filtered.map(c => {
         const regDate = c.registeredAt ? new Date(c.registeredAt).toLocaleDateString('hu-HU') : '-';
-        return `<tr>
+        const activBadge = c.activated
+            ? `<span class="activation-badge active">${t('activated')}</span>`
+            : `<span class="activation-badge inactive">${t('notActivated')}</span>`;
+        return `<tr class="customer-row-clickable" onclick="openCustomerModal(${c.id})">
             <td data-label="${t('customerName')}">${c.name || '-'}</td>
             <td data-label="${t('customerEmailCol')}">${c.email || '-'}</td>
             <td data-label="${t('customerPhoneCol')}">${c.phone || '-'}</td>
             <td data-label="${t('customerCity')}">${c.city || '-'}</td>
             <td data-label="${t('customerRegistered')}">${regDate}</td>
+            <td>${activBadge}</td>
         </tr>`;
     }).join('');
 }
+
+// ====== ORDER STATUS ======
+async function updateOrderStatus(orderId, newStatus) {
+    try {
+        const res = await fetch(`/api/orders/${orderId}/status`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: newStatus })
+        });
+        if (res.ok) {
+            await loadSalesData();
+            showToast(t('orderStatusUpdated'));
+        }
+    } catch (e) {}
+}
+
+// ====== CUSTOMER MODAL ======
+async function openCustomerModal(customerId) {
+    const customer = customers.find(c => c.id === customerId);
+    if (!customer) return;
+
+    document.getElementById('customerModalTitle').textContent = t('customerDetails');
+
+    const activBadge = customer.activated
+        ? `<span class="activation-badge active">${t('activated')}</span>`
+        : `<span class="activation-badge inactive">${t('notActivated')}</span>`;
+
+    const regDate = customer.registeredAt ? fmtDate(customer.registeredAt) : '-';
+
+    let html = `
+        <div class="customer-modal-grid">
+            <span class="label">${t('customerName')}</span><span>${customer.name || '-'}</span>
+            <span class="label">${t('customerEmailCol')}</span><span>${customer.email || '-'}</span>
+            <span class="label">${t('customerPhoneCol')}</span><span>${customer.phone || '-'}</span>
+            <span class="label">${t('customerAddress')}</span><span>${customer.zip || ''} ${customer.city || ''}, ${customer.street || ''}</span>
+            <span class="label">${t('customerRegistered')}</span><span>${regDate}</span>
+            <span class="label">${t('statusLabel')}</span><span>${activBadge}</span>
+        </div>
+        <div class="customer-modal-section">
+            <h4>${t('orders')}</h4>
+            <div id="customerModalOrders"><div style="color:var(--text-muted);font-size:13px;padding:8px 0">${t('noCustomerOrders')}</div></div>
+        </div>
+        <div class="customer-modal-section">
+            <h4>${t('loginHistory')}</h4>
+            <div id="customerModalLogins"><div style="color:var(--text-muted);font-size:13px;padding:8px 0">${t('noLogins')}</div></div>
+        </div>`;
+
+    document.getElementById('customerModalBody').innerHTML = html;
+    document.getElementById('customerModalOverlay').classList.add('show');
+
+    // Fetch orders and login history in parallel
+    const [ordersRes, loginsRes] = await Promise.all([
+        fetch(`/api/orders/by-email?email=${encodeURIComponent(customer.email)}`),
+        fetch(`/api/customers/${customerId}/logins`)
+    ]);
+
+    if (ordersRes.ok) {
+        const orders = await ordersRes.json();
+        const ordersEl = document.getElementById('customerModalOrders');
+        if (orders.length === 0) {
+            ordersEl.innerHTML = `<div style="color:var(--text-muted);font-size:13px;padding:8px 0">${t('noCustomerOrders')}</div>`;
+        } else {
+            ordersEl.innerHTML = orders.map(order => {
+                const status = order.status || 'PENDING';
+                const statusClass = status.toLowerCase();
+                const statusLabel = t('orderStatus' + status.charAt(0) + status.slice(1).toLowerCase());
+                const items = order.items.map(i => `${i.name} (EU ${i.sizeEUR}) — ${fmtPrice(i.price, i.priceEUR)}`).join('<br>');
+                return `<div class="customer-modal-order">
+                    <div class="customer-modal-order-header">
+                        <span style="font-family:monospace;font-size:12px;color:var(--text-muted)">#${order.id}</span>
+                        <span style="font-size:13px;font-weight:600">${fmtDate(order.orderDate)}</span>
+                        <span class="order-status-badge ${statusClass}">${statusLabel}</span>
+                        <span style="font-weight:800;color:var(--accent);margin-left:auto">${fmtPrice(order.totalHUF, order.totalEUR)}</span>
+                    </div>
+                    <div class="customer-modal-order-items">${items}</div>
+                </div>`;
+            }).join('');
+        }
+    }
+
+    if (loginsRes.ok) {
+        const logins = await loginsRes.json();
+        const loginsEl = document.getElementById('customerModalLogins');
+        if (logins.length === 0) {
+            loginsEl.innerHTML = `<div style="color:var(--text-muted);font-size:13px;padding:8px 0">${t('noLogins')}</div>`;
+        } else {
+            loginsEl.innerHTML = `<table class="login-history-table">
+                <thead><tr><th>${t('loginDate')}</th><th>${t('ipAddress')}</th></tr></thead>
+                <tbody>${logins.map(l => `<tr><td>${fmtDate(l.loginAt)}</td><td>${l.ipAddress || '-'}</td></tr>`).join('')}</tbody>
+            </table>`;
+        }
+    }
+}
+
+function closeCustomerModal() {
+    document.getElementById('customerModalOverlay').classList.remove('show');
+}
+
+document.getElementById('customerModalOverlay').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeCustomerModal();
+});
 
 // Auto-init if already authenticated in this session
 if (sessionStorage.getItem('sv-admin-auth') === '1') {

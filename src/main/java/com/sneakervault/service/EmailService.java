@@ -1,6 +1,8 @@
 package com.sneakervault.service;
 
+import com.sneakervault.model.Customer;
 import com.sneakervault.model.OrderItem;
+import com.sneakervault.model.OrderStatus;
 import com.sneakervault.model.ShoeOrder;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -27,6 +29,9 @@ public class EmailService {
 
     @Value("${sneakervault.admin.url:}")
     private String adminUrl;
+
+    @Value("${sneakervault.base.url:http://localhost:8080}")
+    private String baseUrl;
 
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
@@ -81,6 +86,86 @@ public class EmailService {
         } catch (Exception e) {
             log.error("Unexpected error sending email to {}: {}", to, e.getMessage());
         }
+    }
+
+    @Async
+    public void sendActivationEmail(Customer customer, String activationBaseUrl) {
+        String email = customer.getEmail();
+        if (email == null || email.isBlank()) return;
+
+        String link = activationBaseUrl + "/api/customers/activate?token=" + customer.getActivationToken();
+        String subject = "BotiX - Fiók aktiválás / Account Activation";
+
+        String html = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"></head>"
+                + "<body style=\"margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f5f5;\">"
+                + "<div style=\"max-width:600px;margin:0 auto;background:#ffffff;\">"
+                + "<div style=\"background:#0a0a0a;padding:24px 32px;text-align:center;\">"
+                + "<h1 style=\"color:#fff;margin:0;font-size:24px;\">Boti<span style=\"color:#ff4d00;\">X</span></h1>"
+                + "</div>"
+                + "<div style=\"padding:32px;text-align:center;\">"
+                + "<h2 style=\"color:#0a0a0a;margin:0 0 16px;\">Fi\u00f3k aktiv\u00e1l\u00e1s / Account Activation</h2>"
+                + "<p style=\"color:#666;margin:0 0 24px;font-size:14px;\">Kattints az al\u00e1bbi gombra a fi\u00f3kod aktiv\u00e1l\u00e1s\u00e1hoz.<br>Click the button below to activate your account.</p>"
+                + "<a href=\"" + esc(link) + "\" style=\"display:inline-block;padding:14px 32px;background:#ff4d00;color:#fff;text-decoration:none;border-radius:10px;font-weight:700;font-size:15px;\">Aktiv\u00e1l\u00e1s / Activate</a>"
+                + "<p style=\"color:#999;margin-top:24px;font-size:12px;\">Ha nem te regisztr\u00e1lt\u00e1l, hagyd figyelmen k\u00edv\u00fcl ezt az emailt.<br>If you didn't register, please ignore this email.</p>"
+                + "</div>"
+                + "<div style=\"background:#f8f9fa;padding:16px 32px;text-align:center;color:#999;font-size:12px;\">"
+                + "BotiX &copy; 2026"
+                + "</div>"
+                + "</div></body></html>";
+
+        sendEmail(email, subject, html);
+    }
+
+    @Async
+    public void sendOrderStatusEmail(ShoeOrder order) {
+        String email = order.getCustomerEmail();
+        if (email == null || email.isBlank()) return;
+
+        boolean hu = "hu".equals(order.getLanguage());
+        OrderStatus status = order.getStatus();
+
+        String subject;
+        String heading;
+        String message;
+
+        if (status == OrderStatus.CONFIRMED) {
+            subject = hu ? "BotiX - #" + order.getId() + " Rendel\u00e9s meger\u0151s\u00edtve"
+                         : "BotiX - Order #" + order.getId() + " Confirmed";
+            heading = hu ? "Rendel\u00e9sed meger\u0151s\u00edtve!" : "Your order has been confirmed!";
+            message = hu ? "A #" + order.getId() + " sz\u00e1m\u00fa rendel\u00e9sedet meger\u0151s\u00edtett\u00fck."
+                         : "Your order #" + order.getId() + " has been confirmed.";
+        } else if (status == OrderStatus.SHIPPED) {
+            subject = hu ? "BotiX - #" + order.getId() + " Rendel\u00e9s kisz\u00e1ll\u00edtva"
+                         : "BotiX - Order #" + order.getId() + " Shipped";
+            heading = hu ? "Rendel\u00e9sed kisz\u00e1ll\u00edtva!" : "Your order has been shipped!";
+            message = hu ? "A #" + order.getId() + " sz\u00e1m\u00fa rendel\u00e9sed \u00faton van hozz\u00e1d."
+                         : "Your order #" + order.getId() + " is on its way to you.";
+        } else {
+            return;
+        }
+
+        String total = formatPrice(order.getTotalHUF(), order.getTotalEUR(), order.getCurrency());
+
+        String html = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"></head>"
+                + "<body style=\"margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f5f5;\">"
+                + "<div style=\"max-width:600px;margin:0 auto;background:#ffffff;\">"
+                + "<div style=\"background:#0a0a0a;padding:24px 32px;text-align:center;\">"
+                + "<h1 style=\"color:#fff;margin:0;font-size:24px;\">Boti<span style=\"color:#ff4d00;\">X</span></h1>"
+                + "</div>"
+                + "<div style=\"padding:32px;text-align:center;\">"
+                + "<h2 style=\"color:#0a0a0a;margin:0 0 8px;\">" + heading + "</h2>"
+                + "<p style=\"color:#666;margin:0 0 24px;font-size:14px;\">" + message + "</p>"
+                + "<div style=\"background:#f8f9fa;border-radius:8px;padding:16px;display:inline-block;\">"
+                + "<span style=\"font-size:14px;color:#666;\">" + (hu ? "\u00d6sszesen: " : "Total: ") + "</span>"
+                + "<span style=\"font-size:20px;font-weight:800;color:#ff4d00;\">" + total + "</span>"
+                + "</div>"
+                + "</div>"
+                + "<div style=\"background:#f8f9fa;padding:16px 32px;text-align:center;color:#999;font-size:12px;\">"
+                + "BotiX &copy; 2026"
+                + "</div>"
+                + "</div></body></html>";
+
+        sendEmail(email, subject, html);
     }
 
     private String buildHtml(ShoeOrder order, boolean hu) {

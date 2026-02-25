@@ -23,6 +23,8 @@ public class Customer {
     private String street;
     private String authToken;
     private LocalDateTime registeredAt;
+    private boolean activated;
+    private String activationToken;
 
     public Customer() {}
 
@@ -55,4 +57,10 @@ public class Customer {
 
     public LocalDateTime getRegisteredAt() { return registeredAt; }
     public void setRegisteredAt(LocalDateTime registeredAt) { this.registeredAt = registeredAt; }
+
+    public boolean isActivated() { return activated; }
+    public void setActivated(boolean activated) { this.activated = activated; }
+
+    public String getActivationToken() { return activationToken; }
+    public void setActivationToken(String activationToken) { this.activationToken = activationToken; }
 }

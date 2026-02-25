@@ -3,10 +3,16 @@ package com.sneakervault.controller;
 import com.sneakervault.dto.CustomerLoginRequest;
 import com.sneakervault.dto.CustomerRegisterRequest;
 import com.sneakervault.model.Customer;
+import com.sneakervault.model.LoginHistory;
 import com.sneakervault.repository.CustomerRepository;
+import com.sneakervault.repository.LoginHistoryRepository;
+import com.sneakervault.service.EmailService;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -18,9 +24,18 @@ import java.util.*;
 public class CustomerController {
 
     private final CustomerRepository customerRepository;
+    private final LoginHistoryRepository loginHistoryRepository;
+    private final EmailService emailService;
 
-    public CustomerController(CustomerRepository customerRepository) {
+    @Value("${sneakervault.base.url:http://localhost:8080}")
+    private String baseUrl;
+
+    public CustomerController(CustomerRepository customerRepository,
+                              LoginHistoryRepository loginHistoryRepository,
+                              EmailService emailService) {
         this.customerRepository = customerRepository;
+        this.loginHistoryRepository = loginHistoryRepository;
+        this.emailService = emailService;
     }
 
     @PostMapping("/register")
@@ -29,7 +44,7 @@ public class CustomerController {
             return ResponseEntity.badRequest().body(Map.of("error", "Email and password are required"));
         }
 
-        if (customerRepository.findByEmail(req.getEmail()).isPresent()) {
+        if (customerRepository.findByEmail(req.getEmail().trim().toLowerCase()).isPresent()) {
             return ResponseEntity.status(409).body(Map.of("error", "Email already registered"));
         }
 
@@ -41,16 +56,20 @@ public class CustomerController {
         customer.setZip(req.getZip());
         customer.setCity(req.getCity());
         customer.setStreet(req.getStreet());
-        customer.setAuthToken(UUID.randomUUID().toString());
+        customer.setActivated(false);
+        customer.setActivationToken(UUID.randomUUID().toString());
         customer.setRegisteredAt(LocalDateTime.now());
 
         customerRepository.save(customer);
 
-        return ResponseEntity.ok(customerResponse(customer));
+        String activationBaseUrl = (req.getBaseUrl() != null && !req.getBaseUrl().isBlank()) ? req.getBaseUrl() : baseUrl;
+        emailService.sendActivationEmail(customer, activationBaseUrl);
+
+        return ResponseEntity.ok(Map.of("message", "Registration successful. Please check your email to activate your account."));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody CustomerLoginRequest req) {
+    public ResponseEntity<?> login(@RequestBody CustomerLoginRequest req, HttpServletRequest httpRequest) {
         if (req.getEmail() == null || req.getPassword() == null) {
             return ResponseEntity.badRequest().body(Map.of("error", "Email and password are required"));
         }
@@ -61,10 +80,39 @@ public class CustomerController {
         }
 
         Customer customer = opt.get();
+
+        if (!customer.isActivated()) {
+            return ResponseEntity.status(403).body(Map.of("error", "Account not activated"));
+        }
+
         customer.setAuthToken(UUID.randomUUID().toString());
         customerRepository.save(customer);
 
+        // Record login history
+        LoginHistory history = new LoginHistory();
+        history.setCustomerId(customer.getId());
+        history.setLoginAt(LocalDateTime.now());
+        history.setIpAddress(getClientIp(httpRequest));
+        loginHistoryRepository.save(history);
+
         return ResponseEntity.ok(customerResponse(customer));
+    }
+
+    @GetMapping("/activate")
+    public ResponseEntity<?> activate(@RequestParam String token) {
+        Optional<Customer> opt = customerRepository.findByActivationToken(token);
+        if (opt.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid activation token"));
+        }
+
+        Customer customer = opt.get();
+        customer.setActivated(true);
+        customer.setActivationToken(null);
+        customerRepository.save(customer);
+
+        return ResponseEntity.status(302)
+                .location(URI.create("/index.html?activated=true"))
+                .build();
     }
 
     @GetMapping("/me")
@@ -120,6 +168,21 @@ public class CustomerController {
             m.put("city", c.getCity());
             m.put("street", c.getStreet());
             m.put("registeredAt", c.getRegisteredAt());
+            m.put("activated", c.isActivated());
+            result.add(m);
+        }
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/{id}/logins")
+    public ResponseEntity<?> getLoginHistory(@PathVariable Long id) {
+        List<LoginHistory> logins = loginHistoryRepository.findByCustomerIdOrderByLoginAtDesc(id);
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (LoginHistory lh : logins) {
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("id", lh.getId());
+            m.put("loginAt", lh.getLoginAt());
+            m.put("ipAddress", lh.getIpAddress());
             result.add(m);
         }
         return ResponseEntity.ok(result);
@@ -142,7 +205,16 @@ public class CustomerController {
         m.put("city", c.getCity());
         m.put("street", c.getStreet());
         m.put("registeredAt", c.getRegisteredAt());
+        m.put("activated", c.isActivated());
         return m;
+    }
+
+    private String getClientIp(HttpServletRequest request) {
+        String xff = request.getHeader("X-Forwarded-For");
+        if (xff != null && !xff.isBlank()) {
+            return xff.split(",")[0].trim();
+        }
+        return request.getRemoteAddr();
     }
 
     private String hashPassword(String password) {

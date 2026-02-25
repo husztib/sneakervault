@@ -8,6 +8,7 @@ public class CustomerRegisterRequest {
     private String zip;
     private String city;
     private String street;
+    private String baseUrl;
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
@@ -29,4 +30,7 @@ public class CustomerRegisterRequest {
 
     public String getStreet() { return street; }
     public void setStreet(String street) { this.street = street; }
+
+    public String getBaseUrl() { return baseUrl; }
+    public void setBaseUrl(String baseUrl) { this.baseUrl = baseUrl; }
 }

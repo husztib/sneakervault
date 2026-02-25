@@ -14,6 +14,7 @@ public class CheckoutRequest {
     private String customerNotes;
     private String language;
     private String baseUrl;
+    private String discountCode;
 
     public String getCurrency() { return currency; }
     public void setCurrency(String currency) { this.currency = currency; }
@@ -47,4 +48,7 @@ public class CheckoutRequest {
 
     public String getBaseUrl() { return baseUrl; }
     public void setBaseUrl(String baseUrl) { this.baseUrl = baseUrl; }
+
+    public String getDiscountCode() { return discountCode; }
+    public void setDiscountCode(String discountCode) { this.discountCode = discountCode; }
 }

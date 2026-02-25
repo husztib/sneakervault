@@ -933,6 +933,48 @@
             border-bottom: 1px solid var(--overlay-light);
         }
 
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            padding: 16px;
+            flex-wrap: wrap;
+        }
+
+        .pagination button {
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text-muted);
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pagination button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+        .pagination button.active { background: var(--accent); color: white; border-color: var(--accent); }
+        .pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .pagination .page-info {
+            font-size: 12px;
+            color: var(--text-muted);
+            padding: 0 8px;
+        }
+
+        .page-size-select {
+            padding: 5px 8px;
+            background: var(--overlay-medium);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 12px;
+            outline: none;
+            cursor: pointer;
+        }
+
         .upload-zone input { display: none; }
 
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -1052,6 +1094,7 @@
         <button class="main-tab" data-section="sales" id="mainTabSales"></button>
         <button class="main-tab" data-section="analytics" id="mainTabAnalytics"></button>
         <button class="main-tab" data-section="customers" id="mainTabCustomers"></button>
+        <button class="main-tab" data-section="coupons" id="mainTabCoupons"></button>
     </div>
 
     <section id="pricesSection" class="main-section active">
@@ -1059,6 +1102,7 @@
             <h2 class="section-title" id="pricesSectionTitle"></h2>
             <div class="section-actions">
                 <input type="text" class="filter-input" id="tableFilter">
+                <button class="btn btn-success" id="addShoeBtn" onclick="openEditModal(null)"></button>
                 <button class="btn btn-danger" id="resetAllBtn" onclick="resetAllPrices()"></button>
             </div>
         </div>
@@ -1069,6 +1113,7 @@
                 <tbody id="priceTableBody"></tbody>
             </table>
         </div>
+        <div id="shoePagination"></div>
     </section>
 
     <section id="salesSection" class="main-section">
@@ -1088,6 +1133,7 @@
 
         <div class="tab-content active" id="tabContentOrders">
             <div id="ordersContainer"></div>
+            <div id="orderPagination"></div>
         </div>
 
         <div class="tab-content" id="tabContentPerShoe">
@@ -1097,6 +1143,7 @@
                     <tbody id="perShoeBody"></tbody>
                 </table>
             </div>
+            <div id="perShoePagination"></div>
         </div>
     </section>
 
@@ -1107,6 +1154,23 @@
         </div>
         <div class="analytics-grid" id="analyticsGrid"></div>
         <div class="analytics-tables" id="analyticsTables"></div>
+    </section>
+
+    <!-- COUPONS SECTION -->
+    <section id="couponsSection" class="main-section">
+        <div class="section-header">
+            <h2 class="section-title" id="couponsSectionTitle"></h2>
+            <div class="section-actions">
+                <button class="btn btn-success" id="addCouponBtn" onclick="openCouponModal(null)"></button>
+            </div>
+        </div>
+        <div class="table-wrap">
+            <table class="admin-table">
+                <thead id="couponTableHead"></thead>
+                <tbody id="couponTableBody"></tbody>
+            </table>
+        </div>
+        <div id="couponPagination"></div>
     </section>
 
     <!-- CUSTOMERS SECTION -->
@@ -1124,6 +1188,7 @@
                 <tbody id="customerTableBody"></tbody>
             </table>
         </div>
+        <div id="customerPagination"></div>
     </section>
 </div>
 
@@ -1271,6 +1336,55 @@
     </div>
 </div>
 
+<div class="edit-modal-overlay" id="couponModalOverlay">
+    <div class="edit-modal" style="max-width:500px">
+        <button class="edit-modal-close" onclick="closeCouponModal()">&times;</button>
+        <h3 id="couponModalTitle"></h3>
+        <div class="edit-section">
+            <div class="edit-grid">
+                <div class="edit-field" style="grid-column:1/-1">
+                    <label id="couponLabelCode"></label>
+                    <input type="text" id="couponCode" style="text-transform:uppercase">
+                </div>
+                <div class="edit-field">
+                    <label id="couponLabelType"></label>
+                    <select id="couponType" onchange="toggleCouponTypeFields()">
+                        <option value="PERCENTAGE" id="couponOptPercent"></option>
+                        <option value="FIXED" id="couponOptFixed"></option>
+                    </select>
+                </div>
+                <div class="edit-field" id="couponPercentField">
+                    <label id="couponLabelPercent"></label>
+                    <input type="number" id="couponPercentOff" min="1" max="99">
+                </div>
+                <div class="edit-field" id="couponFixedHUFField" style="display:none">
+                    <label id="couponLabelFixedHUF"></label>
+                    <input type="number" id="couponFixedHUF" min="0">
+                </div>
+                <div class="edit-field" id="couponFixedEURField" style="display:none">
+                    <label id="couponLabelFixedEUR"></label>
+                    <input type="number" id="couponFixedEUR" min="0">
+                </div>
+                <div class="edit-field">
+                    <label id="couponLabelExpires"></label>
+                    <input type="datetime-local" id="couponExpires">
+                </div>
+                <div class="edit-field">
+                    <label id="couponLabelMaxUses"></label>
+                    <input type="number" id="couponMaxUses" min="0">
+                </div>
+                <div class="edit-field" style="grid-column:1/-1">
+                    <div class="suspend-toggle">
+                        <input type="checkbox" id="couponActive" checked>
+                        <label for="couponActive" id="couponLabelActive"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="edit-save-btn" onclick="saveCouponModal()" id="couponSaveBtn"></button>
+    </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1399,7 +1513,50 @@ const i18n = {
         activated: 'Aktiválva',
         notActivated: 'Nincs aktiválva',
         orderStatusUpdated: 'Státusz frissítve!',
-        orders: 'Rendelései'
+        orders: 'Rendelései',
+        addShoe: '+ Új cipő',
+        newShoe: 'Új cipő',
+        shoeCreated: 'Cipő létrehozva!',
+        shoeDeleted: 'Cipő törölve!',
+        deleteShoe: 'Törlés',
+        deleteShoeConfirm: 'Biztosan törlöd ezt a cipőt?',
+        tabCoupons: 'Kuponok',
+        discountCodes: 'Kuponkódok',
+        newDiscount: '+ Új kupon',
+        editDiscount: 'Kupon szerkesztése',
+        createDiscount: 'Új kupon',
+        discountCreated: 'Kupon létrehozva!',
+        discountUpdated: 'Kupon frissítve!',
+        discountDeleted: 'Kupon törölve!',
+        codeLabel: 'Kód',
+        discountType: 'Típus',
+        percentOff: 'Kedvezmény (%)',
+        fixedAmountHUF: 'Fix összeg (HUF)',
+        fixedAmountEUR: 'Fix összeg (EUR)',
+        expiresAt: 'Lejárat',
+        maxUses: 'Max használat',
+        usedCount: 'Felhasználva',
+        activeStatus: 'Aktív',
+        noCoupons: 'Nincs kupon',
+        deleteCoupon: 'Törlés',
+        deleteCouponConfirm: 'Biztosan törlöd ezt a kupont?',
+        editCoupon: 'Szerkesztés',
+        saveCoupon: 'Mentés',
+        percentage: 'Százalékos',
+        fixed: 'Fix összeg',
+        unlimited: 'Korlátlan',
+        noExpiry: 'Nincs lejárat',
+        yes: 'Igen',
+        no: 'Nem',
+        prevPage: 'Előző',
+        nextPage: 'Következő',
+        pageOf: '/ {total} oldal',
+        rowsPerPage: 'Sor/oldal:',
+        activateCustomer: 'Aktiválás',
+        deleteCustomer: 'Törlés',
+        deleteCustomerConfirm: 'Biztosan törlöd ezt a felhasználót?',
+        customerActivated: 'Felhasználó aktiválva!',
+        customerDeleted: 'Felhasználó törölve!'
     },
     en: {
         backToStore: '\u2190 Store',
@@ -1525,7 +1682,50 @@ const i18n = {
         activated: 'Activated',
         notActivated: 'Not activated',
         orderStatusUpdated: 'Status updated!',
-        orders: 'Orders'
+        orders: 'Orders',
+        addShoe: '+ New Shoe',
+        newShoe: 'New Shoe',
+        shoeCreated: 'Shoe created!',
+        shoeDeleted: 'Shoe deleted!',
+        deleteShoe: 'Delete',
+        deleteShoeConfirm: 'Are you sure you want to delete this shoe?',
+        tabCoupons: 'Coupons',
+        discountCodes: 'Discount Codes',
+        newDiscount: '+ New Coupon',
+        editDiscount: 'Edit Coupon',
+        createDiscount: 'New Coupon',
+        discountCreated: 'Coupon created!',
+        discountUpdated: 'Coupon updated!',
+        discountDeleted: 'Coupon deleted!',
+        codeLabel: 'Code',
+        discountType: 'Type',
+        percentOff: 'Discount (%)',
+        fixedAmountHUF: 'Fixed Amount (HUF)',
+        fixedAmountEUR: 'Fixed Amount (EUR)',
+        expiresAt: 'Expires',
+        maxUses: 'Max Uses',
+        usedCount: 'Used',
+        activeStatus: 'Active',
+        noCoupons: 'No coupons',
+        deleteCoupon: 'Delete',
+        deleteCouponConfirm: 'Are you sure you want to delete this coupon?',
+        editCoupon: 'Edit',
+        saveCoupon: 'Save',
+        percentage: 'Percentage',
+        fixed: 'Fixed Amount',
+        unlimited: 'Unlimited',
+        noExpiry: 'No expiry',
+        yes: 'Yes',
+        no: 'No',
+        prevPage: 'Previous',
+        nextPage: 'Next',
+        pageOf: '/ {total} pages',
+        rowsPerPage: 'Rows/page:',
+        activateCustomer: 'Activate',
+        deleteCustomer: 'Delete',
+        deleteCustomerConfirm: 'Are you sure you want to delete this customer?',
+        customerActivated: 'Customer activated!',
+        customerDeleted: 'Customer deleted!'
     }
 };
 
@@ -1542,6 +1742,46 @@ let currentCurrency = localStorage.getItem('sv-currency') || 'HUF';
 let tableFilterQuery = '';
 let tableSortBy = 'name';
 let tableSortDir = 'asc';
+
+// Pagination state
+let shoePage = 1, shoePageSize = 20;
+let couponPage = 1, couponPageSize = 20;
+let couponSortBy = 'code', couponSortDir = 'asc';
+let customerPage = 1, customerPageSize = 20;
+let customerSortBy = 'name', customerSortDir = 'asc';
+let orderPage = 1, orderPageSize = 10;
+let perShoePage = 1, perShoePageSize = 20;
+let perShoeSortBy = 'timesSold', perShoeSortDir = 'desc';
+
+function renderPagination(containerId, currentPage, totalPages, onPageChange) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    if (totalPages <= 1) { el.innerHTML = ''; return; }
+
+    let html = `<div class="pagination">`;
+    html += `<button onclick="${onPageChange}(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''}>${t('prevPage')}</button>`;
+
+    const maxButtons = 7;
+    let start = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+    let end = Math.min(totalPages, start + maxButtons - 1);
+    if (end - start < maxButtons - 1) start = Math.max(1, end - maxButtons + 1);
+
+    if (start > 1) {
+        html += `<button onclick="${onPageChange}(1)">1</button>`;
+        if (start > 2) html += `<span class="page-info">...</span>`;
+    }
+    for (let i = start; i <= end; i++) {
+        html += `<button class="${i === currentPage ? 'active' : ''}" onclick="${onPageChange}(${i})">${i}</button>`;
+    }
+    if (end < totalPages) {
+        if (end < totalPages - 1) html += `<span class="page-info">...</span>`;
+        html += `<button onclick="${onPageChange}(${totalPages})">${totalPages}</button>`;
+    }
+
+    html += `<button onclick="${onPageChange}(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''}>${t('nextPage')}</button>`;
+    html += `</div>`;
+    el.innerHTML = html;
+}
 
 function getEffectivePrice(shoe) {
     if (!shoe.onSale) return { huf: shoe.price, eur: shoe.priceEUR };
@@ -1642,6 +1882,7 @@ function sortHeader(col) {
         tableSortBy = col;
         tableSortDir = 'asc';
     }
+    shoePage = 1;
     renderPriceTable();
 }
 
@@ -1687,7 +1928,13 @@ function renderPriceTable() {
         }
     });
 
-    body.innerHTML = filtered.map(shoe => {
+    // Pagination
+    const totalPages = Math.ceil(filtered.length / shoePageSize) || 1;
+    if (shoePage > totalPages) shoePage = totalPages;
+    const startIdx = (shoePage - 1) * shoePageSize;
+    const paged = filtered.slice(startIdx, startIdx + shoePageSize);
+
+    body.innerHTML = paged.map(shoe => {
         const mod = isModified(shoe);
         const suspBadge = shoe.suspended ? `<span class="suspended-badge">${t('suspendedBadge')}</span>` : '';
         const soldBadge = shoe.sold ? `<span class="sold-badge">${t('soldBadge')}</span>` : '';
@@ -1713,7 +1960,11 @@ function renderPriceTable() {
             </td>
         </tr>`;
     }).join('');
+
+    renderPagination('shoePagination', shoePage, totalPages, 'goShoePage');
 }
+
+function goShoePage(p) { shoePage = p; renderPriceTable(); }
 
 async function resetAllPrices() {
     if (!confirm(t('resetConfirm'))) return;
@@ -1761,15 +2012,29 @@ function renderSalesStats(stats) {
     `;
 }
 
+let allOrders = [];
+
 function renderOrders(orders) {
+    allOrders = orders;
+    renderOrdersPage();
+}
+
+function renderOrdersPage() {
     const container = document.getElementById('ordersContainer');
+    const orders = allOrders;
 
     if (orders.length === 0) {
         container.innerHTML = `<div class="no-orders">${t('noOrders')}</div>`;
+        document.getElementById('orderPagination').innerHTML = '';
         return;
     }
 
-    container.innerHTML = orders.map(order => {
+    const totalPages = Math.ceil(orders.length / orderPageSize) || 1;
+    if (orderPage > totalPages) orderPage = totalPages;
+    const startIdx = (orderPage - 1) * orderPageSize;
+    const paged = orders.slice(startIdx, startIdx + orderPageSize);
+
+    container.innerHTML = paged.map(order => {
         const hasCustomer = order.customerName;
         const customerBadge = hasCustomer ? `<span style="font-size:12px;color:var(--text-muted);margin-left:4px;">\u2014 ${order.customerName}</span>` : '';
         const customerBlock = hasCustomer ? `
@@ -1803,6 +2068,7 @@ function renderOrders(orders) {
                 <div class="order-date">${fmtDate(order.orderDate)}${customerBadge}</div>
                 ${statusBadge}
                 <div class="order-item-count">${order.items.length} ${t('orderItems')}</div>
+                ${order.discountCode ? `<span style="font-size:11px;color:var(--success);font-weight:600;">${order.discountCode} (-${currentCurrency === 'EUR' ? fmtEUR(order.discountAmountEUR || 0) : fmtHUF(order.discountAmountHUF || 0)})</span>` : ''}
                 <div class="order-total-display">${fmtPrice(order.totalHUF, order.totalEUR)}</div>
                 ${statusBtn}
                 <button class="btn-delete-order" onclick="event.stopPropagation(); deleteOrder(${order.id})">${t('deleteOrder')}</button>
@@ -1823,7 +2089,11 @@ function renderOrders(orders) {
             </div>
         </div>`;
     }).join('');
+
+    renderPagination('orderPagination', orderPage, totalPages, 'goOrderPage');
 }
+
+function goOrderPage(p) { orderPage = p; renderOrdersPage(); }
 
 function toggleOrder(orderId) {
     const detail = document.getElementById('detail-' + orderId);
@@ -1832,22 +2102,62 @@ function toggleOrder(orderId) {
     icon.classList.toggle('open');
 }
 
+let allPerShoe = [];
+
 function renderPerShoeSales(perShoe) {
+    allPerShoe = perShoe;
+    renderPerShoePage();
+}
+
+function sortPerShoeHeader(col) {
+    if (perShoeSortBy === col) { perShoeSortDir = perShoeSortDir === 'asc' ? 'desc' : 'asc'; }
+    else { perShoeSortBy = col; perShoeSortDir = 'asc'; }
+    perShoePage = 1;
+    renderPerShoePage();
+}
+
+function perShoeSortArrow(col) {
+    const active = perShoeSortBy === col;
+    const arrow = perShoeSortDir === 'asc' ? '\u25B2' : '\u25BC';
+    return `<span class="sort-arrow">${active ? arrow : '\u25B2'}</span>`;
+}
+
+function renderPerShoePage() {
+    const perShoe = [...allPerShoe];
+
     document.getElementById('perShoeHead').innerHTML = `<tr>
-        <th>${t('shoeName')}</th>
-        <th>${t('styleCode')}</th>
-        <th>${t('timesSold')}</th>
-        <th>${t('revenue')}</th>
-        <th>${t('lastSold')}</th>
+        <th class="sortable ${perShoeSortBy === 'name' ? 'sort-active' : ''}" onclick="sortPerShoeHeader('name')">${t('shoeName')}${perShoeSortArrow('name')}</th>
+        <th class="sortable ${perShoeSortBy === 'styleCode' ? 'sort-active' : ''}" onclick="sortPerShoeHeader('styleCode')">${t('styleCode')}${perShoeSortArrow('styleCode')}</th>
+        <th class="sortable ${perShoeSortBy === 'timesSold' ? 'sort-active' : ''}" onclick="sortPerShoeHeader('timesSold')">${t('timesSold')}${perShoeSortArrow('timesSold')}</th>
+        <th class="sortable ${perShoeSortBy === 'revenue' ? 'sort-active' : ''}" onclick="sortPerShoeHeader('revenue')">${t('revenue')}${perShoeSortArrow('revenue')}</th>
+        <th class="sortable ${perShoeSortBy === 'lastSold' ? 'sort-active' : ''}" onclick="sortPerShoeHeader('lastSold')">${t('lastSold')}${perShoeSortArrow('lastSold')}</th>
     </tr>`;
 
     const body = document.getElementById('perShoeBody');
     if (perShoe.length === 0) {
         body.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:30px">${t('noOrders')}</td></tr>`;
+        document.getElementById('perShoePagination').innerHTML = '';
         return;
     }
 
-    body.innerHTML = perShoe.map(s => `<tr>
+    const dir = perShoeSortDir === 'asc' ? 1 : -1;
+    perShoe.sort((a, b) => {
+        switch (perShoeSortBy) {
+            case 'name': return dir * (a.name || '').localeCompare(b.name || '');
+            case 'styleCode': return dir * (a.styleCode || '').localeCompare(b.styleCode || '');
+            case 'timesSold': return dir * (a.timesSold - b.timesSold);
+            case 'revenue': return dir * ((currentCurrency === 'EUR' ? a.totalEUR : a.totalHUF) - (currentCurrency === 'EUR' ? b.totalEUR : b.totalHUF));
+            case 'lastSold': return dir * (a.lastDate || '').localeCompare(b.lastDate || '');
+            default: return 0;
+        }
+    });
+
+    const totalPages = Math.ceil(perShoe.length / perShoePageSize) || 1;
+    if (perShoePage > totalPages) perShoePage = totalPages;
+    const startIdx = (perShoePage - 1) * perShoePageSize;
+    const paged = perShoe.slice(startIdx, startIdx + perShoePageSize);
+
+    body.innerHTML = paged.map(s => `<tr>
         <td data-label="${t('shoeName')}">
             <div class="shoe-name-cell">
                 <div class="name">${s.name}</div>
@@ -1859,7 +2169,11 @@ function renderPerShoeSales(perShoe) {
         <td data-label="${t('revenue')}">${fmtPrice(s.totalHUF, s.totalEUR)}</td>
         <td data-label="${t('lastSold')}">${fmtDate(s.lastDate)}</td>
     </tr>`).join('');
+
+    renderPagination('perShoePagination', perShoePage, totalPages, 'goPerShoePage');
 }
+
+function goPerShoePage(p) { perShoePage = p; renderPerShoePage(); }
 
 async function deleteOrder(orderId) {
     if (!confirm(t('deleteOrderConfirm'))) return;
@@ -1921,10 +2235,12 @@ function refreshUI() {
     document.getElementById('mainTabSales').textContent = t('tabSales');
     document.getElementById('mainTabAnalytics').textContent = t('tabAnalytics');
     document.getElementById('mainTabCustomers').textContent = t('tabCustomers');
+    document.getElementById('mainTabCoupons').textContent = t('tabCoupons');
     document.getElementById('backLink').textContent = t('backToStore');
     document.getElementById('pricesSectionTitle').textContent = t('productPrices');
     document.getElementById('salesSectionTitle').textContent = t('salesHistory');
     document.getElementById('tableFilter').placeholder = t('filterPlaceholder');
+    document.getElementById('addShoeBtn').textContent = t('addShoe');
     document.getElementById('resetAllBtn').textContent = t('resetAll');
     document.getElementById('clearHistoryBtn').textContent = t('clearHistory');
     document.getElementById('tabOrders').textContent = t('ordersTab');
@@ -1932,12 +2248,15 @@ function refreshUI() {
     document.getElementById('footerText').textContent = t('footer');
     document.getElementById('customersSectionTitle').textContent = t('customers');
     document.getElementById('customerFilter').placeholder = t('customerFilterPlaceholder');
+    document.getElementById('couponsSectionTitle').textContent = t('discountCodes');
+    document.getElementById('addCouponBtn').textContent = t('newDiscount');
 
     renderPriceTable();
     loadSalesData();
     loadAnalytics();
     startAnalyticsRefresh();
     loadCustomers();
+    loadCoupons();
 }
 
 // ====== INIT ======
@@ -1958,11 +2277,13 @@ function init() {
 
     document.getElementById('tableFilter').addEventListener('input', (e) => {
         tableFilterQuery = e.target.value.toLowerCase();
+        shoePage = 1;
         renderPriceTable();
     });
 
     document.getElementById('customerFilter').addEventListener('input', (e) => {
         customerFilterQuery = e.target.value.toLowerCase();
+        customerPage = 1;
         renderCustomerTable();
     });
 
@@ -2052,10 +2373,11 @@ let currentEditShoeId = null;
 
 async function openEditModal(shoeId) {
     currentEditShoeId = shoeId;
-    const shoe = shoes.find(s => s.id === shoeId);
-    if (!shoe) return;
+    const isNew = shoeId === null;
+    const shoe = isNew ? {} : shoes.find(s => s.id === shoeId);
+    if (!isNew && !shoe) return;
 
-    document.getElementById('editModalTitle').textContent = t('editShoe') + ' — ' + shoe.name;
+    document.getElementById('editModalTitle').textContent = isNew ? t('newShoe') : (t('editShoe') + ' — ' + shoe.name);
     document.getElementById('editSectionImages').textContent = t('images');
     document.getElementById('editSectionProduct').textContent = t('productInfo');
     document.getElementById('editSectionPricing').textContent = t('pricing');
@@ -2074,7 +2396,7 @@ async function openEditModal(shoeId) {
     document.getElementById('editResetPriceBtn').textContent = t('resetPrices');
     document.getElementById('editLabelSuspend').textContent = t('suspendSale');
     document.getElementById('editSuspendHint').textContent = t('suspendHint');
-    document.getElementById('editSaveBtn').textContent = t('saveChanges');
+    document.getElementById('editSaveBtn').textContent = isNew ? t('save') : t('saveChanges');
     document.getElementById('uploadHintText').textContent = t('uploadHint');
 
     document.getElementById('editSectionSale').textContent = t('saleSection');
@@ -2107,8 +2429,11 @@ async function openEditModal(shoeId) {
     toggleSaleFields();
     toggleSaleTypeFields();
 
+    // Hide images section and upload zone for new shoe (no ID yet)
+    document.getElementById('editSectionImages').parentElement.style.display = isNew ? 'none' : '';
+
     document.getElementById('editModalOverlay').classList.add('show');
-    await renderImgGrid(shoeId);
+    if (!isNew) await renderImgGrid(shoeId);
 }
 
 function closeEditModal() {
@@ -2124,7 +2449,7 @@ function resetEditPrices() {
 }
 
 async function saveEditModal() {
-    if (!currentEditShoeId) return;
+    const isNew = currentEditShoeId === null;
 
     const onSale = document.getElementById('editOnSale').checked;
     const saleType = document.getElementById('editSaleType').value;
@@ -2148,19 +2473,26 @@ async function saveEditModal() {
         salePriceEUR: onSale && saleType === 'FIXED' ? parseInt(document.getElementById('editSalePriceEUR').value) || null : null
     };
 
-    const res = await fetch(`/api/shoes/${currentEditShoeId}`, {
-        method: 'PUT',
+    const url = isNew ? '/api/shoes' : `/api/shoes/${currentEditShoeId}`;
+    const method = isNew ? 'POST' : 'PUT';
+
+    const res = await fetch(url, {
+        method: method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
     });
 
     if (res.ok) {
         const updated = await res.json();
-        const idx = shoes.findIndex(s => s.id === currentEditShoeId);
-        if (idx >= 0) shoes[idx] = updated;
+        if (isNew) {
+            shoes.push(updated);
+        } else {
+            const idx = shoes.findIndex(s => s.id === currentEditShoeId);
+            if (idx >= 0) shoes[idx] = updated;
+        }
         renderPriceTable();
         closeEditModal();
-        showToast(t('shoeSaved'));
+        showToast(isNew ? t('shoeCreated') : t('shoeSaved'));
     } else {
         const data = await res.json().catch(() => null);
         showToast(data?.error || t('saveError'), true);
@@ -2309,6 +2641,19 @@ async function loadCustomers() {
     } catch (e) {}
 }
 
+function sortCustomerHeader(col) {
+    if (customerSortBy === col) { customerSortDir = customerSortDir === 'asc' ? 'desc' : 'asc'; }
+    else { customerSortBy = col; customerSortDir = 'asc'; }
+    customerPage = 1;
+    renderCustomerTable();
+}
+
+function customerSortArrow(col) {
+    const active = customerSortBy === col;
+    const arrow = customerSortDir === 'asc' ? '\u25B2' : '\u25BC';
+    return `<span class="sort-arrow">${active ? arrow : '\u25B2'}</span>`;
+}
+
 function renderCustomerTable() {
     const head = document.getElementById('customerTableHead');
     const body = document.getElementById('customerTableBody');
@@ -2321,30 +2666,51 @@ function renderCustomerTable() {
         </div>`;
 
     head.innerHTML = `<tr>
-        <th>${t('customerName')}</th>
-        <th>${t('customerEmailCol')}</th>
+        <th class="sortable ${customerSortBy === 'name' ? 'sort-active' : ''}" onclick="sortCustomerHeader('name')">${t('customerName')}${customerSortArrow('name')}</th>
+        <th class="sortable ${customerSortBy === 'email' ? 'sort-active' : ''}" onclick="sortCustomerHeader('email')">${t('customerEmailCol')}${customerSortArrow('email')}</th>
         <th>${t('customerPhoneCol')}</th>
-        <th>${t('customerCity')}</th>
-        <th>${t('customerRegistered')}</th>
-        <th>${t('statusLabel')}</th>
+        <th class="sortable ${customerSortBy === 'city' ? 'sort-active' : ''}" onclick="sortCustomerHeader('city')">${t('customerCity')}${customerSortArrow('city')}</th>
+        <th class="sortable ${customerSortBy === 'registeredAt' ? 'sort-active' : ''}" onclick="sortCustomerHeader('registeredAt')">${t('customerRegistered')}${customerSortArrow('registeredAt')}</th>
+        <th class="sortable ${customerSortBy === 'activated' ? 'sort-active' : ''}" onclick="sortCustomerHeader('activated')">${t('statusLabel')}${customerSortArrow('activated')}</th>
+        <th>${t('actions')}</th>
     </tr>`;
 
-    const filtered = customers.filter(c => {
+    let filtered = customers.filter(c => {
         if (!customerFilterQuery) return true;
         const h = `${c.name || ''} ${c.email || ''} ${c.phone || ''} ${c.city || ''}`.toLowerCase();
         return h.includes(customerFilterQuery);
     });
 
+    // Sort
+    const dir = customerSortDir === 'asc' ? 1 : -1;
+    filtered.sort((a, b) => {
+        switch (customerSortBy) {
+            case 'name': return dir * (a.name || '').localeCompare(b.name || '');
+            case 'email': return dir * (a.email || '').localeCompare(b.email || '');
+            case 'city': return dir * (a.city || '').localeCompare(b.city || '');
+            case 'registeredAt': return dir * (a.registeredAt || '').localeCompare(b.registeredAt || '');
+            case 'activated': return dir * ((a.activated ? 1 : 0) - (b.activated ? 1 : 0));
+            default: return 0;
+        }
+    });
+
     if (filtered.length === 0) {
-        body.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">${t('noCustomers')}</td></tr>`;
+        body.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">${t('noCustomers')}</td></tr>`;
+        document.getElementById('customerPagination').innerHTML = '';
         return;
     }
 
-    body.innerHTML = filtered.map(c => {
+    const totalPages = Math.ceil(filtered.length / customerPageSize) || 1;
+    if (customerPage > totalPages) customerPage = totalPages;
+    const startIdx = (customerPage - 1) * customerPageSize;
+    const paged = filtered.slice(startIdx, startIdx + customerPageSize);
+
+    body.innerHTML = paged.map(c => {
         const regDate = c.registeredAt ? new Date(c.registeredAt).toLocaleDateString('hu-HU') : '-';
         const activBadge = c.activated
             ? `<span class="activation-badge active">${t('activated')}</span>`
             : `<span class="activation-badge inactive">${t('notActivated')}</span>`;
+        const activateBtn = !c.activated ? `<button class="btn btn-success btn-sm" onclick="event.stopPropagation(); activateCustomer(${c.id})">${t('activateCustomer')}</button>` : '';
         return `<tr class="customer-row-clickable" onclick="openCustomerModal(${c.id})">
             <td data-label="${t('customerName')}">${c.name || '-'}</td>
             <td data-label="${t('customerEmailCol')}">${c.email || '-'}</td>
@@ -2352,8 +2718,35 @@ function renderCustomerTable() {
             <td data-label="${t('customerCity')}">${c.city || '-'}</td>
             <td data-label="${t('customerRegistered')}">${regDate}</td>
             <td>${activBadge}</td>
+            <td>
+                <div class="row-actions">
+                    ${activateBtn}
+                    <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteCustomer(${c.id})">${t('deleteCustomer')}</button>
+                </div>
+            </td>
         </tr>`;
     }).join('');
+
+    renderPagination('customerPagination', customerPage, totalPages, 'goCustomerPage');
+}
+
+function goCustomerPage(p) { customerPage = p; renderCustomerTable(); }
+
+async function activateCustomer(id) {
+    const res = await fetch(`/api/customers/${id}/activate`, { method: 'PUT' });
+    if (res.ok) {
+        await loadCustomers();
+        showToast(t('customerActivated'));
+    }
+}
+
+async function deleteCustomer(id) {
+    if (!confirm(t('deleteCustomerConfirm'))) return;
+    const res = await fetch(`/api/customers/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+        await loadCustomers();
+        showToast(t('customerDeleted'));
+    }
 }
 
 // ====== ORDER STATUS ======
@@ -2456,6 +2849,201 @@ function closeCustomerModal() {
 document.getElementById('customerModalOverlay').addEventListener('click', (e) => {
     if (e.target === e.currentTarget) closeCustomerModal();
 });
+
+// ====== COUPONS ======
+let coupons = [];
+let currentEditCouponId = null;
+
+async function loadCoupons() {
+    try {
+        const res = await fetch('/api/discount-codes');
+        if (!res.ok) return;
+        coupons = await res.json();
+        renderCouponTable();
+    } catch (e) {}
+}
+
+function sortCouponHeader(col) {
+    if (couponSortBy === col) { couponSortDir = couponSortDir === 'asc' ? 'desc' : 'asc'; }
+    else { couponSortBy = col; couponSortDir = 'asc'; }
+    couponPage = 1;
+    renderCouponTable();
+}
+
+function couponSortArrow(col) {
+    const active = couponSortBy === col;
+    const arrow = couponSortDir === 'asc' ? '\u25B2' : '\u25BC';
+    return `<span class="sort-arrow">${active ? arrow : '\u25B2'}</span>`;
+}
+
+function renderCouponTable() {
+    const head = document.getElementById('couponTableHead');
+    head.innerHTML = `<tr>
+        <th class="sortable ${couponSortBy === 'code' ? 'sort-active' : ''}" onclick="sortCouponHeader('code')">${t('codeLabel')}${couponSortArrow('code')}</th>
+        <th class="sortable ${couponSortBy === 'type' ? 'sort-active' : ''}" onclick="sortCouponHeader('type')">${t('discountType')}${couponSortArrow('type')}</th>
+        <th>${t('percentOff')} / ${t('fixedAmountHUF')}</th>
+        <th class="sortable ${couponSortBy === 'expiresAt' ? 'sort-active' : ''}" onclick="sortCouponHeader('expiresAt')">${t('expiresAt')}${couponSortArrow('expiresAt')}</th>
+        <th class="sortable ${couponSortBy === 'usedCount' ? 'sort-active' : ''}" onclick="sortCouponHeader('usedCount')">${t('usedCount')}${couponSortArrow('usedCount')}</th>
+        <th class="sortable ${couponSortBy === 'active' ? 'sort-active' : ''}" onclick="sortCouponHeader('active')">${t('activeStatus')}${couponSortArrow('active')}</th>
+        <th>${t('actions')}</th>
+    </tr>`;
+
+    const body = document.getElementById('couponTableBody');
+    if (coupons.length === 0) {
+        body.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">${t('noCoupons')}</td></tr>`;
+        document.getElementById('couponPagination').innerHTML = '';
+        return;
+    }
+
+    const sorted = [...coupons];
+    const dir = couponSortDir === 'asc' ? 1 : -1;
+    sorted.sort((a, b) => {
+        switch (couponSortBy) {
+            case 'code': return dir * (a.code || '').localeCompare(b.code || '');
+            case 'type': return dir * (a.type || '').localeCompare(b.type || '');
+            case 'expiresAt': return dir * ((a.expiresAt || '').localeCompare(b.expiresAt || ''));
+            case 'usedCount': return dir * ((a.usedCount || 0) - (b.usedCount || 0));
+            case 'active': return dir * ((a.active ? 1 : 0) - (b.active ? 1 : 0));
+            default: return 0;
+        }
+    });
+
+    const totalPages = Math.ceil(sorted.length / couponPageSize) || 1;
+    if (couponPage > totalPages) couponPage = totalPages;
+    const startIdx = (couponPage - 1) * couponPageSize;
+    const paged = sorted.slice(startIdx, startIdx + couponPageSize);
+
+    body.innerHTML = paged.map(dc => {
+        let valueDisplay;
+        if (dc.type === 'PERCENTAGE') {
+            valueDisplay = `${dc.percentOff}%`;
+        } else {
+            valueDisplay = `${fmtHUF(dc.fixedAmountHUF || 0)} / ${fmtEUR(dc.fixedAmountEUR || 0)}`;
+        }
+        const expires = dc.expiresAt ? fmtDate(dc.expiresAt) : t('noExpiry');
+        const usage = `${dc.usedCount || 0} / ${dc.maxUses != null ? dc.maxUses : t('unlimited')}`;
+        const activeBadge = dc.active
+            ? `<span class="activation-badge active">${t('yes')}</span>`
+            : `<span class="activation-badge inactive">${t('no')}</span>`;
+        const typeLabel = dc.type === 'PERCENTAGE' ? t('percentage') : t('fixed');
+
+        return `<tr>
+            <td data-label="${t('codeLabel')}"><strong>${dc.code}</strong></td>
+            <td data-label="${t('discountType')}">${typeLabel}</td>
+            <td data-label="${t('percentOff')}">${valueDisplay}</td>
+            <td data-label="${t('expiresAt')}">${expires}</td>
+            <td data-label="${t('usedCount')}">${usage}</td>
+            <td data-label="${t('activeStatus')}">${activeBadge}</td>
+            <td data-label="${t('actions')}">
+                <div class="row-actions">
+                    <button class="btn btn-primary btn-sm" onclick="openCouponModal(${dc.id})">${t('editCoupon')}</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteCoupon(${dc.id})">${t('deleteCoupon')}</button>
+                </div>
+            </td>
+        </tr>`;
+    }).join('');
+
+    renderPagination('couponPagination', couponPage, totalPages, 'goCouponPage');
+}
+
+function goCouponPage(p) { couponPage = p; renderCouponTable(); }
+
+function openCouponModal(couponId) {
+    currentEditCouponId = couponId;
+    const isNew = couponId === null;
+    const dc = isNew ? {} : coupons.find(c => c.id === couponId);
+    if (!isNew && !dc) return;
+
+    document.getElementById('couponModalTitle').textContent = isNew ? t('createDiscount') : t('editDiscount');
+    document.getElementById('couponLabelCode').textContent = t('codeLabel');
+    document.getElementById('couponLabelType').textContent = t('discountType');
+    document.getElementById('couponOptPercent').textContent = t('percentage');
+    document.getElementById('couponOptFixed').textContent = t('fixed');
+    document.getElementById('couponLabelPercent').textContent = t('percentOff');
+    document.getElementById('couponLabelFixedHUF').textContent = t('fixedAmountHUF');
+    document.getElementById('couponLabelFixedEUR').textContent = t('fixedAmountEUR');
+    document.getElementById('couponLabelExpires').textContent = t('expiresAt');
+    document.getElementById('couponLabelMaxUses').textContent = t('maxUses');
+    document.getElementById('couponLabelActive').textContent = t('activeStatus');
+    document.getElementById('couponSaveBtn').textContent = t('saveCoupon');
+
+    document.getElementById('couponCode').value = dc.code || '';
+    document.getElementById('couponType').value = dc.type || 'PERCENTAGE';
+    document.getElementById('couponPercentOff').value = dc.percentOff || '';
+    document.getElementById('couponFixedHUF').value = dc.fixedAmountHUF || '';
+    document.getElementById('couponFixedEUR').value = dc.fixedAmountEUR || '';
+    document.getElementById('couponMaxUses').value = dc.maxUses != null ? dc.maxUses : '';
+    document.getElementById('couponActive').checked = isNew ? true : Boolean(dc.active);
+
+    if (dc.expiresAt) {
+        // Format for datetime-local input
+        const d = new Date(dc.expiresAt);
+        const pad = n => String(n).padStart(2, '0');
+        document.getElementById('couponExpires').value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    } else {
+        document.getElementById('couponExpires').value = '';
+    }
+
+    toggleCouponTypeFields();
+    document.getElementById('couponModalOverlay').classList.add('show');
+}
+
+function closeCouponModal() {
+    document.getElementById('couponModalOverlay').classList.remove('show');
+    currentEditCouponId = null;
+}
+
+document.getElementById('couponModalOverlay').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeCouponModal();
+});
+
+function toggleCouponTypeFields() {
+    const type = document.getElementById('couponType').value;
+    document.getElementById('couponPercentField').style.display = type === 'PERCENTAGE' ? '' : 'none';
+    document.getElementById('couponFixedHUFField').style.display = type === 'FIXED' ? '' : 'none';
+    document.getElementById('couponFixedEURField').style.display = type === 'FIXED' ? '' : 'none';
+}
+
+async function saveCouponModal() {
+    const isNew = currentEditCouponId === null;
+    const type = document.getElementById('couponType').value;
+    const expiresVal = document.getElementById('couponExpires').value;
+    const maxUsesVal = document.getElementById('couponMaxUses').value;
+
+    const body = {
+        code: document.getElementById('couponCode').value,
+        type: type,
+        percentOff: type === 'PERCENTAGE' ? parseInt(document.getElementById('couponPercentOff').value) || null : null,
+        fixedAmountHUF: type === 'FIXED' ? parseInt(document.getElementById('couponFixedHUF').value) || null : null,
+        fixedAmountEUR: type === 'FIXED' ? parseInt(document.getElementById('couponFixedEUR').value) || null : null,
+        expiresAt: expiresVal ? expiresVal + ':00' : null,
+        maxUses: maxUsesVal ? parseInt(maxUsesVal) : null,
+        active: document.getElementById('couponActive').checked
+    };
+
+    const url = isNew ? '/api/discount-codes' : `/api/discount-codes/${currentEditCouponId}`;
+    const method = isNew ? 'POST' : 'PUT';
+
+    const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+
+    if (res.ok) {
+        await loadCoupons();
+        closeCouponModal();
+        showToast(isNew ? t('discountCreated') : t('discountUpdated'));
+    } else {
+        const data = await res.json().catch(() => null);
+        showToast(data?.error || t('saveError'), true);
+    }
+}
+
+async function deleteCoupon(id) {
+    if (!confirm(t('deleteCouponConfirm'))) return;
+    const res = await fetch(`/api/discount-codes/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+        await loadCoupons();
+        showToast(t('discountDeleted'));
+    }
+}
 
 // Auto-init if already authenticated in this session
 if (sessionStorage.getItem('sv-admin-auth') === '1') {

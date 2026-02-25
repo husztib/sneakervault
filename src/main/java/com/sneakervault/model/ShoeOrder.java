@@ -33,6 +33,10 @@ public class ShoeOrder {
 
     private String language;
 
+    private String discountCode;
+    private Integer discountAmountHUF;
+    private Integer discountAmountEUR;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
 
@@ -82,4 +86,13 @@ public class ShoeOrder {
 
     public OrderStatus getStatus() { return status; }
     public void setStatus(OrderStatus status) { this.status = status; }
+
+    public String getDiscountCode() { return discountCode; }
+    public void setDiscountCode(String discountCode) { this.discountCode = discountCode; }
+
+    public Integer getDiscountAmountHUF() { return discountAmountHUF; }
+    public void setDiscountAmountHUF(Integer discountAmountHUF) { this.discountAmountHUF = discountAmountHUF; }
+
+    public Integer getDiscountAmountEUR() { return discountAmountEUR; }
+    public void setDiscountAmountEUR(Integer discountAmountEUR) { this.discountAmountEUR = discountAmountEUR; }
 }

@@ -70,6 +70,14 @@ public class EmailService {
     }
 
     private void sendEmail(String to, String subject, String html) {
+        if (fromAddress == null || fromAddress.isBlank()) {
+            log.warn("Email not sent (no from address configured): '{}' to {}", subject, to);
+            return;
+        }
+        if (to == null || to.isBlank()) {
+            log.warn("Email not sent (no recipient): '{}'", subject);
+            return;
+        }
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");

@@ -174,6 +174,27 @@ public class CustomerController {
         return ResponseEntity.ok(result);
     }
 
+    @PutMapping("/{id}/activate")
+    public ResponseEntity<?> adminActivate(@PathVariable Long id) {
+        return customerRepository.findById(id).map(customer -> {
+            customer.setActivated(true);
+            customer.setActivationToken(null);
+            customerRepository.save(customer);
+            return ResponseEntity.ok(Map.of("message", "Customer activated"));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> adminDelete(@PathVariable Long id) {
+        if (!customerRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        // Delete login history first
+        loginHistoryRepository.deleteByCustomerId(id);
+        customerRepository.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/{id}/logins")
     public ResponseEntity<?> getLoginHistory(@PathVariable Long id) {
         List<LoginHistory> logins = loginHistoryRepository.findByCustomerIdOrderByLoginAtDesc(id);

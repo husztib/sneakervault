@@ -313,6 +313,94 @@
             .page-title { font-size: 22px; }
         }
 
+        .discount-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--overlay-light);
+        }
+
+        .discount-input {
+            flex: 1;
+            padding: 10px 14px;
+            background: var(--overlay-medium);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+
+        .discount-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(255,77,0,0.15);
+        }
+
+        .discount-btn {
+            padding: 10px 18px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .discount-btn:hover { background: var(--accent-hover); }
+        .discount-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .discount-applied {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            margin-top: 12px;
+            background: rgba(0, 214, 143, 0.1);
+            border: 1px solid rgba(0, 214, 143, 0.3);
+            border-radius: 10px;
+        }
+
+        .discount-applied-info { font-size: 13px; font-weight: 600; }
+        .discount-applied-info .code { color: var(--success); }
+        .discount-applied-info .amount { color: var(--accent); font-weight: 700; }
+
+        .discount-remove {
+            background: transparent;
+            border: 1px solid #e74c3c;
+            color: #e74c3c;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .discount-remove:hover { background: #e74c3c; color: white; }
+
+        .discount-total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 6px;
+            font-size: 13px;
+            color: var(--success);
+        }
+
+        .discount-error {
+            font-size: 12px;
+            color: #e74c3c;
+            margin-top: 6px;
+            font-weight: 600;
+        }
+
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
@@ -384,6 +472,16 @@ const i18n = {
         goToStore: 'Vissza a boltba',
         errorToast: 'Hiba történt. Kérjük próbáld újra!',
         soldError: 'Sajnos az alábbi termékek időközben elfogytak:',
+        discountCode: 'Kuponkód',
+        discountPlaceholder: 'Kuponkód beírása...',
+        apply: 'Alkalmaz',
+        discountApplied: 'Kupon alkalmazva!',
+        discountInvalid: 'Érvénytelen kuponkód',
+        discountExpired: 'Ez a kupon lejárt',
+        discountUsedUp: 'Ez a kupon elfogyott',
+        discountInactive: 'Ez a kupon nem aktív',
+        discount: 'Kedvezmény:',
+        remove: 'Eltávolítás',
         footer: 'BotiX \u00a9 2026 \u2014 Minden jog fenntartva.'
     },
     en: {
@@ -413,6 +511,16 @@ const i18n = {
         goToStore: 'Back to store',
         errorToast: 'An error occurred. Please try again!',
         soldError: 'Sorry, the following items are no longer available:',
+        discountCode: 'Discount Code',
+        discountPlaceholder: 'Enter discount code...',
+        apply: 'Apply',
+        discountApplied: 'Discount applied!',
+        discountInvalid: 'Invalid discount code',
+        discountExpired: 'This discount code has expired',
+        discountUsedUp: 'This discount code has been fully used',
+        discountInactive: 'This discount code is not active',
+        discount: 'Discount:',
+        remove: 'Remove',
         footer: 'BotiX \u00a9 2026 \u2014 All rights reserved.'
     }
 };
@@ -423,6 +531,7 @@ let cart = [];
 let currentTheme = localStorage.getItem('sv-theme') || 'light';
 let currentLang = localStorage.getItem('sv-lang') || 'hu';
 let currentCurrency = localStorage.getItem('sv-currency') || 'HUF';
+let appliedDiscount = null; // { code, type, percentOff, discountHUF, discountEUR, finalHUF, finalEUR }
 
 function applyTheme(theme) {
     currentTheme = theme;
@@ -513,10 +622,29 @@ function renderPage() {
                         <div class="cart-item-price">${formatPriceCart(item)}</div>
                     </div>
                 `).join('')}
-                <div class="cart-total-row">
-                    <span class="cart-total-label">${t('total')}</span>
-                    <span class="cart-total-value">${formatTotal(cart)}</span>
-                </div>
+                ${appliedDiscount ? `
+                    <div class="discount-applied">
+                        <div class="discount-applied-info">
+                            <span class="code">${appliedDiscount.code}</span> &mdash;
+                            <span class="amount">-${currentCurrency === 'EUR' ? '\u20ac' + appliedDiscount.discountEUR : appliedDiscount.discountHUF.toLocaleString('hu-HU') + ' Ft'}</span>
+                        </div>
+                        <button class="discount-remove" onclick="removeDiscount()">${t('remove')}</button>
+                    </div>
+                    <div class="cart-total-row">
+                        <span class="cart-total-label">${t('total')}</span>
+                        <span class="cart-total-value">${currentCurrency === 'EUR' ? '\u20ac' + appliedDiscount.finalEUR : appliedDiscount.finalHUF.toLocaleString('hu-HU') + ' Ft'}</span>
+                    </div>
+                ` : `
+                    <div class="discount-row">
+                        <input class="discount-input" type="text" id="discountInput" placeholder="${t('discountPlaceholder')}">
+                        <button class="discount-btn" id="discountBtn" onclick="applyDiscount()">${t('apply')}</button>
+                    </div>
+                    <div id="discountError"></div>
+                    <div class="cart-total-row">
+                        <span class="cart-total-label">${t('total')}</span>
+                        <span class="cart-total-value">${formatTotal(cart)}</span>
+                    </div>
+                `}
             </div>
             <div class="panel">
                 <div class="panel-title">${t('shippingDetails')}</div>
@@ -554,6 +682,58 @@ function renderPage() {
         </div>`;
 }
 
+async function applyDiscount() {
+    const input = document.getElementById('discountInput');
+    const errorEl = document.getElementById('discountError');
+    const code = input.value.trim();
+    if (!code) return;
+
+    const totalHUF = cart.reduce((sum, item) => sum + getEffectivePrice(item).huf, 0);
+    const totalEUR = cart.reduce((sum, item) => sum + getEffectivePrice(item).eur, 0);
+
+    try {
+        const res = await fetch('/api/discount-codes/validate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code, totalHUF, totalEUR })
+        });
+        const data = await res.json();
+
+        if (data.valid) {
+            appliedDiscount = {
+                code: code.toUpperCase(),
+                type: data.type,
+                percentOff: data.percentOff,
+                discountHUF: data.discountHUF,
+                discountEUR: data.discountEUR,
+                finalHUF: data.finalHUF,
+                finalEUR: data.finalEUR
+            };
+            renderPage();
+            showToast(t('discountApplied'));
+        } else {
+            const errorMap = {
+                notFound: t('discountInvalid'),
+                expired: t('discountExpired'),
+                usedUp: t('discountUsedUp'),
+                inactive: t('discountInactive')
+            };
+            if (errorEl) {
+                errorEl.innerHTML = `<div class="discount-error">${errorMap[data.error] || t('discountInvalid')}</div>`;
+            }
+        }
+    } catch (err) {
+        if (errorEl) {
+            errorEl.innerHTML = `<div class="discount-error">${t('discountInvalid')}</div>`;
+        }
+    }
+}
+
+function removeDiscount() {
+    appliedDiscount = null;
+    renderPage();
+}
+
 async function submitOrder(e) {
     e.preventDefault();
     const btn = document.getElementById('submitBtn');
@@ -575,7 +755,8 @@ async function submitOrder(e) {
                 customerZip: document.getElementById('customerZip').value,
                 customerCity: document.getElementById('customerCity').value,
                 customerStreet: document.getElementById('customerStreet').value,
-                customerNotes: document.getElementById('customerNotes').value
+                customerNotes: document.getElementById('customerNotes').value,
+                discountCode: appliedDiscount ? appliedDiscount.code : null
             })
         });
 

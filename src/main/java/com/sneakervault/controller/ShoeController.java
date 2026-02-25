@@ -61,6 +61,56 @@ public class ShoeController {
         return shoes;
     }
 
+    @PostMapping
+    public ResponseEntity<?> createShoe(@RequestBody Map<String, Object> body) {
+        // Minimum price validation
+        if (body.containsKey("price")) {
+            int p = ((Number) body.get("price")).intValue();
+            if (p < 200) return ResponseEntity.badRequest().body(Map.of("error", "Minimum ár: 200 Ft"));
+        }
+        if (body.containsKey("priceEUR")) {
+            int p = ((Number) body.get("priceEUR")).intValue();
+            if (p < 2) return ResponseEntity.badRequest().body(Map.of("error", "Minimum price: €2"));
+        }
+
+        // Generate next ID: max existing ID + 1
+        Long nextId = shoeRepository.findAll().stream()
+                .mapToLong(Shoe::getId)
+                .max()
+                .orElse(0L) + 1;
+
+        Shoe shoe = new Shoe();
+        shoe.setId(nextId);
+        shoe.setSold(false);
+        shoe.setSuspended(false);
+
+        if (body.containsKey("name")) shoe.setName((String) body.get("name"));
+        if (body.containsKey("variant")) shoe.setVariant((String) body.get("variant"));
+        if (body.containsKey("color")) shoe.setColor((String) body.get("color"));
+        if (body.containsKey("styleCode")) shoe.setStyleCode((String) body.get("styleCode"));
+        if (body.containsKey("sizeUS")) shoe.setSizeUS((String) body.get("sizeUS"));
+        if (body.containsKey("sizeEUR")) shoe.setSizeEUR(((Number) body.get("sizeEUR")).doubleValue());
+        if (body.containsKey("brand")) shoe.setBrand((String) body.get("brand"));
+        if (body.containsKey("type")) shoe.setType((String) body.get("type"));
+        if (body.containsKey("gender")) shoe.setGender((String) body.get("gender"));
+        if (body.containsKey("price")) shoe.setPrice(((Number) body.get("price")).intValue());
+        if (body.containsKey("priceEUR")) shoe.setPriceEUR(((Number) body.get("priceEUR")).intValue());
+
+        shoe.setDefaultPrice(shoe.getPrice());
+        shoe.setDefaultPriceEUR(shoe.getPriceEUR());
+
+        return ResponseEntity.ok(shoeRepository.save(shoe));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteShoe(@PathVariable Long id) {
+        if (!shoeRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        shoeRepository.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<?> updateShoe(@PathVariable Long id, @RequestBody Map<String, Object> body) {
         return shoeRepository.findById(id).map(shoe -> {

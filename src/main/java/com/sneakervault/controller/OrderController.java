@@ -3,6 +3,7 @@ package com.sneakervault.controller;
 import com.sneakervault.dto.*;
 import com.sneakervault.model.*;
 import com.sneakervault.repository.CustomerRepository;
+import com.sneakervault.repository.DiscountCodeRepository;
 import com.sneakervault.repository.ShoeOrderRepository;
 import com.sneakervault.repository.ShoeRepository;
 import com.sneakervault.service.EmailService;
@@ -20,13 +21,16 @@ public class OrderController {
     private final ShoeRepository shoeRepository;
     private final EmailService emailService;
     private final CustomerRepository customerRepository;
+    private final DiscountCodeRepository discountCodeRepository;
 
     public OrderController(ShoeOrderRepository orderRepository, ShoeRepository shoeRepository,
-                           EmailService emailService, CustomerRepository customerRepository) {
+                           EmailService emailService, CustomerRepository customerRepository,
+                           DiscountCodeRepository discountCodeRepository) {
         this.orderRepository = orderRepository;
         this.shoeRepository = shoeRepository;
         this.emailService = emailService;
         this.customerRepository = customerRepository;
+        this.discountCodeRepository = discountCodeRepository;
     }
 
     @PostMapping
@@ -71,6 +75,37 @@ public class OrderController {
 
         if (order.getItems().isEmpty()) {
             return ResponseEntity.badRequest().build();
+        }
+
+        // Apply discount code if present
+        String discountCode = req.getDiscountCode();
+        if (discountCode != null && !discountCode.isBlank()) {
+            var optDc = discountCodeRepository.findByCodeIgnoreCase(discountCode.trim());
+            if (optDc.isPresent()) {
+                DiscountCode dc = optDc.get();
+                boolean valid = Boolean.TRUE.equals(dc.getActive())
+                        && (dc.getExpiresAt() == null || !dc.getExpiresAt().isBefore(java.time.LocalDateTime.now()))
+                        && (dc.getMaxUses() == null || dc.getUsedCount() == null || dc.getUsedCount() < dc.getMaxUses());
+                if (valid) {
+                    int discountHUF = 0, discountEUR = 0;
+                    if ("PERCENTAGE".equals(dc.getType()) && dc.getPercentOff() != null) {
+                        discountHUF = (int) Math.round(totalHUF * dc.getPercentOff() / 100.0);
+                        discountEUR = (int) Math.round(totalEUR * dc.getPercentOff() / 100.0);
+                    } else if ("FIXED".equals(dc.getType())) {
+                        discountHUF = dc.getFixedAmountHUF() != null ? dc.getFixedAmountHUF() : 0;
+                        discountEUR = dc.getFixedAmountEUR() != null ? dc.getFixedAmountEUR() : 0;
+                    }
+                    discountHUF = Math.min(discountHUF, totalHUF);
+                    discountEUR = Math.min(discountEUR, totalEUR);
+                    order.setDiscountCode(dc.getCode());
+                    order.setDiscountAmountHUF(discountHUF);
+                    order.setDiscountAmountEUR(discountEUR);
+                    totalHUF -= discountHUF;
+                    totalEUR -= discountEUR;
+                    dc.setUsedCount((dc.getUsedCount() != null ? dc.getUsedCount() : 0) + 1);
+                    discountCodeRepository.save(dc);
+                }
+            }
         }
 
         order.setTotalHUF(totalHUF);

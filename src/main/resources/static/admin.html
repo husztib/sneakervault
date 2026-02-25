@@ -973,6 +973,23 @@
         <div class="analytics-grid" id="analyticsGrid"></div>
         <div class="analytics-tables" id="analyticsTables"></div>
     </section>
+
+    <!-- CUSTOMERS SECTION -->
+    <section id="customersSection">
+        <div class="section-header">
+            <h2 class="section-title" id="customersSectionTitle"></h2>
+            <div class="section-actions">
+                <input type="text" class="filter-input" id="customerFilter">
+            </div>
+        </div>
+        <div class="stats-row" id="customerStats"></div>
+        <div class="table-wrap">
+            <table class="admin-table">
+                <thead id="customerTableHead"></thead>
+                <tbody id="customerTableBody"></tbody>
+            </table>
+        </div>
+    </section>
 </div>
 
 <footer>
@@ -1210,7 +1227,16 @@ const i18n = {
         salePriceHUF: 'Akciós ár (HUF)',
         salePriceEUR: 'Akciós ár (EUR)',
         saleBadge: 'AKCIÓ',
-        clicks: 'Kattintások'
+        clicks: 'Kattintások',
+        customers: 'Felhasználók',
+        customerFilterPlaceholder: 'Keresés név, email alapján...',
+        customerName: 'Név',
+        customerEmailCol: 'Email',
+        customerPhoneCol: 'Telefon',
+        customerCity: 'Város',
+        customerRegistered: 'Regisztráció',
+        totalCustomers: 'Regisztrált felhasználók',
+        noCustomers: 'Nincs regisztrált felhasználó'
     },
     en: {
         backToStore: '\u2190 Store',
@@ -1307,7 +1333,16 @@ const i18n = {
         salePriceHUF: 'Sale Price (HUF)',
         salePriceEUR: 'Sale Price (EUR)',
         saleBadge: 'SALE',
-        clicks: 'Clicks'
+        clicks: 'Clicks',
+        customers: 'Customers',
+        customerFilterPlaceholder: 'Search by name, email...',
+        customerName: 'Name',
+        customerEmailCol: 'Email',
+        customerPhoneCol: 'Phone',
+        customerCity: 'City',
+        customerRegistered: 'Registered',
+        totalCustomers: 'Registered Customers',
+        noCustomers: 'No registered customers'
     }
 };
 
@@ -1316,6 +1351,8 @@ function t(key) { return i18n[currentLang][key]; }
 // ====== STATE ======
 let shoes = [];
 let shoeClicks = {};
+let customers = [];
+let customerFilterQuery = '';
 let currentTheme = localStorage.getItem('sv-theme') || 'light';
 let currentLang = localStorage.getItem('sv-lang') || 'hu';
 let currentCurrency = localStorage.getItem('sv-currency') || 'HUF';
@@ -1683,11 +1720,14 @@ function refreshUI() {
     document.getElementById('tabOrders').textContent = t('ordersTab');
     document.getElementById('tabPerShoe').textContent = t('perShoeTab');
     document.getElementById('footerText').textContent = t('footer');
+    document.getElementById('customersSectionTitle').textContent = t('customers');
+    document.getElementById('customerFilter').placeholder = t('customerFilterPlaceholder');
 
     renderPriceTable();
     loadSalesData();
     loadAnalytics();
     startAnalyticsRefresh();
+    loadCustomers();
 }
 
 // ====== INIT ======
@@ -1709,6 +1749,11 @@ function init() {
     document.getElementById('tableFilter').addEventListener('input', (e) => {
         tableFilterQuery = e.target.value.toLowerCase();
         renderPriceTable();
+    });
+
+    document.getElementById('customerFilter').addEventListener('input', (e) => {
+        customerFilterQuery = e.target.value.toLowerCase();
+        renderCustomerTable();
     });
 
     setupTabs();
@@ -2036,6 +2081,58 @@ async function doLogin() {
 document.getElementById('loginPassword').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') doLogin();
 });
+
+// ====== CUSTOMERS ======
+async function loadCustomers() {
+    try {
+        const res = await fetch('/api/customers');
+        if (!res.ok) return;
+        customers = await res.json();
+        renderCustomerTable();
+    } catch (e) {}
+}
+
+function renderCustomerTable() {
+    const head = document.getElementById('customerTableHead');
+    const body = document.getElementById('customerTableBody');
+    const stats = document.getElementById('customerStats');
+
+    stats.innerHTML = `
+        <div class="stat-card">
+            <div class="stat-label">${t('totalCustomers')}</div>
+            <div class="stat-value">${customers.length}</div>
+        </div>`;
+
+    head.innerHTML = `<tr>
+        <th>${t('customerName')}</th>
+        <th>${t('customerEmailCol')}</th>
+        <th>${t('customerPhoneCol')}</th>
+        <th>${t('customerCity')}</th>
+        <th>${t('customerRegistered')}</th>
+    </tr>`;
+
+    const filtered = customers.filter(c => {
+        if (!customerFilterQuery) return true;
+        const h = `${c.name || ''} ${c.email || ''} ${c.phone || ''} ${c.city || ''}`.toLowerCase();
+        return h.includes(customerFilterQuery);
+    });
+
+    if (filtered.length === 0) {
+        body.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-muted)">${t('noCustomers')}</td></tr>`;
+        return;
+    }
+
+    body.innerHTML = filtered.map(c => {
+        const regDate = c.registeredAt ? new Date(c.registeredAt).toLocaleDateString('hu-HU') : '-';
+        return `<tr>
+            <td data-label="${t('customerName')}">${c.name || '-'}</td>
+            <td data-label="${t('customerEmailCol')}">${c.email || '-'}</td>
+            <td data-label="${t('customerPhoneCol')}">${c.phone || '-'}</td>
+            <td data-label="${t('customerCity')}">${c.city || '-'}</td>
+            <td data-label="${t('customerRegistered')}">${regDate}</td>
+        </tr>`;
+    }).join('');
+}
 
 // Auto-init if already authenticated in this session
 if (sessionStorage.getItem('sv-admin-auth') === '1') {

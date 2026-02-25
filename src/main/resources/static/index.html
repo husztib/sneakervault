@@ -769,7 +769,203 @@
             white-space: nowrap;
         }
 
+        .toast.error { background: #e74c3c; color: white; }
         .toast.show { transform: translateX(-50%) translateY(0); }
+
+        .auth-btn {
+            background: none;
+            border: 2px solid var(--border);
+            color: var(--text);
+            padding: 10px 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .auth-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        .auth-btn .auth-name {
+            font-size: 13px;
+            font-weight: 600;
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .auth-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: var(--modal-overlay);
+            z-index: 500;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .auth-modal-overlay.show { display: flex; }
+
+        .auth-modal {
+            background: var(--card-bg);
+            border-radius: 20px;
+            max-width: 440px;
+            width: 100%;
+            padding: 32px;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        .auth-modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: var(--overlay-strong);
+            border: none;
+            color: var(--text);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.2s;
+        }
+
+        .auth-modal-close:hover { background: var(--accent); color: white; }
+
+        .auth-modal h2 { font-size: 22px; font-weight: 800; margin-bottom: 20px; }
+
+        .auth-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .auth-tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .auth-tab:hover { color: var(--text); }
+        .auth-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+        .auth-form { display: none; }
+        .auth-form.active { display: block; }
+
+        .auth-form .form-group { margin-bottom: 14px; }
+
+        .auth-form .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .auth-form .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--overlay-medium);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .auth-form .form-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(255,77,0,0.15);
+        }
+
+        .auth-form .form-row {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 10px;
+        }
+
+        .auth-form .auth-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 4px;
+        }
+
+        .auth-form .auth-submit:hover { background: var(--accent-hover); }
+        .auth-form .auth-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .auth-error {
+            color: #e74c3c;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        .auth-error.show { display: block; }
+
+        .user-menu {
+            position: relative;
+        }
+
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 8px;
+            min-width: 180px;
+            box-shadow: 0 8px 24px var(--shadow-card);
+            z-index: 200;
+        }
+
+        .user-dropdown.show { display: block; }
+
+        .user-dropdown-item {
+            display: block;
+            width: 100%;
+            padding: 10px 14px;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: left;
+            border-radius: 8px;
+            transition: background 0.15s;
+        }
+
+        .user-dropdown-item:hover { background: var(--overlay-medium); }
+        .user-dropdown-item.logout { color: #e74c3c; }
 
         footer {
             max-width: 1400px;
@@ -857,6 +1053,16 @@
                     <button class="toggle-opt" data-val="EUR">EUR</button>
                 </div>
             </div>
+            <div class="user-menu" id="userMenu">
+                <button class="auth-btn" id="authBtn" onclick="handleAuthClick()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span class="auth-name" id="authName" style="display:none"></span>
+                </button>
+                <div class="user-dropdown" id="userDropdown">
+                    <button class="user-dropdown-item" id="userEmail" disabled style="opacity:0.6;cursor:default"></button>
+                    <button class="user-dropdown-item logout" id="logoutBtn" onclick="doLogout()"></button>
+                </div>
+            </div>
             <button class="cart-btn" onclick="toggleCart()">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
                 <div class="cart-count" id="cartCount" style="display:none">0</div>
@@ -934,6 +1140,58 @@
     </div>
 </div>
 
+<div class="auth-modal-overlay" id="authModal">
+    <div class="auth-modal">
+        <button class="auth-modal-close" onclick="closeAuthModal()">&times;</button>
+        <div class="auth-tabs">
+            <button class="auth-tab active" data-auth="login" id="authTabLogin"></button>
+            <button class="auth-tab" data-auth="register" id="authTabRegister"></button>
+        </div>
+        <div class="auth-error" id="authError"></div>
+        <form class="auth-form active" id="loginForm" onsubmit="doLogin(event)">
+            <div class="form-group">
+                <label class="form-label">Email *</label>
+                <input class="form-input" type="email" id="loginEmail" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" id="loginPassLabel"></label>
+                <input class="form-input" type="password" id="loginPassword" required>
+            </div>
+            <button type="submit" class="auth-submit" id="loginSubmitBtn"></button>
+        </form>
+        <form class="auth-form" id="registerForm" onsubmit="doRegister(event)">
+            <div class="form-group">
+                <label class="form-label">Email *</label>
+                <input class="form-input" type="email" id="regEmail" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" id="regPassLabel"></label>
+                <input class="form-input" type="password" id="regPassword" minlength="6" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" id="regNameLabel"></label>
+                <input class="form-input" type="text" id="regName" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" id="regPhoneLabel"></label>
+                <input class="form-input" type="tel" id="regPhone">
+            </div>
+            <div class="form-group">
+                <label class="form-label" id="regAddressLabel"></label>
+                <div class="form-row">
+                    <input class="form-input" type="text" id="regZip" placeholder="">
+                    <input class="form-input" type="text" id="regCity" placeholder="">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label" id="regStreetLabel"></label>
+                <input class="form-input" type="text" id="regStreet">
+            </div>
+            <button type="submit" class="auth-submit" id="regSubmitBtn"></button>
+        </form>
+    </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -980,7 +1238,23 @@ const i18n = {
         gender: 'Nem',
         genderDisplay: { 'Férfi': 'Férfi', 'Női': 'Női', 'GS': 'GS/Youth' },
         sale: 'AKCIÓ',
-        salePercent: (p) => `-${p}%`
+        salePercent: (p) => `-${p}%`,
+        login: 'Belépés',
+        register: 'Regisztráció',
+        password: 'Jelszó *',
+        nameLabel: 'Név *',
+        phoneLabel: 'Telefon',
+        addressLabel: 'Irányítószám / Város',
+        streetLabel: 'Utca, házszám',
+        loginBtn: 'Belépés',
+        registerBtn: 'Regisztráció',
+        logout: 'Kijelentkezés',
+        authErrorInvalid: 'Hibás email vagy jelszó!',
+        authErrorExists: 'Ez az email már regisztrálva van!',
+        authErrorGeneral: 'Hiba történt, próbáld újra!',
+        registerSuccess: 'Sikeres regisztráció!',
+        loginSuccess: 'Sikeres belépés!',
+        logoutSuccess: 'Kijelentkezve!'
     },
     en: {
         searchPlaceholder: 'Search by model, color, size...',
@@ -1024,12 +1298,31 @@ const i18n = {
         gender: 'Gender',
         genderDisplay: { 'Férfi': 'Men', 'Női': 'Women', 'GS': 'GS/Youth' },
         sale: 'SALE',
-        salePercent: (p) => `-${p}%`
+        salePercent: (p) => `-${p}%`,
+        login: 'Login',
+        register: 'Register',
+        password: 'Password *',
+        nameLabel: 'Name *',
+        phoneLabel: 'Phone',
+        addressLabel: 'Zip Code / City',
+        streetLabel: 'Street, number',
+        loginBtn: 'Login',
+        registerBtn: 'Register',
+        logout: 'Logout',
+        authErrorInvalid: 'Invalid email or password!',
+        authErrorExists: 'This email is already registered!',
+        authErrorGeneral: 'An error occurred, please try again!',
+        registerSuccess: 'Registration successful!',
+        loginSuccess: 'Logged in successfully!',
+        logoutSuccess: 'Logged out!'
     }
 };
 
 function t(key) { return i18n[currentLang][key]; }
 function displayGender(g) { return t('genderDisplay')[g] || g; }
+
+// ====== AUTH STATE ======
+let currentUser = null;
 
 // ====== STATE ======
 let shoes = [];
@@ -1147,6 +1440,8 @@ function refreshUI() {
     document.getElementById('cartTitle').textContent = t('cart');
     document.getElementById('cartTotalLabel').textContent = t('total');
     document.getElementById('checkoutBtn').textContent = t('checkout');
+    document.getElementById('logoutBtn').textContent = t('logout');
+    updateAuthUI();
     renderSortSelect();
     renderFilterRow();
     renderSizeFilters();
@@ -1224,6 +1519,170 @@ function renderSizeFilters() {
     });
 }
 
+// ====== AUTH ======
+async function initAuth() {
+    const token = localStorage.getItem('sv-auth-token');
+    if (!token) return;
+
+    try {
+        const res = await fetch('/api/customers/me', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (res.ok) {
+            currentUser = await res.json();
+            updateAuthUI();
+        } else {
+            localStorage.removeItem('sv-auth-token');
+        }
+    } catch (e) {
+        // silent fail
+    }
+}
+
+function updateAuthUI() {
+    const nameEl = document.getElementById('authName');
+    const emailEl = document.getElementById('userEmail');
+
+    if (currentUser) {
+        nameEl.textContent = currentUser.name || currentUser.email;
+        nameEl.style.display = 'inline';
+        emailEl.textContent = currentUser.email;
+    } else {
+        nameEl.style.display = 'none';
+    }
+}
+
+function handleAuthClick() {
+    if (currentUser) {
+        document.getElementById('userDropdown').classList.toggle('show');
+    } else {
+        openAuthModal();
+    }
+}
+
+function openAuthModal() {
+    const modal = document.getElementById('authModal');
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    switchAuthTab('login');
+    document.getElementById('authError').classList.remove('show');
+    // Update auth modal labels
+    document.getElementById('authTabLogin').textContent = t('login');
+    document.getElementById('authTabRegister').textContent = t('register');
+    document.getElementById('loginPassLabel').textContent = t('password');
+    document.getElementById('loginSubmitBtn').textContent = t('loginBtn');
+    document.getElementById('regPassLabel').textContent = t('password');
+    document.getElementById('regNameLabel').textContent = t('nameLabel');
+    document.getElementById('regPhoneLabel').textContent = t('phoneLabel');
+    document.getElementById('regAddressLabel').textContent = t('addressLabel');
+    document.getElementById('regStreetLabel').textContent = t('streetLabel');
+    document.getElementById('regSubmitBtn').textContent = t('registerBtn');
+}
+
+function closeAuthModal() {
+    document.getElementById('authModal').classList.remove('show');
+    document.body.style.overflow = '';
+}
+
+function switchAuthTab(tab) {
+    document.querySelectorAll('.auth-tab').forEach(b => b.classList.toggle('active', b.dataset.auth === tab));
+    document.getElementById('loginForm').classList.toggle('active', tab === 'login');
+    document.getElementById('registerForm').classList.toggle('active', tab === 'register');
+    document.getElementById('authError').classList.remove('show');
+}
+
+async function doLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const errEl = document.getElementById('authError');
+    errEl.classList.remove('show');
+
+    try {
+        const res = await fetch('/api/customers/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            localStorage.setItem('sv-auth-token', data.token);
+            currentUser = data;
+            updateAuthUI();
+            closeAuthModal();
+            showToast(t('loginSuccess'));
+            document.getElementById('loginForm').reset();
+        } else {
+            errEl.textContent = t('authErrorInvalid');
+            errEl.classList.add('show');
+        }
+    } catch (err) {
+        errEl.textContent = t('authErrorGeneral');
+        errEl.classList.add('show');
+    }
+}
+
+async function doRegister(e) {
+    e.preventDefault();
+    const errEl = document.getElementById('authError');
+    errEl.classList.remove('show');
+
+    const body = {
+        email: document.getElementById('regEmail').value,
+        password: document.getElementById('regPassword').value,
+        name: document.getElementById('regName').value,
+        phone: document.getElementById('regPhone').value,
+        zip: document.getElementById('regZip').value,
+        city: document.getElementById('regCity').value,
+        street: document.getElementById('regStreet').value
+    };
+
+    try {
+        const res = await fetch('/api/customers/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            localStorage.setItem('sv-auth-token', data.token);
+            currentUser = data;
+            updateAuthUI();
+            closeAuthModal();
+            showToast(t('registerSuccess'));
+            document.getElementById('registerForm').reset();
+        } else if (res.status === 409) {
+            errEl.textContent = t('authErrorExists');
+            errEl.classList.add('show');
+        } else {
+            errEl.textContent = t('authErrorGeneral');
+            errEl.classList.add('show');
+        }
+    } catch (err) {
+        errEl.textContent = t('authErrorGeneral');
+        errEl.classList.add('show');
+    }
+}
+
+async function doLogout() {
+    const token = localStorage.getItem('sv-auth-token');
+    if (token) {
+        try {
+            await fetch('/api/customers/logout', {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+        } catch (e) {}
+    }
+    localStorage.removeItem('sv-auth-token');
+    currentUser = null;
+    document.getElementById('userDropdown').classList.remove('show');
+    updateAuthUI();
+    showToast(t('logoutSuccess'));
+}
+
 function init() {
     applyTheme(currentTheme);
     updateToggleUI('langToggle', currentLang);
@@ -1254,8 +1713,26 @@ function init() {
     });
 
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') { closeModal(); if (document.getElementById('cartDrawer').classList.contains('open')) toggleCart(); }
+        if (e.key === 'Escape') { closeModal(); closeAuthModal(); if (document.getElementById('cartDrawer').classList.contains('open')) toggleCart(); }
     });
+
+    document.getElementById('authModal').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closeAuthModal();
+    });
+
+    document.querySelectorAll('.auth-tab').forEach(btn => {
+        btn.onclick = () => switchAuthTab(btn.dataset.auth);
+    });
+
+    // Close user dropdown on outside click
+    document.addEventListener('click', (e) => {
+        const menu = document.getElementById('userMenu');
+        if (!menu.contains(e.target)) {
+            document.getElementById('userDropdown').classList.remove('show');
+        }
+    });
+
+    initAuth();
 
     if (localStorage.getItem('sv-checkout-success')) {
         localStorage.removeItem('sv-checkout-success');

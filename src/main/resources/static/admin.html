@@ -221,6 +221,24 @@
             white-space: nowrap;
         }
 
+        .admin-table th.sortable {
+            cursor: pointer;
+            user-select: none;
+            transition: color 0.2s;
+        }
+
+        .admin-table th.sortable:hover { color: var(--accent); }
+        .admin-table th.sortable.sort-active { color: var(--accent); }
+
+        .sort-arrow {
+            display: inline-block;
+            margin-left: 4px;
+            font-size: 10px;
+            opacity: 0.4;
+        }
+
+        .sort-active .sort-arrow { opacity: 1; }
+
         .admin-table td {
             padding: 10px 14px;
             border-bottom: 1px solid var(--border);
@@ -1302,6 +1320,8 @@ let currentTheme = localStorage.getItem('sv-theme') || 'light';
 let currentLang = localStorage.getItem('sv-lang') || 'hu';
 let currentCurrency = localStorage.getItem('sv-currency') || 'HUF';
 let tableFilterQuery = '';
+let tableSortBy = 'name';
+let tableSortDir = 'asc';
 
 function getEffectivePrice(shoe) {
     if (!shoe.onSale) return { huf: shoe.price, eur: shoe.priceEUR };
@@ -1395,26 +1415,56 @@ function isModified(shoe) {
     return shoe.price !== shoe.defaultPrice || shoe.priceEUR !== shoe.defaultPriceEUR;
 }
 
+function sortHeader(col) {
+    if (tableSortBy === col) {
+        tableSortDir = tableSortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+        tableSortBy = col;
+        tableSortDir = 'asc';
+    }
+    renderPriceTable();
+}
+
+function sortArrow(col) {
+    const active = tableSortBy === col;
+    const arrow = tableSortDir === 'asc' ? '\u25B2' : '\u25BC';
+    return `<span class="sort-arrow">${active ? arrow : '\u25B2'}</span>`;
+}
+
 function renderPriceTable() {
     renderInventoryStats();
     const head = document.getElementById('priceTableHead');
     head.innerHTML = `<tr>
         <th>${t('image')}</th>
-        <th>${t('shoeName')}</th>
-        <th>${t('styleCode')}</th>
-        <th>${t('size')}</th>
-        <th>${t('brand')}</th>
-        <th>${t('priceHUF')}</th>
-        <th>${t('priceEUR')}</th>
-        <th>${t('clicks')}</th>
+        <th class="sortable ${tableSortBy === 'name' ? 'sort-active' : ''}" onclick="sortHeader('name')">${t('shoeName')}${sortArrow('name')}</th>
+        <th class="sortable ${tableSortBy === 'styleCode' ? 'sort-active' : ''}" onclick="sortHeader('styleCode')">${t('styleCode')}${sortArrow('styleCode')}</th>
+        <th class="sortable ${tableSortBy === 'size' ? 'sort-active' : ''}" onclick="sortHeader('size')">${t('size')}${sortArrow('size')}</th>
+        <th class="sortable ${tableSortBy === 'brand' ? 'sort-active' : ''}" onclick="sortHeader('brand')">${t('brand')}${sortArrow('brand')}</th>
+        <th class="sortable ${tableSortBy === 'priceHUF' ? 'sort-active' : ''}" onclick="sortHeader('priceHUF')">${t('priceHUF')}${sortArrow('priceHUF')}</th>
+        <th class="sortable ${tableSortBy === 'priceEUR' ? 'sort-active' : ''}" onclick="sortHeader('priceEUR')">${t('priceEUR')}${sortArrow('priceEUR')}</th>
+        <th class="sortable ${tableSortBy === 'clicks' ? 'sort-active' : ''}" onclick="sortHeader('clicks')">${t('clicks')}${sortArrow('clicks')}</th>
         <th>${t('actions')}</th>
     </tr>`;
 
     const body = document.getElementById('priceTableBody');
-    const filtered = shoes.filter(shoe => {
+    let filtered = shoes.filter(shoe => {
         if (!tableFilterQuery) return true;
         const h = `${shoe.name} ${shoe.color} ${shoe.styleCode} ${shoe.brand} ${shoe.sizeEUR}`.toLowerCase();
         return h.includes(tableFilterQuery);
+    });
+
+    const dir = tableSortDir === 'asc' ? 1 : -1;
+    filtered.sort((a, b) => {
+        switch (tableSortBy) {
+            case 'name': return dir * a.name.localeCompare(b.name);
+            case 'styleCode': return dir * (a.styleCode || '').localeCompare(b.styleCode || '');
+            case 'size': return dir * ((a.sizeEUR || 0) - (b.sizeEUR || 0));
+            case 'brand': return dir * a.brand.localeCompare(b.brand);
+            case 'priceHUF': return dir * (getEffectivePrice(a).huf - getEffectivePrice(b).huf);
+            case 'priceEUR': return dir * (getEffectivePrice(a).eur - getEffectivePrice(b).eur);
+            case 'clicks': return dir * ((shoeClicks[a.id] || 0) - (shoeClicks[b.id] || 0));
+            default: return dir * a.name.localeCompare(b.name);
+        }
     });
 
     body.innerHTML = filtered.map(shoe => {

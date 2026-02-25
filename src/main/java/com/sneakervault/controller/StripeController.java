@@ -77,7 +77,7 @@ public class StripeController {
 
                 int price = isEur ? shoe.getEffectivePriceEUR() : shoe.getEffectivePrice();
                 // Stripe expects amounts in the smallest currency unit (fillér for HUF, cent for EUR)
-                long unitAmount = isEur ? price * 100L : price;
+                long unitAmount = price * 100L;
 
                 String productName = shoe.getName();
                 if (shoe.getVariant() != null && !shoe.getVariant().isEmpty()) {

@@ -8,6 +8,8 @@ import com.sneakervault.model.ShoeOrder;
 import com.sneakervault.repository.ShoeOrderRepository;
 import com.sneakervault.repository.ShoeRepository;
 import com.sneakervault.service.EmailService;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.stripe.Stripe;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.Event;
@@ -155,35 +157,37 @@ public class StripeController {
     @PostMapping("/webhook")
     public ResponseEntity<String> handleWebhook(@RequestBody String payload,
                                                  @RequestHeader("Stripe-Signature") String sigHeader) {
-        Event event;
-
-        try {
-            if (webhookSecret != null && !webhookSecret.isBlank()) {
-                event = Webhook.constructEvent(payload, sigHeader, webhookSecret);
-            } else {
-                event = Event.GSON.fromJson(payload, Event.class);
+        // Verify signature if webhook secret is configured
+        if (webhookSecret != null && !webhookSecret.isBlank()) {
+            try {
+                Webhook.constructEvent(payload, sigHeader, webhookSecret);
+            } catch (SignatureVerificationException e) {
+                log.error("Stripe webhook signature verification failed: {}", e.getMessage());
+                return ResponseEntity.badRequest().body("Invalid signature");
+            } catch (Exception e) {
+                log.error("Stripe webhook signature check failed: {}", e.getMessage());
+                return ResponseEntity.badRequest().body("Invalid payload");
             }
-        } catch (SignatureVerificationException e) {
-            log.error("Stripe webhook signature verification failed: {}", e.getMessage());
-            return ResponseEntity.badRequest().body("Invalid signature");
-        } catch (Exception e) {
-            log.error("Stripe webhook parsing failed: {}", e.getMessage());
-            return ResponseEntity.badRequest().body("Invalid payload");
         }
 
-        if ("checkout.session.completed".equals(event.getType())) {
-            Session session = (Session) event.getDataObjectDeserializer()
-                    .getObject().orElse(null);
+        // Parse event type and session ID directly from JSON for robustness
+        try {
+            JsonObject jsonObject = JsonParser.parseString(payload).getAsJsonObject();
+            String eventType = jsonObject.get("type").getAsString();
+            log.info("Stripe webhook received: {}", eventType);
 
-            if (session != null) {
-                try {
-                    // Retrieve session with metadata
-                    Session fullSession = Session.retrieve(session.getId());
-                    createOrderFromSession(fullSession);
-                } catch (Exception e) {
-                    log.error("Failed to process checkout.session.completed: {}", e.getMessage(), e);
-                }
+            if ("checkout.session.completed".equals(eventType)) {
+                String sessionId = jsonObject.getAsJsonObject("data")
+                        .getAsJsonObject("object")
+                        .get("id").getAsString();
+                log.info("Processing checkout session: {}", sessionId);
+
+                // Retrieve full session with metadata from Stripe API
+                Session fullSession = Session.retrieve(sessionId);
+                createOrderFromSession(fullSession);
             }
+        } catch (Exception e) {
+            log.error("Failed to process Stripe webhook: {}", e.getMessage(), e);
         }
 
         return ResponseEntity.ok("ok");

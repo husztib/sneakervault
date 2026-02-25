@@ -435,6 +435,34 @@
         }
 
         .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.error { background: #e74c3c; color: white; }
+
+        .main-tabs {
+            display: flex;
+            gap: 4px;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 24px;
+            padding: 0;
+        }
+
+        .main-tab {
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: -2px;
+        }
+
+        .main-tab:hover { color: var(--text); }
+        .main-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+        .main-section { display: none; }
+        .main-section.active { display: block; }
 
         footer {
             max-width: 1400px;
@@ -919,7 +947,14 @@
 </header>
 
 <div class="container">
-    <section id="pricesSection">
+    <div class="main-tabs" id="mainTabs">
+        <button class="main-tab active" data-section="prices" id="mainTabPrices"></button>
+        <button class="main-tab" data-section="sales" id="mainTabSales"></button>
+        <button class="main-tab" data-section="analytics" id="mainTabAnalytics"></button>
+        <button class="main-tab" data-section="customers" id="mainTabCustomers"></button>
+    </div>
+
+    <section id="pricesSection" class="main-section active">
         <div class="section-header">
             <h2 class="section-title" id="pricesSectionTitle"></h2>
             <div class="section-actions">
@@ -936,7 +971,7 @@
         </div>
     </section>
 
-    <section id="salesSection">
+    <section id="salesSection" class="main-section">
         <div class="section-header">
             <h2 class="section-title" id="salesSectionTitle"></h2>
             <div class="section-actions">
@@ -966,7 +1001,7 @@
     </section>
 
     <!-- TRAFFIC ANALYTICS SECTION -->
-    <section id="analyticsSection">
+    <section id="analyticsSection" class="main-section">
         <div class="section-header">
             <h2 class="section-title" id="analyticsSectionTitle"></h2>
         </div>
@@ -975,7 +1010,7 @@
     </section>
 
     <!-- CUSTOMERS SECTION -->
-    <section id="customersSection">
+    <section id="customersSection" class="main-section">
         <div class="section-header">
             <h2 class="section-title" id="customersSectionTitle"></h2>
             <div class="section-actions">
@@ -1236,7 +1271,12 @@ const i18n = {
         customerCity: 'Város',
         customerRegistered: 'Regisztráció',
         totalCustomers: 'Regisztrált felhasználók',
-        noCustomers: 'Nincs regisztrált felhasználó'
+        noCustomers: 'Nincs regisztrált felhasználó',
+        saveError: 'Hiba a mentés során!',
+        tabPrices: 'Termékek',
+        tabSales: 'Értékesítés',
+        tabAnalytics: 'Analitika',
+        tabCustomers: 'Felhasználók'
     },
     en: {
         backToStore: '\u2190 Store',
@@ -1342,7 +1382,12 @@ const i18n = {
         customerCity: 'City',
         customerRegistered: 'Registered',
         totalCustomers: 'Registered Customers',
-        noCustomers: 'No registered customers'
+        noCustomers: 'No registered customers',
+        saveError: 'Error saving!',
+        tabPrices: 'Products',
+        tabSales: 'Sales',
+        tabAnalytics: 'Analytics',
+        tabCustomers: 'Customers'
     }
 };
 
@@ -1702,15 +1747,28 @@ function setupTabs() {
 }
 
 // ====== TOAST ======
-function showToast(msg) {
+function showToast(msg, isError) {
     const toast = document.getElementById('toast');
     toast.textContent = msg;
+    toast.classList.toggle('error', !!isError);
     toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2500);
+    setTimeout(() => { toast.classList.remove('show'); toast.classList.remove('error'); }, 2500);
+}
+
+// ====== MAIN TABS ======
+function switchMainTab(section) {
+    document.querySelectorAll('.main-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(section + 'Section').classList.add('active');
+    document.querySelector(`.main-tab[data-section="${section}"]`).classList.add('active');
 }
 
 // ====== REFRESH UI ======
 function refreshUI() {
+    document.getElementById('mainTabPrices').textContent = t('tabPrices');
+    document.getElementById('mainTabSales').textContent = t('tabSales');
+    document.getElementById('mainTabAnalytics').textContent = t('tabAnalytics');
+    document.getElementById('mainTabCustomers').textContent = t('tabCustomers');
     document.getElementById('backLink').textContent = t('backToStore');
     document.getElementById('pricesSectionTitle').textContent = t('productPrices');
     document.getElementById('salesSectionTitle').textContent = t('salesHistory');
@@ -1754,6 +1812,10 @@ function init() {
     document.getElementById('customerFilter').addEventListener('input', (e) => {
         customerFilterQuery = e.target.value.toLowerCase();
         renderCustomerTable();
+    });
+
+    document.querySelectorAll('.main-tab').forEach(btn => {
+        btn.onclick = () => switchMainTab(btn.dataset.section);
     });
 
     setupTabs();
@@ -1947,6 +2009,9 @@ async function saveEditModal() {
         renderPriceTable();
         closeEditModal();
         showToast(t('shoeSaved'));
+    } else {
+        const data = await res.json().catch(() => null);
+        showToast(data?.error || t('saveError'), true);
     }
 }
 

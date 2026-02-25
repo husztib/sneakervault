@@ -25,6 +25,11 @@ public class Shoe {
     private String imageUrl;
     private Boolean sold = false;
     private Boolean suspended = false;
+    private Boolean onSale = false;
+    private String saleType;
+    private Integer salePercent;
+    private Integer salePrice;
+    private Integer salePriceEUR;
 
     @OneToMany(mappedBy = "shoe", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @OrderBy("displayOrder ASC")
@@ -102,6 +107,39 @@ public class Shoe {
 
     public Boolean getSuspended() { return suspended; }
     public void setSuspended(Boolean suspended) { this.suspended = suspended; }
+
+    public Boolean getOnSale() { return onSale; }
+    public void setOnSale(Boolean onSale) { this.onSale = onSale; }
+
+    public String getSaleType() { return saleType; }
+    public void setSaleType(String saleType) { this.saleType = saleType; }
+
+    public Integer getSalePercent() { return salePercent; }
+    public void setSalePercent(Integer salePercent) { this.salePercent = salePercent; }
+
+    public Integer getSalePrice() { return salePrice; }
+    public void setSalePrice(Integer salePrice) { this.salePrice = salePrice; }
+
+    public Integer getSalePriceEUR() { return salePriceEUR; }
+    public void setSalePriceEUR(Integer salePriceEUR) { this.salePriceEUR = salePriceEUR; }
+
+    public Integer getEffectivePrice() {
+        if (!Boolean.TRUE.equals(onSale)) return price;
+        if ("FIXED".equals(saleType) && salePrice != null) return salePrice;
+        if ("PERCENTAGE".equals(saleType) && salePercent != null && price != null) {
+            return (int) Math.round(price * (100.0 - salePercent) / 100.0);
+        }
+        return price;
+    }
+
+    public Integer getEffectivePriceEUR() {
+        if (!Boolean.TRUE.equals(onSale)) return priceEUR;
+        if ("FIXED".equals(saleType) && salePriceEUR != null) return salePriceEUR;
+        if ("PERCENTAGE".equals(saleType) && salePercent != null && priceEUR != null) {
+            return (int) Math.round(priceEUR * (100.0 - salePercent) / 100.0);
+        }
+        return priceEUR;
+    }
 
     public List<ShoeImage> getImages() { return images; }
     public void setImages(List<ShoeImage> images) { this.images = images; }

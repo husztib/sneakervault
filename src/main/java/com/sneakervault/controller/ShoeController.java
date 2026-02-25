@@ -76,6 +76,11 @@ public class ShoeController {
             if (body.containsKey("price")) shoe.setPrice(((Number) body.get("price")).intValue());
             if (body.containsKey("priceEUR")) shoe.setPriceEUR(((Number) body.get("priceEUR")).intValue());
             if (body.containsKey("suspended")) shoe.setSuspended((Boolean) body.get("suspended"));
+            if (body.containsKey("onSale")) shoe.setOnSale((Boolean) body.get("onSale"));
+            if (body.containsKey("saleType")) shoe.setSaleType((String) body.get("saleType"));
+            if (body.containsKey("salePercent")) shoe.setSalePercent(body.get("salePercent") != null ? ((Number) body.get("salePercent")).intValue() : null);
+            if (body.containsKey("salePrice")) shoe.setSalePrice(body.get("salePrice") != null ? ((Number) body.get("salePrice")).intValue() : null);
+            if (body.containsKey("salePriceEUR")) shoe.setSalePriceEUR(body.get("salePriceEUR") != null ? ((Number) body.get("salePriceEUR")).intValue() : null);
             return ResponseEntity.ok(shoeRepository.save(shoe));
         }).orElse(ResponseEntity.notFound().build());
     }

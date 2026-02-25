@@ -428,6 +428,47 @@
             backdrop-filter: blur(4px);
         }
 
+        .sale-badge {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: white;
+            background: #e53e3e;
+            z-index: 2;
+        }
+
+        .sale-percent-badge {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: white;
+            background: #e53e3e;
+            z-index: 2;
+        }
+
+        .original-price {
+            text-decoration: line-through;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 500;
+            margin-right: 6px;
+        }
+
+        .sale-price {
+            color: #e53e3e;
+            font-weight: 800;
+        }
+
         .product-info { padding: 16px; }
         .product-name { font-size: 15px; font-weight: 700; margin-bottom: 4px; line-height: 1.3; }
         .product-colorway { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; }
@@ -937,7 +978,9 @@ const i18n = {
         brand: 'Márka',
         type: 'Típus',
         gender: 'Nem',
-        genderDisplay: { 'Férfi': 'Férfi', 'Női': 'Női', 'GS': 'GS/Youth' }
+        genderDisplay: { 'Férfi': 'Férfi', 'Női': 'Női', 'GS': 'GS/Youth' },
+        sale: 'AKCIÓ',
+        salePercent: (p) => `-${p}%`
     },
     en: {
         searchPlaceholder: 'Search by model, color, size...',
@@ -979,7 +1022,9 @@ const i18n = {
         brand: 'Brand',
         type: 'Type',
         gender: 'Gender',
-        genderDisplay: { 'Férfi': 'Men', 'Női': 'Women', 'GS': 'GS/Youth' }
+        genderDisplay: { 'Férfi': 'Men', 'Női': 'Women', 'GS': 'GS/Youth' },
+        sale: 'SALE',
+        salePercent: (p) => `-${p}%`
     }
 };
 
@@ -1006,7 +1051,28 @@ async function loadShoes() {
 }
 
 // ====== PRICE FORMATTING ======
+function getEffectivePrice(shoe) {
+    if (!shoe.onSale) return { huf: shoe.price, eur: shoe.priceEUR };
+    if (shoe.saleType === 'FIXED') {
+        return { huf: shoe.salePrice || shoe.price, eur: shoe.salePriceEUR || shoe.priceEUR };
+    }
+    if (shoe.saleType === 'PERCENTAGE' && shoe.salePercent) {
+        return {
+            huf: Math.round(shoe.price * (100 - shoe.salePercent) / 100),
+            eur: Math.round(shoe.priceEUR * (100 - shoe.salePercent) / 100)
+        };
+    }
+    return { huf: shoe.price, eur: shoe.priceEUR };
+}
+
 function formatPrice(shoe) {
+    const eff = getEffectivePrice(shoe);
+    if (shoe.onSale) {
+        if (currentCurrency === 'EUR') {
+            return `<span class="original-price"><span class="currency">€ </span>${shoe.priceEUR}</span><span class="sale-price"><span class="currency">€ </span>${eff.eur}</span>`;
+        }
+        return `<span class="original-price"><span class="currency">Ft </span>${shoe.price.toLocaleString('hu-HU')}</span><span class="sale-price"><span class="currency">Ft </span>${eff.huf.toLocaleString('hu-HU')}</span>`;
+    }
     if (currentCurrency === 'EUR') {
         return `<span class="currency">€ </span>${shoe.priceEUR}`;
     }
@@ -1014,6 +1080,13 @@ function formatPrice(shoe) {
 }
 
 function formatPriceModal(shoe) {
+    const eff = getEffectivePrice(shoe);
+    if (shoe.onSale) {
+        if (currentCurrency === 'EUR') {
+            return `<span class="original-price" style="font-size:20px"><span style="font-size:14px">€</span> ${shoe.priceEUR}</span> <span class="sale-price"><span style="font-size:18px">€</span> ${eff.eur}</span>`;
+        }
+        return `<span class="original-price" style="font-size:20px"><span style="font-size:14px">Ft</span> ${shoe.price.toLocaleString('hu-HU')}</span> <span class="sale-price"><span style="font-size:18px">Ft</span> ${eff.huf.toLocaleString('hu-HU')}</span>`;
+    }
     if (currentCurrency === 'EUR') {
         return `<span style="font-size:18px">€</span> ${shoe.priceEUR}`;
     }
@@ -1021,16 +1094,17 @@ function formatPriceModal(shoe) {
 }
 
 function formatPriceCart(shoe) {
-    if (currentCurrency === 'EUR') return `€${shoe.priceEUR}`;
-    return `${shoe.price.toLocaleString('hu-HU')} Ft`;
+    const eff = getEffectivePrice(shoe);
+    if (currentCurrency === 'EUR') return `€${eff.eur}`;
+    return `${eff.huf.toLocaleString('hu-HU')} Ft`;
 }
 
 function formatTotal(items) {
     if (currentCurrency === 'EUR') {
-        const total = items.reduce((sum, item) => sum + item.priceEUR, 0);
+        const total = items.reduce((sum, item) => sum + getEffectivePrice(item).eur, 0);
         return `€${total}`;
     }
-    const total = items.reduce((sum, item) => sum + item.price, 0);
+    const total = items.reduce((sum, item) => sum + getEffectivePrice(item).huf, 0);
     return `${total.toLocaleString('hu-HU')} Ft`;
 }
 
@@ -1209,11 +1283,17 @@ function getFilteredProducts() {
     });
 
     switch (sortBy) {
-        case 'price-asc': filtered.sort((a, b) => currentCurrency === 'EUR' ? a.priceEUR - b.priceEUR : a.price - b.price); break;
-        case 'price-desc': filtered.sort((a, b) => currentCurrency === 'EUR' ? b.priceEUR - a.priceEUR : b.price - a.price); break;
+        case 'price-asc': filtered.sort((a, b) => currentCurrency === 'EUR' ? getEffectivePrice(a).eur - getEffectivePrice(b).eur : getEffectivePrice(a).huf - getEffectivePrice(b).huf); break;
+        case 'price-desc': filtered.sort((a, b) => currentCurrency === 'EUR' ? getEffectivePrice(b).eur - getEffectivePrice(a).eur : getEffectivePrice(b).huf - getEffectivePrice(a).huf); break;
         case 'size-asc': filtered.sort((a, b) => a.sizeEUR - b.sizeEUR); break;
         case 'size-desc': filtered.sort((a, b) => b.sizeEUR - a.sizeEUR); break;
-        default: filtered.sort((a, b) => a.name.localeCompare(b.name));
+        default:
+            filtered.sort((a, b) => {
+                const aS = a.onSale ? 0 : 1;
+                const bS = b.onSale ? 0 : 1;
+                if (aS !== bS) return aS - bS;
+                return a.name.localeCompare(b.name);
+            });
     }
 
     return filtered;
@@ -1236,6 +1316,8 @@ function renderProducts() {
                 <img src="${shoe.imageUrl || ''}" alt="${shoe.name} ${shoe.color}" loading="lazy">
                 <span class="brand-badge ${shoe.brand.toLowerCase()}">${shoe.brand}</span>
                 <span class="type-badge">${shoe.type}</span>
+                ${shoe.onSale ? `<span class="sale-badge">${t('sale')}</span>` : ''}
+                ${shoe.onSale && shoe.saleType === 'PERCENTAGE' && shoe.salePercent ? `<span class="sale-percent-badge">${t('salePercent')(shoe.salePercent)}</span>` : ''}
             </div>
             <div class="product-info">
                 <div class="product-name">${shoe.name}${shoe.variant ? ` (${shoe.variant})` : ''}</div>
@@ -1304,6 +1386,7 @@ function openModal(id) {
                 <div class="detail-item"><label>${t('type')}</label><span>${shoe.type}</span></div>
                 <div class="detail-item"><label>${t('gender')}</label><span>${displayGender(shoe.gender)}</span></div>
             </div>
+            ${shoe.onSale ? `<div style="margin-bottom:8px"><span style="display:inline-block;background:#e53e3e;color:white;padding:4px 12px;border-radius:6px;font-size:13px;font-weight:700">${t('sale')}${shoe.saleType === 'PERCENTAGE' && shoe.salePercent ? ' ' + t('salePercent')(shoe.salePercent) : ''}</span></div>` : ''}
             <div class="modal-price">${formatPriceModal(shoe)}</div>
             <button class="modal-add-btn" onclick="addToCart(${shoe.id}); closeModal();">${t('addToCartFull')}</button>
         </div>

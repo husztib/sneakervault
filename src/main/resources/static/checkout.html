@@ -450,17 +450,32 @@ function updateToggleUI(groupId, activeVal) {
     });
 }
 
+function getEffectivePrice(item) {
+    if (!item.onSale) return { huf: item.price, eur: item.priceEUR };
+    if (item.saleType === 'FIXED') {
+        return { huf: item.salePrice || item.price, eur: item.salePriceEUR || item.priceEUR };
+    }
+    if (item.saleType === 'PERCENTAGE' && item.salePercent) {
+        return {
+            huf: Math.round(item.price * (100 - item.salePercent) / 100),
+            eur: Math.round(item.priceEUR * (100 - item.salePercent) / 100)
+        };
+    }
+    return { huf: item.price, eur: item.priceEUR };
+}
+
 function formatPriceCart(item) {
-    if (currentCurrency === 'EUR') return `\u20ac${item.priceEUR}`;
-    return `${item.price.toLocaleString('hu-HU')} Ft`;
+    const eff = getEffectivePrice(item);
+    if (currentCurrency === 'EUR') return `\u20ac${eff.eur}`;
+    return `${eff.huf.toLocaleString('hu-HU')} Ft`;
 }
 
 function formatTotal(items) {
     if (currentCurrency === 'EUR') {
-        const total = items.reduce((sum, item) => sum + item.priceEUR, 0);
+        const total = items.reduce((sum, item) => sum + getEffectivePrice(item).eur, 0);
         return `\u20ac${total}`;
     }
-    const total = items.reduce((sum, item) => sum + item.price, 0);
+    const total = items.reduce((sum, item) => sum + getEffectivePrice(item).huf, 0);
     return `${total.toLocaleString('hu-HU')} Ft`;
 }
 

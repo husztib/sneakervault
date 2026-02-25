@@ -1046,6 +1046,41 @@
         </div>
 
         <div class="edit-section">
+            <div class="edit-section-title" id="editSectionSale"></div>
+            <div class="suspend-toggle">
+                <input type="checkbox" id="editOnSale" onchange="toggleSaleFields()">
+                <label for="editOnSale" id="editLabelOnSale"></label>
+            </div>
+            <div id="saleFieldsContainer" style="display:none; margin-top: 12px;">
+                <div class="edit-grid" style="margin-bottom: 12px;">
+                    <div class="edit-field">
+                        <label id="editLabelSaleType"></label>
+                        <select id="editSaleType" onchange="toggleSaleTypeFields()">
+                            <option value="PERCENTAGE"></option>
+                            <option value="FIXED"></option>
+                        </select>
+                    </div>
+                </div>
+                <div id="salePercentFields" class="edit-grid">
+                    <div class="edit-field">
+                        <label id="editLabelSalePercent"></label>
+                        <input type="number" id="editSalePercent" min="1" max="99" step="1">
+                    </div>
+                </div>
+                <div id="saleFixedFields" class="edit-grid" style="display:none;">
+                    <div class="edit-field">
+                        <label id="editLabelSalePriceHUF"></label>
+                        <input type="number" id="editSalePriceHUF" step="100" min="0">
+                    </div>
+                    <div class="edit-field">
+                        <label id="editLabelSalePriceEUR"></label>
+                        <input type="number" id="editSalePriceEUR" step="1" min="0">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="edit-section">
             <div class="edit-section-title" id="editSectionStatus"></div>
             <div class="suspend-toggle">
                 <input type="checkbox" id="editSuspended">
@@ -1147,7 +1182,16 @@ const i18n = {
         visits: 'Látogatások',
         noData: 'Még nincs adat',
         footer: 'BotiX \u00a9 2026 \u2014 Admin Panel',
-        gender: { 'Férfi': 'Férfi', 'Női': 'Női', 'GS': 'GS/Youth' }
+        gender: { 'Férfi': 'Férfi', 'Női': 'Női', 'GS': 'GS/Youth' },
+        saleSection: 'Akció',
+        onSaleLabel: 'Akciós termék',
+        saleTypeLabel: 'Akció típusa',
+        saleTypePercent: 'Százalékos',
+        saleTypeFixed: 'Fix ár',
+        salePercentLabel: 'Kedvezmény (%)',
+        salePriceHUF: 'Akciós ár (HUF)',
+        salePriceEUR: 'Akciós ár (EUR)',
+        saleBadge: 'AKCIÓ'
     },
     en: {
         backToStore: '\u2190 Store',
@@ -1234,7 +1278,16 @@ const i18n = {
         visits: 'Visits',
         noData: 'No data yet',
         footer: 'BotiX \u00a9 2026 \u2014 Admin Panel',
-        gender: { 'Férfi': 'Men', 'Női': 'Women', 'GS': 'GS/Youth' }
+        gender: { 'Férfi': 'Men', 'Női': 'Women', 'GS': 'GS/Youth' },
+        saleSection: 'Sale',
+        onSaleLabel: 'On Sale',
+        saleTypeLabel: 'Sale Type',
+        saleTypePercent: 'Percentage',
+        saleTypeFixed: 'Fixed Price',
+        salePercentLabel: 'Discount (%)',
+        salePriceHUF: 'Sale Price (HUF)',
+        salePriceEUR: 'Sale Price (EUR)',
+        saleBadge: 'SALE'
     }
 };
 
@@ -1346,11 +1399,12 @@ function renderPriceTable() {
         const mod = isModified(shoe);
         const suspBadge = shoe.suspended ? `<span class="suspended-badge">${t('suspendedBadge')}</span>` : '';
         const soldBadge = shoe.sold ? `<span class="sold-badge">${t('soldBadge')}</span>` : '';
+        const saleBadge = shoe.onSale ? `<span class="sold-badge" style="background:#e53e3e">${t('saleBadge')}</span>` : '';
         return `<tr class="${mod ? 'modified-row' : ''}" id="row-${shoe.id}">
             <td class="img-cell" data-label=""><img class="shoe-thumb" src="${shoe.imageUrl || ''}" alt="" loading="lazy" onclick="event.stopPropagation(); openEditModal(${shoe.id})"></td>
             <td data-label="${t('shoeName')}">
                 <div class="shoe-name-cell">
-                    <div class="name">${shoe.name}${shoe.variant ? ' (' + shoe.variant + ')' : ''}${mod ? '<span class="modified-indicator" title="' + t('modified') + '"></span>' : ''}${soldBadge}${suspBadge}</div>
+                    <div class="name">${shoe.name}${shoe.variant ? ' (' + shoe.variant + ')' : ''}${mod ? '<span class="modified-indicator" title="' + t('modified') + '"></span>' : ''}${soldBadge}${suspBadge}${saleBadge}</div>
                     <div class="color">${shoe.color}</div>
                 </div>
             </td>
@@ -1691,6 +1745,15 @@ async function openEditModal(shoeId) {
     document.getElementById('editSaveBtn').textContent = t('saveChanges');
     document.getElementById('uploadHintText').textContent = t('uploadHint');
 
+    document.getElementById('editSectionSale').textContent = t('saleSection');
+    document.getElementById('editLabelOnSale').textContent = t('onSaleLabel');
+    document.getElementById('editLabelSaleType').textContent = t('saleTypeLabel');
+    document.getElementById('editSaleType').options[0].textContent = t('saleTypePercent');
+    document.getElementById('editSaleType').options[1].textContent = t('saleTypeFixed');
+    document.getElementById('editLabelSalePercent').textContent = t('salePercentLabel');
+    document.getElementById('editLabelSalePriceHUF').textContent = t('salePriceHUF');
+    document.getElementById('editLabelSalePriceEUR').textContent = t('salePriceEUR');
+
     document.getElementById('editName').value = shoe.name || '';
     document.getElementById('editVariant').value = shoe.variant || '';
     document.getElementById('editColor').value = shoe.color || '';
@@ -1703,6 +1766,14 @@ async function openEditModal(shoeId) {
     document.getElementById('editPriceHUF').value = shoe.price || 0;
     document.getElementById('editPriceEUR').value = shoe.priceEUR || 0;
     document.getElementById('editSuspended').checked = Boolean(shoe.suspended);
+
+    document.getElementById('editOnSale').checked = Boolean(shoe.onSale);
+    document.getElementById('editSaleType').value = shoe.saleType || 'PERCENTAGE';
+    document.getElementById('editSalePercent').value = shoe.salePercent || '';
+    document.getElementById('editSalePriceHUF').value = shoe.salePrice || '';
+    document.getElementById('editSalePriceEUR').value = shoe.salePriceEUR || '';
+    toggleSaleFields();
+    toggleSaleTypeFields();
 
     document.getElementById('editModalOverlay').classList.add('show');
     await renderImgGrid(shoeId);
@@ -1723,6 +1794,8 @@ function resetEditPrices() {
 async function saveEditModal() {
     if (!currentEditShoeId) return;
 
+    const onSale = document.getElementById('editOnSale').checked;
+    const saleType = document.getElementById('editSaleType').value;
     const body = {
         name: document.getElementById('editName').value,
         variant: document.getElementById('editVariant').value,
@@ -1735,7 +1808,12 @@ async function saveEditModal() {
         gender: document.getElementById('editGender').value,
         price: parseInt(document.getElementById('editPriceHUF').value),
         priceEUR: parseInt(document.getElementById('editPriceEUR').value),
-        suspended: document.getElementById('editSuspended').checked
+        suspended: document.getElementById('editSuspended').checked,
+        onSale: onSale,
+        saleType: onSale ? saleType : null,
+        salePercent: onSale && saleType === 'PERCENTAGE' ? parseInt(document.getElementById('editSalePercent').value) || null : null,
+        salePrice: onSale && saleType === 'FIXED' ? parseInt(document.getElementById('editSalePriceHUF').value) || null : null,
+        salePriceEUR: onSale && saleType === 'FIXED' ? parseInt(document.getElementById('editSalePriceEUR').value) || null : null
     };
 
     const res = await fetch(`/api/shoes/${currentEditShoeId}`, {
@@ -1752,6 +1830,17 @@ async function saveEditModal() {
         closeEditModal();
         showToast(t('shoeSaved'));
     }
+}
+
+function toggleSaleFields() {
+    const on = document.getElementById('editOnSale').checked;
+    document.getElementById('saleFieldsContainer').style.display = on ? 'block' : 'none';
+}
+
+function toggleSaleTypeFields() {
+    const type = document.getElementById('editSaleType').value;
+    document.getElementById('salePercentFields').style.display = type === 'PERCENTAGE' ? 'grid' : 'none';
+    document.getElementById('saleFixedFields').style.display = type === 'FIXED' ? 'grid' : 'none';
 }
 
 document.getElementById('editModalOverlay').addEventListener('click', (e) => {

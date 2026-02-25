@@ -16,6 +16,7 @@ public class ShoeOrder {
     private String currency;
 
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "varchar(255) default 'PENDING'")
     private OrderStatus status = OrderStatus.PENDING;
     private Integer totalHUF;
     private Integer totalEUR;

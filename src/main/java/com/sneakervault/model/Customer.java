@@ -23,6 +23,7 @@ public class Customer {
     private String street;
     private String authToken;
     private LocalDateTime registeredAt;
+    @Column(columnDefinition = "boolean default false")
     private boolean activated;
     private String activationToken;
 

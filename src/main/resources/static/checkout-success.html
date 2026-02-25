@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="hu" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BotiX - Sikeres rendelés</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <style>
+        :root, [data-theme="dark"] {
+            --primary: #0a0a0a;
+            --accent: #ff4d00;
+            --accent-hover: #e64500;
+            --bg: #050505;
+            --card-bg: #1a1a1a;
+            --text: #eee;
+            --text-muted: #8892a4;
+            --border: #2a2a2a;
+            --success: #00d68f;
+            --header-start: #0a0a0a;
+            --header-end: #1a1a1a;
+        }
+
+        [data-theme="light"] {
+            --primary: #ffffff;
+            --bg: #f0f2f5;
+            --card-bg: #ffffff;
+            --text: #0a0a0a;
+            --text-muted: #6b7280;
+            --border: #dde1e7;
+            --header-start: #ffffff;
+            --header-end: #f5f6f8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--header-start) 0%, var(--header-end) 100%);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+        }
+
+        .header-top {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+        .logo span { color: var(--accent); }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 80px 20px;
+            text-align: center;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--success);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+        }
+
+        .success-icon svg {
+            width: 40px;
+            height: 40px;
+            stroke: white;
+            stroke-width: 3;
+            fill: none;
+        }
+
+        .success-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .success-text {
+            font-size: 16px;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 14px 28px;
+            background: var(--accent);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 15px;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover { background: var(--accent-hover); }
+
+        footer {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-top">
+        <div class="logo">Boti<span>X</span></div>
+    </div>
+</header>
+
+<div class="container">
+    <div class="success-icon">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    </div>
+    <h1 class="success-title" id="successTitle"></h1>
+    <p class="success-text" id="successText"></p>
+    <a href="index.html" class="back-btn" id="backBtn"></a>
+</div>
+
+<footer>
+    <p id="footerText"></p>
+</footer>
+
+<script>
+const i18n = {
+    hu: {
+        title: 'Sikeres rendelés!',
+        text: 'Köszönjük a vásárlásodat! A fizetés sikeresen megtörtént. Hamarosan küldünk egy visszaigazoló emailt a rendelésed részleteivel.',
+        backBtn: 'Vissza a boltba',
+        footer: 'BotiX \u00a9 2026 \u2014 Minden jog fenntartva.'
+    },
+    en: {
+        title: 'Order Successful!',
+        text: 'Thank you for your purchase! Your payment was successful. We will send you a confirmation email with your order details shortly.',
+        backBtn: 'Back to store',
+        footer: 'BotiX \u00a9 2026 \u2014 All rights reserved.'
+    }
+};
+
+let currentLang = localStorage.getItem('sv-lang') || 'hu';
+let currentTheme = localStorage.getItem('sv-theme') || 'light';
+
+document.documentElement.setAttribute('data-theme', currentTheme);
+
+const t = i18n[currentLang] || i18n.hu;
+document.getElementById('successTitle').textContent = t.title;
+document.getElementById('successText').textContent = t.text;
+document.getElementById('backBtn').textContent = t.backBtn;
+document.getElementById('footerText').textContent = t.footer;
+document.title = currentLang === 'hu' ? 'BotiX - Sikeres rendelés' : 'BotiX - Order Successful';
+
+// Clear cart just in case
+localStorage.removeItem('sv-cart');
+
+// Analytics
+(function(){
+    let sid = sessionStorage.getItem('_bx_sid');
+    if (!sid) { sid = Math.random().toString(36).substr(2); sessionStorage.setItem('_bx_sid', sid); }
+    navigator.sendBeacon('/api/analytics/track', new Blob([JSON.stringify({
+        url: location.pathname, referrer: document.referrer, userAgent: navigator.userAgent, sessionId: sid
+    })], {type:'application/json'}));
+})();
+</script>
+</body>
+</html>

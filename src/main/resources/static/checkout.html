@@ -377,8 +377,8 @@ const i18n = {
         streetPlaceholder: 'Kossuth utca 1.',
         notes: 'Megjegyzés',
         notesPlaceholder: 'Opcionális megjegyzés a rendeléshez...',
-        submitOrder: 'Rendelés leadása',
-        submitting: 'Feldolgozás...',
+        submitOrder: 'Fizetés',
+        submitting: 'Átirányítás a fizetéshez...',
         emptyCart: 'A kosarad üres',
         emptyCartHint: 'Térj vissza a boltba és válassz cipőket!',
         goToStore: 'Vissza a boltba',
@@ -405,8 +405,8 @@ const i18n = {
         streetPlaceholder: 'Kossuth street 1.',
         notes: 'Notes',
         notesPlaceholder: 'Optional note for your order...',
-        submitOrder: 'Place Order',
-        submitting: 'Processing...',
+        submitOrder: 'Pay Now',
+        submitting: 'Redirecting to payment...',
         emptyCart: 'Your cart is empty',
         emptyCartHint: 'Go back to the store and pick some sneakers!',
         goToStore: 'Back to store',
@@ -559,12 +559,13 @@ async function submitOrder(e) {
     btn.textContent = t('submitting');
 
     try {
-        const res = await fetch('/api/orders', {
+        const res = await fetch('/api/stripe/create-checkout-session', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 currency: currentCurrency,
                 language: currentLang,
+                baseUrl: window.location.origin,
                 items: cart.map(item => ({ shoeId: item.id })),
                 customerName: document.getElementById('customerName').value,
                 customerEmail: document.getElementById('customerEmail').value,
@@ -577,9 +578,9 @@ async function submitOrder(e) {
         });
 
         if (res.ok) {
+            const data = await res.json();
             localStorage.removeItem('sv-cart');
-            localStorage.setItem('sv-checkout-success', '1');
-            window.location.href = 'index.html';
+            window.location.href = data.url;
         } else {
             showToast(t('errorToast'), true);
             btn.disabled = false;

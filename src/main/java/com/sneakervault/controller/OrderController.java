@@ -57,13 +57,13 @@ public class OrderController {
             item.setStyleCode(shoe.getStyleCode());
             item.setSizeEUR(shoe.getSizeEUR());
             item.setSizeUS(shoe.getSizeUS());
-            item.setPrice(shoe.getPrice());
-            item.setPriceEUR(shoe.getPriceEUR());
+            item.setPrice(shoe.getEffectivePrice());
+            item.setPriceEUR(shoe.getEffectivePriceEUR());
             item.setImageUrl(shoe.getImageUrl());
 
             order.getItems().add(item);
-            totalHUF += shoe.getPrice();
-            totalEUR += shoe.getPriceEUR();
+            totalHUF += shoe.getEffectivePrice();
+            totalEUR += shoe.getEffectivePriceEUR();
             soldShoes.add(shoe);
         }
 

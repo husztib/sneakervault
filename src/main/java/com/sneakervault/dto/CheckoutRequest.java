@@ -13,6 +13,7 @@ public class CheckoutRequest {
     private String customerStreet;
     private String customerNotes;
     private String language;
+    private String baseUrl;
 
     public String getCurrency() { return currency; }
     public void setCurrency(String currency) { this.currency = currency; }
@@ -43,4 +44,7 @@ public class CheckoutRequest {
 
     public String getLanguage() { return language; }
     public void setLanguage(String language) { this.language = language; }
+
+    public String getBaseUrl() { return baseUrl; }
+    public void setBaseUrl(String baseUrl) { this.baseUrl = baseUrl; }
 }

@@ -383,6 +383,7 @@ const i18n = {
         emptyCartHint: 'Térj vissza a boltba és válassz cipőket!',
         goToStore: 'Vissza a boltba',
         errorToast: 'Hiba történt. Kérjük próbáld újra!',
+        soldError: 'Sajnos az alábbi termékek időközben elfogytak:',
         footer: 'BotiX \u00a9 2026 \u2014 Minden jog fenntartva.'
     },
     en: {
@@ -411,6 +412,7 @@ const i18n = {
         emptyCartHint: 'Go back to the store and pick some sneakers!',
         goToStore: 'Back to store',
         errorToast: 'An error occurred. Please try again!',
+        soldError: 'Sorry, the following items are no longer available:',
         footer: 'BotiX \u00a9 2026 \u2014 All rights reserved.'
     }
 };
@@ -581,6 +583,11 @@ async function submitOrder(e) {
             const data = await res.json();
             localStorage.removeItem('sv-cart');
             window.location.href = data.url;
+        } else if (res.status === 409) {
+            const data = await res.json();
+            showToast(t('soldError') + ' ' + data.soldItems, true);
+            btn.disabled = false;
+            btn.textContent = t('submitOrder');
         } else {
             showToast(t('errorToast'), true);
             btn.disabled = false;

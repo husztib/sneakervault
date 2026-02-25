@@ -70,12 +70,21 @@ public class StripeController {
             List<String> shoeIds = new ArrayList<>();
             long totalAmount = 0;
 
+            List<String> soldNames = new ArrayList<>();
+
             for (CheckoutItemRequest itemReq : req.getItems()) {
                 Optional<Shoe> optShoe = shoeRepository.findById(itemReq.getShoeId());
                 if (optShoe.isEmpty()) continue;
 
                 Shoe shoe = optShoe.get();
-                if (Boolean.TRUE.equals(shoe.getSold())) continue;
+                if (Boolean.TRUE.equals(shoe.getSold())) {
+                    String name = shoe.getName();
+                    if (shoe.getVariant() != null && !shoe.getVariant().isEmpty()) {
+                        name += " (" + shoe.getVariant() + ")";
+                    }
+                    soldNames.add(name);
+                    continue;
+                }
 
                 int price = isEur ? shoe.getEffectivePriceEUR() : shoe.getEffectivePrice();
                 // Stripe expects amounts in the smallest currency unit (fillér for HUF, cent for EUR)
@@ -108,6 +117,13 @@ public class StripeController {
 
                 shoeIds.add(String.valueOf(shoe.getId()));
                 totalAmount += unitAmount;
+            }
+
+            if (!soldNames.isEmpty()) {
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("error", "sold");
+                errorResponse.put("soldItems", String.join(", ", soldNames));
+                return ResponseEntity.status(409).body(errorResponse);
             }
 
             if (lineItems.isEmpty()) {

@@ -62,8 +62,26 @@ public class ShoeController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Shoe> updateShoe(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+    public ResponseEntity<?> updateShoe(@PathVariable Long id, @RequestBody Map<String, Object> body) {
         return shoeRepository.findById(id).map(shoe -> {
+            // Minimum price validation
+            if (body.containsKey("price")) {
+                int p = ((Number) body.get("price")).intValue();
+                if (p < 200) return ResponseEntity.badRequest().body(Map.of("error", "Minimum ár: 200 Ft"));
+            }
+            if (body.containsKey("priceEUR")) {
+                int p = ((Number) body.get("priceEUR")).intValue();
+                if (p < 2) return ResponseEntity.badRequest().body(Map.of("error", "Minimum price: €2"));
+            }
+            if (body.containsKey("salePrice") && body.get("salePrice") != null) {
+                int p = ((Number) body.get("salePrice")).intValue();
+                if (p < 200) return ResponseEntity.badRequest().body(Map.of("error", "Minimum akciós ár: 200 Ft"));
+            }
+            if (body.containsKey("salePriceEUR") && body.get("salePriceEUR") != null) {
+                int p = ((Number) body.get("salePriceEUR")).intValue();
+                if (p < 2) return ResponseEntity.badRequest().body(Map.of("error", "Minimum sale price: €2"));
+            }
+
             if (body.containsKey("name")) shoe.setName((String) body.get("name"));
             if (body.containsKey("variant")) shoe.setVariant((String) body.get("variant"));
             if (body.containsKey("color")) shoe.setColor((String) body.get("color"));
@@ -86,8 +104,14 @@ public class ShoeController {
     }
 
     @PutMapping("/{id}/price")
-    public ResponseEntity<Shoe> updatePrice(@PathVariable Long id, @RequestBody PriceUpdateRequest req) {
+    public ResponseEntity<?> updatePrice(@PathVariable Long id, @RequestBody PriceUpdateRequest req) {
         return shoeRepository.findById(id).map(shoe -> {
+            if (req.getPrice() != null && req.getPrice() < 200) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Minimum ár: 200 Ft"));
+            }
+            if (req.getPriceEUR() != null && req.getPriceEUR() < 2) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Minimum price: €2"));
+            }
             shoe.setPrice(req.getPrice());
             shoe.setPriceEUR(req.getPriceEUR());
             return ResponseEntity.ok(shoeRepository.save(shoe));

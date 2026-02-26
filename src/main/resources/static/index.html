@@ -444,6 +444,8 @@
 
         .add-to-cart:hover { background: var(--accent-hover); transform: scale(1.05); }
         .add-to-cart:active { transform: scale(0.98); }
+        .add-to-cart.in-cart { background: var(--success); cursor: default; opacity: 0.8; }
+        .add-to-cart.in-cart:hover { transform: none; background: var(--success); }
 
         .modal-overlay {
             display: none;
@@ -1156,6 +1158,7 @@ const i18n = {
         toastOrder: (total) => `Rendelés elküldve! Összeg: ${total}`,
         orderSuccessToast: 'Rendelésed sikeresen leadtuk! Köszönjük a vásárlást!',
         alreadyInCart: 'Ez a cipő már a kosárban van!',
+        inCart: 'Kosárban',
         shoesSoldOut: 'Néhány cipő időközben elkelt.',
         footer: 'BotiX © 2026 — Minden jog fenntartva. Minden termék eredeti.',
         styleCode: 'Stíluskód',
@@ -1221,6 +1224,7 @@ const i18n = {
         toastOrder: (total) => `Order submitted! Total: ${total}`,
         orderSuccessToast: 'Your order has been placed successfully! Thank you!',
         alreadyInCart: 'This shoe is already in your cart!',
+        inCart: 'In cart',
         shoesSoldOut: 'Some shoes have been sold in the meantime.',
         footer: 'BotiX © 2026 — All rights reserved. Every product is authentic.',
         styleCode: 'Style Code',
@@ -1753,7 +1757,9 @@ function renderProducts() {
                 </div>
                 <div class="product-bottom">
                     <div class="product-price">${formatPrice(shoe)}</div>
-                    <button class="add-to-cart" onclick="event.stopPropagation(); addToCart(${shoe.id})">${t('addToCart')}</button>
+                    ${cart.some(c => c.id === shoe.id)
+                        ? `<button class="add-to-cart in-cart" disabled>&#10003; ${t('inCart')}</button>`
+                        : `<button class="add-to-cart" onclick="event.stopPropagation(); addToCart(${shoe.id})">${t('addToCart')}</button>`}
                 </div>
             </div>
         </div>
@@ -1816,7 +1822,9 @@ function openModal(id) {
             </div>
             ${shoe.onSale ? `<div style="margin-bottom:8px"><span style="display:inline-block;background:#e53e3e;color:white;padding:4px 12px;border-radius:6px;font-size:13px;font-weight:700">${t('sale')}${shoe.saleType === 'PERCENTAGE' && shoe.salePercent ? ' ' + t('salePercent')(shoe.salePercent) : ''}</span></div>` : ''}
             <div class="modal-price">${formatPriceModal(shoe)}</div>
-            <button class="modal-add-btn" onclick="addToCart(${shoe.id}); closeModal();">${t('addToCartFull')}</button>
+            ${cart.some(c => c.id === shoe.id)
+                ? `<button class="modal-add-btn" disabled style="opacity:0.7;cursor:default;background:var(--success);">&#10003; ${t('inCart')}</button>`
+                : `<button class="modal-add-btn" onclick="addToCart(${shoe.id}); closeModal();">${t('addToCartFull')}</button>`}
         </div>
     `;
 
@@ -1859,12 +1867,14 @@ function addToCart(id) {
     }
     cart.push({ ...shoe, cartId: Date.now() + Math.random() });
     updateCartUI();
+    renderProducts();
     showToast(t('toastAdded')(shoe.name));
 }
 
 function removeFromCart(cartId) {
     cart = cart.filter(item => item.cartId !== cartId);
     updateCartUI();
+    renderProducts();
 }
 
 function updateCartUI() {

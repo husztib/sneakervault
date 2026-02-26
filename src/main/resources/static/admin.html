@@ -2486,13 +2486,17 @@ async function saveEditModal() {
         const updated = await res.json();
         if (isNew) {
             shoes.push(updated);
+            renderPriceTable();
+            showToast(t('shoeCreated'));
+            // Reopen in edit mode so user can add images
+            openEditModal(updated.id);
         } else {
             const idx = shoes.findIndex(s => s.id === currentEditShoeId);
             if (idx >= 0) shoes[idx] = updated;
+            renderPriceTable();
+            closeEditModal();
+            showToast(t('shoeSaved'));
         }
-        renderPriceTable();
-        closeEditModal();
-        showToast(isNew ? t('shoeCreated') : t('shoeSaved'));
     } else {
         const data = await res.json().catch(() => null);
         showToast(data?.error || t('saveError'), true);

@@ -220,7 +220,17 @@
             justify-content: center;
         }
 
-        /* hero removed — content moved to header */
+        .slogan-bar {
+            text-align: center;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--header-start), var(--header-end));
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text-muted);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
 
         .filters-section { max-width: 1400px; margin: 0 auto; padding: 20px 20px 0; }
         .filter-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
@@ -1010,6 +1020,9 @@
     </div>
 </header>
 
+<div class="slogan-bar">
+    <span id="sloganText"></span>
+</div>
 
 <section class="filters-section">
     <div class="filter-row" id="filterRow"></div>
@@ -1358,6 +1371,7 @@ function refreshUI() {
     document.getElementById('searchInput').placeholder = t('searchPlaceholder');
     document.getElementById('logoSlogan').textContent = t('logoSlogan');
     document.getElementById('logoBadge').textContent = t('logoBadge');
+    document.getElementById('sloganText').textContent = t('heroTitle') + ' — ' + t('heroDesc');
     document.getElementById('footerText').textContent = t('footer');
     document.getElementById('cartTitle').textContent = t('cart');
     document.getElementById('cartTotalLabel').textContent = t('total');
@@ -1564,7 +1578,8 @@ async function doRegister(e) {
         phone: document.getElementById('regPhone').value,
         zip: document.getElementById('regZip').value,
         city: document.getElementById('regCity').value,
-        street: document.getElementById('regStreet').value
+        street: document.getElementById('regStreet').value,
+        baseUrl: window.location.origin
     };
 
     try {

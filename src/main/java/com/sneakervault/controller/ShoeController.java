@@ -103,12 +103,14 @@ public class ShoeController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteShoe(@PathVariable Long id) {
-        if (!shoeRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        shoeRepository.deleteById(id);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<?> deleteShoe(@PathVariable Long id) {
+        return shoeRepository.findById(id).map(shoe -> {
+            if (Boolean.TRUE.equals(shoe.getSold())) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Cannot delete a sold shoe"));
+            }
+            shoeRepository.deleteById(id);
+            return ResponseEntity.ok().build();
+        }).orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")

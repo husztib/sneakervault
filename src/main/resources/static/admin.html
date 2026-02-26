@@ -1324,7 +1324,10 @@
             <div class="suspend-hint" id="editSuspendHint"></div>
         </div>
 
-        <button class="edit-save-btn" onclick="saveEditModal()" id="editSaveBtn"></button>
+        <div style="display:flex;gap:10px;align-items:center;">
+            <button class="edit-save-btn" onclick="saveEditModal()" id="editSaveBtn"></button>
+            <button class="btn btn-danger" onclick="deleteShoe()" id="editDeleteBtn" style="display:none;padding:10px 24px;font-size:14px;border-radius:10px;cursor:pointer;"></button>
+        </div>
     </div>
 </div>
 
@@ -2432,8 +2435,27 @@ async function openEditModal(shoeId) {
     // Hide images section and upload zone for new shoe (no ID yet)
     document.getElementById('editSectionImages').parentElement.style.display = isNew ? 'none' : '';
 
+    // Show delete button only for existing, unsold shoes
+    const delBtn = document.getElementById('editDeleteBtn');
+    delBtn.style.display = (!isNew && !shoe.sold) ? '' : 'none';
+    delBtn.textContent = t('deleteShoe');
+
     document.getElementById('editModalOverlay').classList.add('show');
     if (!isNew) await renderImgGrid(shoeId);
+}
+
+async function deleteShoe() {
+    if (!currentEditShoeId) return;
+    if (!confirm(t('deleteShoeConfirm'))) return;
+    const res = await fetch(`/api/shoes/${currentEditShoeId}`, { method: 'DELETE' });
+    if (res.ok) {
+        shoes = shoes.filter(s => s.id !== currentEditShoeId);
+        renderPriceTable();
+        closeEditModal();
+        showToast(t('shoeDeleted'));
+    } else {
+        showToast(t('saveError'), true);
+    }
 }
 
 function closeEditModal() {

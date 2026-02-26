@@ -3,9 +3,11 @@ package com.sneakervault.controller;
 import com.sneakervault.dto.CheckoutItemRequest;
 import com.sneakervault.dto.CheckoutRequest;
 import com.sneakervault.model.*;
+import com.sneakervault.model.StoreSettings;
 import com.sneakervault.repository.DiscountCodeRepository;
 import com.sneakervault.repository.ShoeOrderRepository;
 import com.sneakervault.repository.ShoeRepository;
+import com.sneakervault.repository.StoreSettingsRepository;
 import com.sneakervault.service.EmailService;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -35,6 +37,7 @@ public class StripeController {
     private final ShoeOrderRepository orderRepository;
     private final EmailService emailService;
     private final DiscountCodeRepository discountCodeRepository;
+    private final StoreSettingsRepository storeSettingsRepository;
 
     @Value("${stripe.secret-key}")
     private String stripeSecretKey;
@@ -46,11 +49,13 @@ public class StripeController {
     private String webhookSecret;
 
     public StripeController(ShoeRepository shoeRepository, ShoeOrderRepository orderRepository,
-                           EmailService emailService, DiscountCodeRepository discountCodeRepository) {
+                           EmailService emailService, DiscountCodeRepository discountCodeRepository,
+                           StoreSettingsRepository storeSettingsRepository) {
         this.shoeRepository = shoeRepository;
         this.orderRepository = orderRepository;
         this.emailService = emailService;
         this.discountCodeRepository = discountCodeRepository;
+        this.storeSettingsRepository = storeSettingsRepository;
     }
 
     @PostConstruct
@@ -401,6 +406,126 @@ public class StripeController {
         log.info("Order #{} created from Stripe session {}", savedOrder.getId(), session.getId());
 
         emailService.sendOrderConfirmation(savedOrder);
+    }
+
+    @PostMapping("/test-order")
+    public ResponseEntity<?> createTestOrder(@RequestBody CheckoutRequest req) {
+        // Only allowed when store is in test mode
+        StoreSettings settings = storeSettingsRepository.findById(1L).orElse(new StoreSettings());
+        if (Boolean.TRUE.equals(settings.getStoreLive())) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Store is in live mode"));
+        }
+
+        if (req.getItems() == null || req.getItems().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        try {
+            String currency = req.getCurrency() != null ? req.getCurrency() : "HUF";
+            boolean isEur = "EUR".equalsIgnoreCase(currency);
+
+            List<String> soldNames = new ArrayList<>();
+            List<Shoe> validShoes = new ArrayList<>();
+
+            for (CheckoutItemRequest itemReq : req.getItems()) {
+                Optional<Shoe> optShoe = shoeRepository.findById(itemReq.getShoeId());
+                if (optShoe.isEmpty()) continue;
+                Shoe shoe = optShoe.get();
+                if (Boolean.TRUE.equals(shoe.getSold())) {
+                    String name = shoe.getName();
+                    if (shoe.getVariant() != null && !shoe.getVariant().isEmpty()) name += " (" + shoe.getVariant() + ")";
+                    soldNames.add(name);
+                } else {
+                    validShoes.add(shoe);
+                }
+            }
+
+            if (!soldNames.isEmpty()) {
+                return ResponseEntity.status(409).body(Map.of("error", "sold", "soldItems", String.join(", ", soldNames)));
+            }
+            if (validShoes.isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            ShoeOrder order = new ShoeOrder();
+            order.setOrderDate(LocalDateTime.now());
+            order.setCurrency(currency);
+            order.setStatus(OrderStatus.PENDING);
+            order.setCustomerName(safe(req.getCustomerName()));
+            order.setCustomerEmail(safe(req.getCustomerEmail()));
+            order.setCustomerPhone(safe(req.getCustomerPhone()));
+            order.setCustomerZip(safe(req.getCustomerZip()));
+            order.setCustomerCity(safe(req.getCustomerCity()));
+            order.setCustomerStreet(safe(req.getCustomerStreet()));
+            order.setCustomerNotes(safe(req.getCustomerNotes()));
+            order.setLanguage(req.getLanguage() != null ? req.getLanguage() : "hu");
+
+            int totalHUF = 0, totalEUR = 0;
+
+            for (Shoe shoe : validShoes) {
+                OrderItem item = new OrderItem();
+                item.setOrder(order);
+                item.setShoeId(shoe.getId());
+                item.setName(shoe.getName() + (shoe.getVariant() != null && !shoe.getVariant().isEmpty() ? " (" + shoe.getVariant() + ")" : ""));
+                item.setColor(shoe.getColor());
+                item.setStyleCode(shoe.getStyleCode());
+                item.setSizeEUR(shoe.getSizeEUR());
+                item.setSizeUS(shoe.getSizeUS());
+                item.setPrice(shoe.getEffectivePrice());
+                item.setPriceEUR(shoe.getEffectivePriceEUR());
+                item.setImageUrl(shoe.getImageUrl());
+                order.getItems().add(item);
+                totalHUF += shoe.getEffectivePrice();
+                totalEUR += shoe.getEffectivePriceEUR();
+            }
+
+            // Apply discount
+            String discountCode = req.getDiscountCode();
+            if (discountCode != null && !discountCode.isBlank()) {
+                var optDc = discountCodeRepository.findByCodeIgnoreCase(discountCode.trim());
+                if (optDc.isPresent()) {
+                    DiscountCode dc = optDc.get();
+                    boolean valid = Boolean.TRUE.equals(dc.getActive())
+                            && (dc.getExpiresAt() == null || !dc.getExpiresAt().isBefore(LocalDateTime.now()))
+                            && (dc.getMaxUses() == null || dc.getUsedCount() == null || dc.getUsedCount() < dc.getMaxUses());
+                    if (valid) {
+                        int dHUF = 0, dEUR = 0;
+                        if ("PERCENTAGE".equals(dc.getType()) && dc.getPercentOff() != null) {
+                            dHUF = (int) Math.round(totalHUF * dc.getPercentOff() / 100.0);
+                            dEUR = (int) Math.round(totalEUR * dc.getPercentOff() / 100.0);
+                        } else if ("FIXED".equals(dc.getType())) {
+                            dHUF = dc.getFixedAmountHUF() != null ? dc.getFixedAmountHUF() : 0;
+                            dEUR = dc.getFixedAmountEUR() != null ? dc.getFixedAmountEUR() : 0;
+                        }
+                        dHUF = Math.min(dHUF, totalHUF);
+                        dEUR = Math.min(dEUR, totalEUR);
+                        order.setDiscountCode(discountCode.trim().toUpperCase());
+                        order.setDiscountAmountHUF(dHUF);
+                        order.setDiscountAmountEUR(dEUR);
+                        totalHUF -= dHUF;
+                        totalEUR -= dEUR;
+                        dc.setUsedCount((dc.getUsedCount() != null ? dc.getUsedCount() : 0) + 1);
+                        discountCodeRepository.save(dc);
+                    }
+                }
+            }
+
+            order.setTotalHUF(Math.max(totalHUF, 0));
+            order.setTotalEUR(Math.max(totalEUR, 0));
+
+            validShoes.forEach(s -> s.setSold(true));
+            shoeRepository.saveAll(validShoes);
+
+            ShoeOrder savedOrder = orderRepository.save(order);
+            log.info("TEST Order #{} created (no Stripe)", savedOrder.getId());
+
+            emailService.sendOrderConfirmation(savedOrder);
+
+            return ResponseEntity.ok(Map.of("success", true, "orderId", savedOrder.getId()));
+        } catch (Exception e) {
+            log.error("Failed to create test order: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     private String safe(String s) {

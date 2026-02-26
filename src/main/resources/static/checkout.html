@@ -466,7 +466,10 @@ const i18n = {
         notes: 'Megjegyzés',
         notesPlaceholder: 'Opcionális megjegyzés a rendeléshez...',
         submitOrder: 'Fizetés',
+        submitOrderTest: 'Teszt rendelés leadása',
         submitting: 'Átirányítás a fizetéshez...',
+        submittingTest: 'Teszt rendelés feldolgozása...',
+        testOrderSuccess: 'Teszt rendelés sikeresen leadva! (Fizetés nélkül)',
         emptyCart: 'A kosarad üres',
         emptyCartHint: 'Térj vissza a boltba és válassz cipőket!',
         goToStore: 'Vissza a boltba',
@@ -505,7 +508,10 @@ const i18n = {
         notes: 'Notes',
         notesPlaceholder: 'Optional note for your order...',
         submitOrder: 'Pay Now',
+        submitOrderTest: 'Place Test Order',
         submitting: 'Redirecting to payment...',
+        submittingTest: 'Processing test order...',
+        testOrderSuccess: 'Test order placed successfully! (No payment)',
         emptyCart: 'Your cart is empty',
         emptyCartHint: 'Go back to the store and pick some sneakers!',
         goToStore: 'Back to store',
@@ -531,7 +537,8 @@ let cart = [];
 let currentTheme = localStorage.getItem('sv-theme') || 'light';
 let currentLang = localStorage.getItem('sv-lang') || 'hu';
 let currentCurrency = localStorage.getItem('sv-currency') || 'HUF';
-let appliedDiscount = null; // { code, type, percentOff, discountHUF, discountEUR, finalHUF, finalEUR }
+let appliedDiscount = null;
+let storeIsTestMode = false; // { code, type, percentOff, discountHUF, discountEUR, finalHUF, finalEUR }
 
 function applyTheme(theme) {
     currentTheme = theme;
@@ -738,26 +745,58 @@ async function submitOrder(e) {
     e.preventDefault();
     const btn = document.getElementById('submitBtn');
     btn.disabled = true;
-    btn.textContent = t('submitting');
 
+    const orderData = {
+        currency: currentCurrency,
+        language: currentLang,
+        baseUrl: window.location.origin,
+        items: cart.map(item => ({ shoeId: item.id })),
+        customerName: document.getElementById('customerName').value,
+        customerEmail: document.getElementById('customerEmail').value,
+        customerPhone: document.getElementById('customerPhone').value,
+        customerZip: document.getElementById('customerZip').value,
+        customerCity: document.getElementById('customerCity').value,
+        customerStreet: document.getElementById('customerStreet').value,
+        customerNotes: document.getElementById('customerNotes').value,
+        discountCode: appliedDiscount ? appliedDiscount.code : null
+    };
+
+    if (storeIsTestMode) {
+        btn.textContent = t('submittingTest');
+        try {
+            const res = await fetch('/api/stripe/test-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData)
+            });
+            if (res.ok) {
+                localStorage.removeItem('sv-cart');
+                localStorage.setItem('sv-checkout-success', '1');
+                window.location.href = 'index.html';
+            } else if (res.status === 409) {
+                const data = await res.json();
+                showToast(t('soldError') + ' ' + data.soldItems, true);
+                btn.disabled = false;
+                btn.textContent = t('submitOrderTest');
+            } else {
+                showToast(t('errorToast'), true);
+                btn.disabled = false;
+                btn.textContent = t('submitOrderTest');
+            }
+        } catch (err) {
+            showToast(t('errorToast'), true);
+            btn.disabled = false;
+            btn.textContent = t('submitOrderTest');
+        }
+        return;
+    }
+
+    btn.textContent = t('submitting');
     try {
         const res = await fetch('/api/stripe/create-checkout-session', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                currency: currentCurrency,
-                language: currentLang,
-                baseUrl: window.location.origin,
-                items: cart.map(item => ({ shoeId: item.id })),
-                customerName: document.getElementById('customerName').value,
-                customerEmail: document.getElementById('customerEmail').value,
-                customerPhone: document.getElementById('customerPhone').value,
-                customerZip: document.getElementById('customerZip').value,
-                customerCity: document.getElementById('customerCity').value,
-                customerStreet: document.getElementById('customerStreet').value,
-                customerNotes: document.getElementById('customerNotes').value,
-                discountCode: appliedDiscount ? appliedDiscount.code : null
-            })
+            body: JSON.stringify(orderData)
         });
 
         if (res.ok) {
@@ -831,6 +870,20 @@ function init() {
 
     renderPage();
     prefillFromAuth();
+    checkStoreMode();
+}
+
+async function checkStoreMode() {
+    try {
+        const res = await fetch('/api/settings');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data.storeLive) {
+            storeIsTestMode = true;
+            const btn = document.getElementById('submitBtn');
+            if (btn) btn.textContent = t('submitOrderTest');
+        }
+    } catch (e) {}
 }
 
 init();

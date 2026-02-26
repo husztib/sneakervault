@@ -61,11 +61,6 @@
             --badge-vans: #c1272d;
             --header-start: #0a0a0a;
             --header-end: #1a1a1a;
-            --hero-start: #0a0a0a;
-            --hero-mid: #1a1a1a;
-            --hero-end: #2a1500;
-            --hero-glow1: rgba(255,77,0,0.08);
-            --hero-glow2: rgba(42,21,0,0.15);
             --overlay-subtle: rgba(255,255,255,0.04);
             --overlay-light: rgba(255,255,255,0.06);
             --overlay-medium: rgba(255,255,255,0.08);
@@ -88,11 +83,6 @@
             --border: #dde1e7;
             --header-start: #ffffff;
             --header-end: #f5f6f8;
-            --hero-start: #e8eaf0;
-            --hero-mid: #dde0e8;
-            --hero-end: #c8cfe0;
-            --hero-glow1: rgba(255,77,0,0.06);
-            --hero-glow2: rgba(42,21,0,0.08);
             --overlay-subtle: rgba(0,0,0,0.02);
             --overlay-light: rgba(0,0,0,0.04);
             --overlay-medium: rgba(0,0,0,0.05);
@@ -136,8 +126,12 @@
             gap: 16px;
         }
 
+        .logo-group { display: flex; align-items: center; gap: 12px; white-space: nowrap; }
         .logo { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; white-space: nowrap; }
         .logo span { color: var(--accent); }
+        .logo-slogan { font-size: 12px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; font-weight: 600; }
+        .logo-badge { display: inline-flex; align-items: center; gap: 4px; background: linear-gradient(135deg, #ff4d00, #ff8533); color: #fff; font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 4px; }
+        .logo-badge svg { flex-shrink: 0; }
 
         .search-container { flex: 1; max-width: 500px; position: relative; }
 
@@ -226,67 +220,7 @@
             justify-content: center;
         }
 
-        .hero {
-            background: url('/hero-bg.jpg') center/cover no-repeat;
-            padding: 48px 20px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: rgba(10,10,10,0.75);
-        }
-
-        [data-theme="light"] .hero::before {
-            background: rgba(255,255,255,0.8);
-        }
-
-        .hero-content { position: relative; z-index: 1; }
-
-        .hero-logo { margin-bottom: 16px; }
-        .hero-logo svg { height: 72px; width: auto; }
-        @media (max-width: 600px) { .hero-logo svg { height: 52px; } }
-
-        .hero h1 {
-            font-size: clamp(20px, 3vw, 28px);
-            font-weight: 600;
-            margin-bottom: 12px;
-            color: var(--text-muted);
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        .hero p { color: var(--text-muted); font-size: 16px; max-width: 500px; margin: 0 auto 24px; }
-
-        .ribbon-wrap { display: inline-block; position: relative; margin-top: 4px; }
-        .ribbon {
-            display: inline-flex; align-items: center; gap: 10px;
-            background: linear-gradient(135deg, #ff4d00, #ff8533);
-            color: #fff; font-weight: 800; font-size: 15px;
-            letter-spacing: 2px; text-transform: uppercase;
-            padding: 10px 32px;
-            position: relative;
-            box-shadow: 0 4px 16px rgba(255,77,0,0.3);
-        }
-        .ribbon::before, .ribbon::after {
-            content: ''; position: absolute; top: 0; width: 0; height: 0;
-            border-style: solid;
-        }
-        .ribbon::before {
-            left: -14px;
-            border-width: 20px 14px 20px 0;
-            border-color: transparent #ff4d00 transparent transparent;
-        }
-        .ribbon::after {
-            right: -14px;
-            border-width: 20px 0 20px 14px;
-            border-color: transparent transparent transparent #ff8533;
-        }
-        .ribbon svg { flex-shrink: 0; }
+        /* hero removed — content moved to header */
 
         .filters-section { max-width: 1400px; margin: 0 auto; padding: 20px 20px 0; }
         .filter-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
@@ -1003,7 +937,7 @@
             .header-actions { gap: 8px; }
             .settings-toggles { gap: 4px; }
             .toggle-opt { padding: 5px 7px; font-size: 10px; }
-            .hero { padding: 32px 16px; }
+            .logo-slogan { display: none; }
             .stats { gap: 20px; }
             .products-grid { padding: 16px; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
             .product-info { padding: 12px; }
@@ -1033,7 +967,11 @@
 
 <header>
     <div class="header-top">
-        <div class="logo">Boti<span>X</span></div>
+        <div class="logo-group">
+            <div class="logo">Boti<span>X</span></div>
+            <span class="logo-slogan" id="logoSlogan"></span>
+            <span class="logo-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> <span id="logoBadge"></span></span>
+        </div>
         <div class="search-container">
             <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
             <input type="text" id="searchInput">
@@ -1072,32 +1010,6 @@
     </div>
 </header>
 
-<section class="hero">
-    <div class="hero-content">
-        <div class="hero-logo">
-            <svg viewBox="0 0 240 80" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" style="stop-color:#ff4d00"/>
-                        <stop offset="100%" style="stop-color:#ff8533"/>
-                    </linearGradient>
-                </defs>
-                <text font-family="system-ui,-apple-system,sans-serif" font-weight="900" font-size="68" letter-spacing="-3" y="60">
-                    <tspan fill="currentColor">Boti</tspan><tspan fill="url(#logoGrad)">X</tspan>
-                </text>
-                <path d="M2 72 Q60 62 120 66 Q180 70 238 58" stroke="url(#logoGrad)" stroke-width="3" fill="none" stroke-linecap="round"/>
-            </svg>
-        </div>
-        <h1 id="heroTitle"></h1>
-        <p id="heroDesc"></p>
-        <div class="ribbon-wrap">
-            <div class="ribbon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                <span id="ribbonText"></span>
-            </div>
-        </div>
-    </div>
-</section>
 
 <section class="filters-section">
     <div class="filter-row" id="filterRow"></div>
@@ -1202,6 +1114,8 @@ const i18n = {
         heroTitle: 'Lépj szintet!',
         heroDesc: 'Eredeti Nike, Jordan, Adidas és Vans cipők. Minden darab 100% eredeti, dobozos.',
         ribbonText: '100% Eredeti',
+        logoSlogan: 'Prémium cipőbolt',
+        logoBadge: '100% Eredeti',
         brandLabel: 'Márka:',
         typeLabel: 'Típus:',
         genderLabel: 'Nem:',
@@ -1265,6 +1179,8 @@ const i18n = {
         heroTitle: 'Step Up Your Level!',
         heroDesc: 'Authentic Nike, Jordan, Adidas and Vans sneakers. Every pair 100% original, boxed.',
         ribbonText: '100% Authentic',
+        logoSlogan: 'Premium sneaker store',
+        logoBadge: '100% Authentic',
         brandLabel: 'Brand:',
         typeLabel: 'Type:',
         genderLabel: 'Gender:',
@@ -1440,9 +1356,8 @@ function updateToggleUI(groupId, activeVal) {
 
 function refreshUI() {
     document.getElementById('searchInput').placeholder = t('searchPlaceholder');
-    document.getElementById('heroTitle').textContent = t('heroTitle');
-    document.getElementById('heroDesc').textContent = t('heroDesc');
-    document.getElementById('ribbonText').textContent = t('ribbonText');
+    document.getElementById('logoSlogan').textContent = t('logoSlogan');
+    document.getElementById('logoBadge').textContent = t('logoBadge');
     document.getElementById('footerText').textContent = t('footer');
     document.getElementById('cartTitle').textContent = t('cart');
     document.getElementById('cartTotalLabel').textContent = t('total');

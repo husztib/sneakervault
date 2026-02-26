@@ -973,9 +973,22 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
+
+        .test-mode-banner {
+            background: #ff8c00;
+            color: #fff;
+            text-align: center;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.4;
+            display: none;
+        }
     </style>
 </head>
 <body>
+
+<div class="test-mode-banner" id="testModeBanner"></div>
 
 <header>
     <div class="header-top">
@@ -1627,6 +1640,21 @@ async function doLogout() {
     showToast(t('logoutSuccess'));
 }
 
+async function checkStoreMode() {
+    try {
+        const res = await fetch('/api/settings');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data.storeLive) {
+            const banner = document.getElementById('testModeBanner');
+            banner.textContent = currentLang === 'hu'
+                ? 'A webáruház jelenleg nem működik, teszt üzemmódban van. Kérjük ne vásároljon, a termékek és árak csak tesztelést szolgálnak.'
+                : 'This store is currently in test mode. Please do not make purchases, products and prices are for testing purposes only.';
+            banner.style.display = 'block';
+        }
+    } catch (e) {}
+}
+
 function init() {
     applyTheme(currentTheme);
     updateToggleUI('langToggle', currentLang);
@@ -1677,6 +1705,7 @@ function init() {
     });
 
     initAuth();
+    checkStoreMode();
 
     // Handle activation redirect
     const urlParams = new URLSearchParams(window.location.search);

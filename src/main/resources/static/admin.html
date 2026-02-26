@@ -464,6 +464,48 @@
         .main-section { display: none; }
         .main-section.active { display: block; }
 
+        .settings-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 600px;
+        }
+        .settings-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        .settings-label { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+        .settings-desc { font-size: 13px; color: var(--text-muted); }
+        .settings-status {
+            margin-top: 16px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .settings-status.live { background: rgba(0,214,143,0.12); color: #00d68f; }
+        .settings-status.test { background: rgba(255,77,0,0.12); color: #ff4d00; }
+
+        .switch { position: relative; display: inline-block; width: 52px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .switch-slider {
+            position: absolute; cursor: pointer; inset: 0;
+            background: var(--border); border-radius: 28px;
+            transition: background 0.3s;
+        }
+        .switch-slider::before {
+            content: ''; position: absolute;
+            width: 22px; height: 22px;
+            left: 3px; bottom: 3px;
+            background: white; border-radius: 50%;
+            transition: transform 0.3s;
+        }
+        .switch input:checked + .switch-slider { background: #00d68f; }
+        .switch input:checked + .switch-slider::before { transform: translateX(24px); }
+
         footer {
             max-width: 1400px;
             margin: 0 auto;
@@ -1095,6 +1137,7 @@
         <button class="main-tab" data-section="analytics" id="mainTabAnalytics"></button>
         <button class="main-tab" data-section="customers" id="mainTabCustomers"></button>
         <button class="main-tab" data-section="coupons" id="mainTabCoupons"></button>
+        <button class="main-tab" data-section="settings" id="mainTabSettings"></button>
     </div>
 
     <section id="pricesSection" class="main-section active">
@@ -1189,6 +1232,28 @@
             </table>
         </div>
         <div id="customerPagination"></div>
+    </section>
+
+    <!-- SETTINGS SECTION -->
+    <section id="settingsSection" class="main-section">
+        <div class="section-header">
+            <h2 class="section-title" id="settingsSectionTitle"></h2>
+        </div>
+        <div class="settings-card">
+            <div class="settings-row">
+                <div class="settings-info">
+                    <div class="settings-label" id="storeLiveLabel"></div>
+                    <div class="settings-desc" id="storeLiveDesc"></div>
+                </div>
+                <div class="settings-control">
+                    <label class="switch">
+                        <input type="checkbox" id="storeLiveToggle" onchange="toggleStoreLive()">
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="settings-status" id="storeLiveStatus"></div>
+        </div>
     </section>
 </div>
 
@@ -1559,7 +1624,17 @@ const i18n = {
         deleteCustomer: 'Törlés',
         deleteCustomerConfirm: 'Biztosan törlöd ezt a felhasználót?',
         customerActivated: 'Felhasználó aktiválva!',
-        customerDeleted: 'Felhasználó törölve!'
+        customerDeleted: 'Felhasználó törölve!',
+        tabSettings: 'Beállítások',
+        settingsTitle: 'Beállítások',
+        storeLive: 'Webáruház éles üzemmód',
+        storeTest: 'Teszt üzemmód',
+        storeLiveLabel: 'Éles üzemmód',
+        storeLiveDesc: 'Ha be van kapcsolva, a webáruház normálisan működik. Ha ki van kapcsolva, figyelmeztető banner jelenik meg a bolt oldalon.',
+        storeTestDesc: 'A webáruház jelenleg teszt üzemmódban van. A bolt oldalon figyelmeztető banner jelenik meg.',
+        storeLiveStatus: 'Éles üzemmód — a webáruház normálisan működik',
+        storeTestStatus: 'Teszt üzemmód — figyelmeztető banner jelenik meg a bolt oldalon',
+        settingsSaved: 'Beállítás mentve!'
     },
     en: {
         backToStore: '\u2190 Store',
@@ -1728,7 +1803,17 @@ const i18n = {
         deleteCustomer: 'Delete',
         deleteCustomerConfirm: 'Are you sure you want to delete this customer?',
         customerActivated: 'Customer activated!',
-        customerDeleted: 'Customer deleted!'
+        customerDeleted: 'Customer deleted!',
+        tabSettings: 'Settings',
+        settingsTitle: 'Settings',
+        storeLive: 'Store live mode',
+        storeTest: 'Test mode',
+        storeLiveLabel: 'Live mode',
+        storeLiveDesc: 'When enabled, the store operates normally. When disabled, a warning banner is shown on the store page.',
+        storeTestDesc: 'The store is currently in test mode. A warning banner is shown on the store page.',
+        storeLiveStatus: 'Live mode — the store is operating normally',
+        storeTestStatus: 'Test mode — a warning banner is shown on the store page',
+        settingsSaved: 'Setting saved!'
     }
 };
 
@@ -2239,6 +2324,7 @@ function refreshUI() {
     document.getElementById('mainTabAnalytics').textContent = t('tabAnalytics');
     document.getElementById('mainTabCustomers').textContent = t('tabCustomers');
     document.getElementById('mainTabCoupons').textContent = t('tabCoupons');
+    document.getElementById('mainTabSettings').textContent = t('tabSettings');
     document.getElementById('backLink').textContent = t('backToStore');
     document.getElementById('pricesSectionTitle').textContent = t('productPrices');
     document.getElementById('salesSectionTitle').textContent = t('salesHistory');
@@ -2253,6 +2339,10 @@ function refreshUI() {
     document.getElementById('customerFilter').placeholder = t('customerFilterPlaceholder');
     document.getElementById('couponsSectionTitle').textContent = t('discountCodes');
     document.getElementById('addCouponBtn').textContent = t('newDiscount');
+    document.getElementById('settingsSectionTitle').textContent = t('settingsTitle');
+    document.getElementById('storeLiveLabel').textContent = t('storeLiveLabel');
+    document.getElementById('storeLiveDesc').textContent = t('storeLiveDesc');
+    loadStoreSettings();
 
     renderPriceTable();
     loadSalesData();
@@ -2297,6 +2387,45 @@ function init() {
     setupTabs();
     loadShoes();
     refreshUI();
+}
+
+// ====== STORE SETTINGS ======
+async function loadStoreSettings() {
+    try {
+        const res = await fetch('/api/settings');
+        if (!res.ok) return;
+        const data = await res.json();
+        document.getElementById('storeLiveToggle').checked = data.storeLive;
+        updateStoreLiveUI(data.storeLive);
+    } catch (e) {}
+}
+
+function updateStoreLiveUI(isLive) {
+    const status = document.getElementById('storeLiveStatus');
+    if (isLive) {
+        status.className = 'settings-status live';
+        status.textContent = t('storeLiveStatus');
+    } else {
+        status.className = 'settings-status test';
+        status.textContent = t('storeTestStatus');
+    }
+}
+
+async function toggleStoreLive() {
+    const isLive = document.getElementById('storeLiveToggle').checked;
+    try {
+        const res = await fetch('/api/settings', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ storeLive: isLive })
+        });
+        if (res.ok) {
+            updateStoreLiveUI(isLive);
+            showToast(t('settingsSaved'));
+        }
+    } catch (e) {
+        document.getElementById('storeLiveToggle').checked = !isLive;
+    }
 }
 
 // ====== ANALYTICS ======

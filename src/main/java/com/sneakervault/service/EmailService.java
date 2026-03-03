@@ -1,9 +1,6 @@
 package com.sneakervault.service;
 
-import com.sneakervault.model.Customer;
-import com.sneakervault.model.OrderItem;
-import com.sneakervault.model.OrderStatus;
-import com.sneakervault.model.ShoeOrder;
+import com.sneakervault.model.*;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
@@ -218,6 +215,7 @@ public class EmailService {
              + "</tr></thead><tbody>"
              + items
              + "</tbody></table>"
+             + buildShippingPaymentSection(order, hu)
              + "<div style=\"text-align:right;padding:16px;background:#f8f9fa;border-radius:8px;\">"
              + "<span style=\"font-size:14px;color:#666;\">" + lblTotal + "</span>"
              + "<span style=\"font-size:20px;font-weight:800;color:#ff4d00;\">" + total + "</span>"
@@ -228,6 +226,60 @@ public class EmailService {
              + "BotiX &copy; 2026"
              + "</div>"
              + "</div></body></html>";
+    }
+
+    private String buildShippingPaymentSection(ShoeOrder order, boolean hu) {
+        if (order.getShippingMethod() == null && order.getPaymentMethod() == null) return "";
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("<div style=\"padding:12px 0;margin-bottom:16px;border-top:1px solid #eee;font-size:14px;color:#333;\">");
+
+        if (order.getShippingMethod() != null) {
+            String shipLabel = shippingLabel(order.getShippingMethod(), hu);
+            String shipCost = (order.getShippingCostHUF() != null || order.getShippingCostEUR() != null)
+                    ? formatPrice(
+                        order.getShippingCostHUF() != null ? order.getShippingCostHUF() : 0,
+                        order.getShippingCostEUR() != null ? order.getShippingCostEUR() : 0,
+                        order.getCurrency())
+                    : "";
+            sb.append("<div style=\"display:flex;justify-content:space-between;margin-bottom:6px;\">")
+              .append("<span>").append(hu ? "Sz\u00e1ll\u00edt\u00e1s: " : "Shipping: ").append(shipLabel).append("</span>")
+              .append("<span style=\"font-weight:600;\">").append(shipCost).append("</span>")
+              .append("</div>");
+        }
+
+        if (order.getPaymentMethod() != null) {
+            String payLabel = paymentLabel(order.getPaymentMethod(), hu);
+            sb.append("<div style=\"margin-bottom:6px;\">")
+              .append(hu ? "Fizet\u00e9s: " : "Payment: ").append(payLabel)
+              .append("</div>");
+            if (order.getPaymentMethod() == PaymentMethod.COD) {
+                sb.append("<div style=\"color:#e67e22;font-weight:600;font-size:13px;\">")
+                  .append(hu ? "Az \u00f6sszeget a fut\u00e1rnak fizeted ki." : "You will pay the courier upon delivery.")
+                  .append("</div>");
+            }
+        }
+
+        sb.append("</div>");
+        return sb.toString();
+    }
+
+    private String shippingLabel(ShippingMethod method, boolean hu) {
+        switch (method) {
+            case MAGYAR_POSTA: return "Magyar Posta";
+            case GLS: return "GLS";
+            case DPD: return "DPD";
+            case CSOMAGPONT: return hu ? "Csomagpont" : "Parcel Point";
+            default: return method.name();
+        }
+    }
+
+    private String paymentLabel(PaymentMethod method, boolean hu) {
+        switch (method) {
+            case ONLINE_CARD: return hu ? "Online k\u00e1rty\u00e1s fizet\u00e9s" : "Online card payment";
+            case COD: return hu ? "Ut\u00e1nv\u00e9t" : "Cash on Delivery";
+            default: return method.name();
+        }
     }
 
     private String formatPrice(int huf, int eur, String currency) {

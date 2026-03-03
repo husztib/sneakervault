@@ -401,6 +401,56 @@
             font-weight: 600;
         }
 
+        .option-group { margin-bottom: 16px; }
+        .option-cards { display: flex; flex-direction: column; gap: 8px; }
+
+        .option-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            background: var(--overlay-medium);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-card:hover { border-color: var(--text-muted); }
+        .option-card.selected { border-color: var(--accent); background: rgba(255,77,0,0.08); }
+
+        .option-card-left { display: flex; align-items: center; gap: 10px; }
+        .option-radio {
+            width: 18px; height: 18px;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            flex-shrink: 0;
+            position: relative;
+            transition: all 0.2s;
+        }
+        .option-card.selected .option-radio {
+            border-color: var(--accent);
+        }
+        .option-card.selected .option-radio::after {
+            content: '';
+            position: absolute;
+            top: 3px; left: 3px;
+            width: 8px; height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+        .option-card-name { font-size: 14px; font-weight: 600; }
+        .option-card-price { font-size: 14px; font-weight: 700; color: var(--accent); white-space: nowrap; }
+
+        .shipping-cost-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 8px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
@@ -485,6 +535,20 @@ const i18n = {
         discountInactive: 'Ez a kupon nem aktív',
         discount: 'Kedvezmény:',
         remove: 'Eltávolítás',
+        shippingMethod: 'Szállítási mód',
+        paymentMethodLabel: 'Fizetési mód',
+        shippingMagyarPosta: 'Magyar Posta',
+        shippingGLS: 'GLS',
+        shippingDPD: 'DPD',
+        shippingCsomagpont: 'Csomagpont',
+        paymentOnlineCard: 'Online kártyás fizetés',
+        paymentCOD: 'Utánvét',
+        shippingCost: 'Szállítási díj:',
+        submitOrderCod: 'Rendelés leadása (utánvét)',
+        submittingCod: 'Rendelés feldolgozása...',
+        codOrderSuccess: 'Rendelés sikeresen leadva! Utánvéttel fizeted.',
+        noShippingMethods: 'Jelenleg nincs elérhető szállítási mód. Kérjük, próbáld később!',
+        internationalShippingError: 'Sajnos jelenleg csak Magyarországra szállítunk. Kérjük, adj meg magyar irányítószámot (4 számjegy).',
         footer: 'BotiX \u00a9 2026 \u2014 Minden jog fenntartva.'
     },
     en: {
@@ -527,6 +591,20 @@ const i18n = {
         discountInactive: 'This discount code is not active',
         discount: 'Discount:',
         remove: 'Remove',
+        shippingMethod: 'Shipping Method',
+        paymentMethodLabel: 'Payment Method',
+        shippingMagyarPosta: 'Magyar Posta',
+        shippingGLS: 'GLS',
+        shippingDPD: 'DPD',
+        shippingCsomagpont: 'Parcel Point',
+        paymentOnlineCard: 'Online card payment',
+        paymentCOD: 'Cash on Delivery',
+        shippingCost: 'Shipping:',
+        submitOrderCod: 'Place Order (Cash on Delivery)',
+        submittingCod: 'Processing order...',
+        codOrderSuccess: 'Order placed successfully! Pay on delivery.',
+        noShippingMethods: 'No shipping methods are currently available. Please try again later!',
+        internationalShippingError: 'Sorry, we currently only ship to Hungary. Please enter a Hungarian zip code (4 digits).',
         footer: 'BotiX \u00a9 2026 \u2014 All rights reserved.'
     }
 };
@@ -538,7 +616,13 @@ let currentTheme = localStorage.getItem('sv-theme') || 'light';
 let currentLang = localStorage.getItem('sv-lang') || 'hu';
 let currentCurrency = localStorage.getItem('sv-currency') || 'HUF';
 let appliedDiscount = null;
-let storeIsTestMode = false; // { code, type, percentOff, discountHUF, discountEUR, finalHUF, finalEUR }
+let storeIsTestMode = false;
+let selectedShipping = 'GLS';
+let selectedPayment = 'ONLINE_CARD';
+
+let SHIPPING_COSTS = {};
+let enabledShippingMethods = [];
+let internationalShippingAllowed = true;
 
 function applyTheme(theme) {
     currentTheme = theme;
@@ -597,6 +681,85 @@ function formatTotal(items) {
     return `${total.toLocaleString('hu-HU')} Ft`;
 }
 
+function getShippingCost() {
+    const sc = SHIPPING_COSTS[selectedShipping] || SHIPPING_COSTS[enabledShippingMethods[0]] || { huf: 0, eur: 0 };
+    return currentCurrency === 'EUR' ? sc.eur : sc.huf;
+}
+
+function formatShippingCost() {
+    const cost = getShippingCost();
+    return currentCurrency === 'EUR' ? `\u20ac${cost}` : `${cost.toLocaleString('hu-HU')} Ft`;
+}
+
+function getGrandTotal() {
+    const ship = getShippingCost();
+    if (appliedDiscount) {
+        const base = currentCurrency === 'EUR' ? appliedDiscount.finalEUR : appliedDiscount.finalHUF;
+        return base + ship;
+    }
+    const sub = cart.reduce((sum, item) => {
+        const eff = getEffectivePrice(item);
+        return sum + (currentCurrency === 'EUR' ? eff.eur : eff.huf);
+    }, 0);
+    return sub + ship;
+}
+
+function formatGrandTotal() {
+    const gt = getGrandTotal();
+    return currentCurrency === 'EUR' ? `\u20ac${gt}` : `${gt.toLocaleString('hu-HU')} Ft`;
+}
+
+function selectShipping(method) {
+    selectedShipping = method;
+    updateTotalsDisplay();
+    document.querySelectorAll('.shipping-option').forEach(el => {
+        el.classList.toggle('selected', el.dataset.method === method);
+    });
+}
+
+function selectPayment(method) {
+    selectedPayment = method;
+    document.querySelectorAll('.payment-option').forEach(el => {
+        el.classList.toggle('selected', el.dataset.method === method);
+    });
+    updateSubmitButton();
+}
+
+function updateTotalsDisplay() {
+    const shipRow = document.getElementById('shippingCostRow');
+    if (shipRow) shipRow.innerHTML = `<span>${t('shippingCost')}</span><span>${formatShippingCost()}</span>`;
+    const totalVal = document.getElementById('grandTotalValue');
+    if (totalVal) totalVal.textContent = formatGrandTotal();
+}
+
+function updateSubmitButton() {
+    const btn = document.getElementById('submitBtn');
+    if (!btn) return;
+    if (storeIsTestMode) {
+        btn.textContent = t('submitOrderTest');
+    } else if (selectedPayment === 'COD') {
+        btn.textContent = t('submitOrderCod');
+    } else {
+        btn.textContent = t('submitOrder');
+    }
+}
+
+function shippingOptionLabel(method) {
+    const map = {
+        MAGYAR_POSTA: 'shippingMagyarPosta',
+        GLS: 'shippingGLS',
+        DPD: 'shippingDPD',
+        CSOMAGPONT: 'shippingCsomagpont'
+    };
+    return t(map[method] || method);
+}
+
+function shippingOptionPrice(method) {
+    const sc = SHIPPING_COSTS[method];
+    if (!sc) return '';
+    return currentCurrency === 'EUR' ? `\u20ac${sc.eur}` : `${sc.huf.toLocaleString('hu-HU')} Ft`;
+}
+
 function renderPage() {
     document.getElementById('backLink').textContent = t('backToStore');
     document.getElementById('pageTitle').textContent = t('pageTitle');
@@ -637,21 +800,20 @@ function renderPage() {
                         </div>
                         <button class="discount-remove" onclick="removeDiscount()">${t('remove')}</button>
                     </div>
-                    <div class="cart-total-row">
-                        <span class="cart-total-label">${t('total')}</span>
-                        <span class="cart-total-value">${currentCurrency === 'EUR' ? '\u20ac' + appliedDiscount.finalEUR : appliedDiscount.finalHUF.toLocaleString('hu-HU') + ' Ft'}</span>
-                    </div>
                 ` : `
                     <div class="discount-row">
                         <input class="discount-input" type="text" id="discountInput" placeholder="${t('discountPlaceholder')}">
                         <button class="discount-btn" id="discountBtn" onclick="applyDiscount()">${t('apply')}</button>
                     </div>
                     <div id="discountError"></div>
-                    <div class="cart-total-row">
-                        <span class="cart-total-label">${t('total')}</span>
-                        <span class="cart-total-value">${formatTotal(cart)}</span>
-                    </div>
                 `}
+                <div class="shipping-cost-row" id="shippingCostRow">
+                    <span>${t('shippingCost')}</span><span>${formatShippingCost()}</span>
+                </div>
+                <div class="cart-total-row">
+                    <span class="cart-total-label">${t('total')}</span>
+                    <span class="cart-total-value" id="grandTotalValue">${formatGrandTotal()}</span>
+                </div>
             </div>
             <div class="panel">
                 <div class="panel-title">${t('shippingDetails')}</div>
@@ -683,7 +845,44 @@ function renderPage() {
                         <label class="form-label">${t('notes')}</label>
                         <textarea class="form-input" id="customerNotes" placeholder="${t('notesPlaceholder')}"></textarea>
                     </div>
-                    <button type="submit" class="submit-btn" id="submitBtn">${t('submitOrder')}</button>
+                    <div class="option-group">
+                        <label class="form-label">${t('shippingMethod')}</label>
+                        ${enabledShippingMethods.length === 0 ? `
+                            <div style="padding:12px;background:rgba(255,77,0,0.1);border-radius:8px;color:#ff4d00;font-size:13px;font-weight:600;">${t('noShippingMethods')}</div>
+                        ` : `
+                        <div class="option-cards">
+                            ${enabledShippingMethods.map(m => `
+                                <div class="option-card shipping-option ${selectedShipping === m ? 'selected' : ''}" data-method="${m}" onclick="selectShipping('${m}')">
+                                    <div class="option-card-left">
+                                        <div class="option-radio"></div>
+                                        <div class="option-card-name">${shippingOptionLabel(m)}</div>
+                                    </div>
+                                    <div class="option-card-price">${shippingOptionPrice(m)}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        `}
+                    </div>
+                    ${!storeIsTestMode ? `
+                    <div class="option-group">
+                        <label class="form-label">${t('paymentMethodLabel')}</label>
+                        <div class="option-cards">
+                            <div class="option-card payment-option ${selectedPayment === 'ONLINE_CARD' ? 'selected' : ''}" data-method="ONLINE_CARD" onclick="selectPayment('ONLINE_CARD')">
+                                <div class="option-card-left">
+                                    <div class="option-radio"></div>
+                                    <div class="option-card-name">${t('paymentOnlineCard')}</div>
+                                </div>
+                            </div>
+                            <div class="option-card payment-option ${selectedPayment === 'COD' ? 'selected' : ''}" data-method="COD" onclick="selectPayment('COD')">
+                                <div class="option-card-left">
+                                    <div class="option-radio"></div>
+                                    <div class="option-card-name">${t('paymentCOD')}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
+                    <button type="submit" class="submit-btn" id="submitBtn">${storeIsTestMode ? t('submitOrderTest') : (selectedPayment === 'COD' ? t('submitOrderCod') : t('submitOrder'))}</button>
                 </form>
             </div>
         </div>`;
@@ -744,6 +943,22 @@ function removeDiscount() {
 async function submitOrder(e) {
     e.preventDefault();
     const btn = document.getElementById('submitBtn');
+
+    // No shipping methods check
+    if (enabledShippingMethods.length === 0) {
+        showToast(t('noShippingMethods'), true);
+        return;
+    }
+
+    // International shipping check
+    if (!internationalShippingAllowed) {
+        const zip = document.getElementById('customerZip').value;
+        if (!/^\d{4}$/.test(zip)) {
+            showToast(t('internationalShippingError'), true);
+            return;
+        }
+    }
+
     btn.disabled = true;
 
     const orderData = {
@@ -758,9 +973,12 @@ async function submitOrder(e) {
         customerCity: document.getElementById('customerCity').value,
         customerStreet: document.getElementById('customerStreet').value,
         customerNotes: document.getElementById('customerNotes').value,
-        discountCode: appliedDiscount ? appliedDiscount.code : null
+        discountCode: appliedDiscount ? appliedDiscount.code : null,
+        shippingMethod: selectedShipping,
+        paymentMethod: storeIsTestMode ? 'ONLINE_CARD' : selectedPayment
     };
 
+    // Test mode -> test-order
     if (storeIsTestMode) {
         btn.textContent = t('submittingTest');
         try {
@@ -791,6 +1009,38 @@ async function submitOrder(e) {
         return;
     }
 
+    // Live + COD -> cod-order
+    if (selectedPayment === 'COD') {
+        btn.textContent = t('submittingCod');
+        try {
+            const res = await fetch('/api/stripe/cod-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData)
+            });
+            if (res.ok) {
+                localStorage.removeItem('sv-cart');
+                localStorage.setItem('sv-checkout-success', '1');
+                window.location.href = 'index.html';
+            } else if (res.status === 409) {
+                const data = await res.json();
+                showToast(t('soldError') + ' ' + data.soldItems, true);
+                btn.disabled = false;
+                btn.textContent = t('submitOrderCod');
+            } else {
+                showToast(t('errorToast'), true);
+                btn.disabled = false;
+                btn.textContent = t('submitOrderCod');
+            }
+        } catch (err) {
+            showToast(t('errorToast'), true);
+            btn.disabled = false;
+            btn.textContent = t('submitOrderCod');
+        }
+        return;
+    }
+
+    // Live + ONLINE_CARD -> Stripe
     btn.textContent = t('submitting');
     try {
         const res = await fetch('/api/stripe/create-checkout-session', {
@@ -880,9 +1130,34 @@ async function checkStoreMode() {
         const data = await res.json();
         if (!data.storeLive) {
             storeIsTestMode = true;
-            const btn = document.getElementById('submitBtn');
-            if (btn) btn.textContent = t('submitOrderTest');
         }
+
+        // Load shipping config from settings
+        const methodSettingsMap = {
+            MAGYAR_POSTA: { enabled: 'shippingMagyarPostaEnabled', huf: 'shippingMagyarPostaHuf', eur: 'shippingMagyarPostaEur' },
+            GLS: { enabled: 'shippingGlsEnabled', huf: 'shippingGlsHuf', eur: 'shippingGlsEur' },
+            DPD: { enabled: 'shippingDpdEnabled', huf: 'shippingDpdHuf', eur: 'shippingDpdEur' },
+            CSOMAGPONT: { enabled: 'shippingCsomagpontEnabled', huf: 'shippingCsomagpontHuf', eur: 'shippingCsomagpontEur' }
+        };
+        SHIPPING_COSTS = {};
+        enabledShippingMethods = [];
+        for (const [method, keys] of Object.entries(methodSettingsMap)) {
+            const huf = data[keys.huf] != null ? data[keys.huf] : 0;
+            const eur = data[keys.eur] != null ? data[keys.eur] : 0;
+            SHIPPING_COSTS[method] = { huf, eur };
+            if (data[keys.enabled] !== false) {
+                enabledShippingMethods.push(method);
+            }
+        }
+
+        internationalShippingAllowed = data.internationalShippingEnabled !== false;
+
+        // Fix selected shipping if it's disabled
+        if (enabledShippingMethods.length > 0 && !enabledShippingMethods.includes(selectedShipping)) {
+            selectedShipping = enabledShippingMethods[0];
+        }
+
+        renderPage();
     } catch (e) {}
 }
 

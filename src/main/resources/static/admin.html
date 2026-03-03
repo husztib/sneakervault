@@ -506,6 +506,47 @@
         .switch input:checked + .switch-slider { background: #00d68f; }
         .switch input:checked + .switch-slider::before { transform: translateX(24px); }
 
+        .settings-section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 32px 0 16px 0;
+        }
+        .settings-card + .settings-card { margin-top: 12px; }
+        .settings-price-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .settings-price-group {
+            flex: 1;
+        }
+        .form-label-sm {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+        .settings-price-input {
+            width: 100%;
+            padding: 8px 12px;
+            background: var(--overlay-medium);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 600;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .settings-price-input:focus {
+            border-color: var(--accent);
+        }
+        .settings-price-input:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
         footer {
             max-width: 1400px;
             margin: 0 auto;
@@ -1254,6 +1295,124 @@
             </div>
             <div class="settings-status" id="storeLiveStatus"></div>
         </div>
+
+        <div class="settings-section-title" id="shippingSettingsTitle"></div>
+
+        <div class="settings-card" id="shippingCard_MAGYAR_POSTA">
+            <div class="settings-row">
+                <div class="settings-info">
+                    <div class="settings-label" id="shippingLabel_MAGYAR_POSTA"></div>
+                    <div class="settings-desc settings-status-text" id="shippingStatus_MAGYAR_POSTA"></div>
+                </div>
+                <div class="settings-control">
+                    <label class="switch">
+                        <input type="checkbox" id="shippingToggle_MAGYAR_POSTA" onchange="saveShippingSetting('MAGYAR_POSTA')">
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="settings-price-row" id="shippingPrices_MAGYAR_POSTA">
+                <div class="settings-price-group">
+                    <label class="form-label-sm" id="hufLabel_MAGYAR_POSTA"></label>
+                    <input type="number" class="settings-price-input" id="shippingHuf_MAGYAR_POSTA" min="0" onchange="saveShippingSetting('MAGYAR_POSTA')">
+                </div>
+                <div class="settings-price-group">
+                    <label class="form-label-sm" id="eurLabel_MAGYAR_POSTA"></label>
+                    <input type="number" class="settings-price-input" id="shippingEur_MAGYAR_POSTA" min="0" onchange="saveShippingSetting('MAGYAR_POSTA')">
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-card" id="shippingCard_GLS">
+            <div class="settings-row">
+                <div class="settings-info">
+                    <div class="settings-label" id="shippingLabel_GLS"></div>
+                    <div class="settings-desc settings-status-text" id="shippingStatus_GLS"></div>
+                </div>
+                <div class="settings-control">
+                    <label class="switch">
+                        <input type="checkbox" id="shippingToggle_GLS" onchange="saveShippingSetting('GLS')">
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="settings-price-row" id="shippingPrices_GLS">
+                <div class="settings-price-group">
+                    <label class="form-label-sm" id="hufLabel_GLS"></label>
+                    <input type="number" class="settings-price-input" id="shippingHuf_GLS" min="0" onchange="saveShippingSetting('GLS')">
+                </div>
+                <div class="settings-price-group">
+                    <label class="form-label-sm" id="eurLabel_GLS"></label>
+                    <input type="number" class="settings-price-input" id="shippingEur_GLS" min="0" onchange="saveShippingSetting('GLS')">
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-card" id="shippingCard_DPD">
+            <div class="settings-row">
+                <div class="settings-info">
+                    <div class="settings-label" id="shippingLabel_DPD"></div>
+                    <div class="settings-desc settings-status-text" id="shippingStatus_DPD"></div>
+                </div>
+                <div class="settings-control">
+                    <label class="switch">
+                        <input type="checkbox" id="shippingToggle_DPD" onchange="saveShippingSetting('DPD')">
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="settings-price-row" id="shippingPrices_DPD">
+                <div class="settings-price-group">
+                    <label class="form-label-sm" id="hufLabel_DPD"></label>
+                    <input type="number" class="settings-price-input" id="shippingHuf_DPD" min="0" onchange="saveShippingSetting('DPD')">
+                </div>
+                <div class="settings-price-group">
+                    <label class="form-label-sm" id="eurLabel_DPD"></label>
+                    <input type="number" class="settings-price-input" id="shippingEur_DPD" min="0" onchange="saveShippingSetting('DPD')">
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-card" id="shippingCard_CSOMAGPONT">
+            <div class="settings-row">
+                <div class="settings-info">
+                    <div class="settings-label" id="shippingLabel_CSOMAGPONT"></div>
+                    <div class="settings-desc settings-status-text" id="shippingStatus_CSOMAGPONT"></div>
+                </div>
+                <div class="settings-control">
+                    <label class="switch">
+                        <input type="checkbox" id="shippingToggle_CSOMAGPONT" onchange="saveShippingSetting('CSOMAGPONT')">
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="settings-price-row" id="shippingPrices_CSOMAGPONT">
+                <div class="settings-price-group">
+                    <label class="form-label-sm" id="hufLabel_CSOMAGPONT"></label>
+                    <input type="number" class="settings-price-input" id="shippingHuf_CSOMAGPONT" min="0" onchange="saveShippingSetting('CSOMAGPONT')">
+                </div>
+                <div class="settings-price-group">
+                    <label class="form-label-sm" id="eurLabel_CSOMAGPONT"></label>
+                    <input type="number" class="settings-price-input" id="shippingEur_CSOMAGPONT" min="0" onchange="saveShippingSetting('CSOMAGPONT')">
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-card" id="internationalShippingCard">
+            <div class="settings-row">
+                <div class="settings-info">
+                    <div class="settings-label" id="internationalShippingLabel"></div>
+                    <div class="settings-desc" id="internationalShippingDesc"></div>
+                </div>
+                <div class="settings-control">
+                    <label class="switch">
+                        <input type="checkbox" id="internationalShippingToggle" onchange="toggleInternationalShipping()">
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="settings-status" id="internationalShippingStatus"></div>
+        </div>
     </section>
 </div>
 
@@ -1634,7 +1793,26 @@ const i18n = {
         storeTestDesc: 'A webáruház jelenleg teszt üzemmódban van. A bolt oldalon figyelmeztető banner jelenik meg.',
         storeLiveStatus: 'Éles üzemmód — a webáruház normálisan működik',
         storeTestStatus: 'Teszt üzemmód — figyelmeztető banner jelenik meg a bolt oldalon',
-        settingsSaved: 'Beállítás mentve!'
+        settingsSaved: 'Beállítás mentve!',
+        shippingMethodLabel: 'Szállítás',
+        paymentMethodLabel: 'Fizetés',
+        shippingMagyarPosta: 'Magyar Posta',
+        shippingGLS: 'GLS',
+        shippingDPD: 'DPD',
+        shippingCsomagpont: 'Csomagpont',
+        paymentOnlineCard: 'Online kártya',
+        paymentCOD: 'Utánvét',
+        shippingCostLabel: 'Szállítási díj',
+        codBadge: 'UTÁNVÉT',
+        shippingSettingsTitle: 'Szállítási módok',
+        internationalShipping: 'Külföldi szállítás',
+        internationalShippingDesc: 'Ha ki van kapcsolva, csak magyar irányítószámmal (4 számjegy) lehet rendelni.',
+        internationalShippingOn: 'Külföldi szállítás engedélyezve',
+        internationalShippingOff: 'Csak belföldi szállítás',
+        shippingPriceHuf: 'HUF ár',
+        shippingPriceEur: 'EUR ár',
+        shippingEnabled: 'Engedélyezve',
+        shippingDisabled: 'Kikapcsolva'
     },
     en: {
         backToStore: '\u2190 Store',
@@ -1813,7 +1991,26 @@ const i18n = {
         storeTestDesc: 'The store is currently in test mode. A warning banner is shown on the store page.',
         storeLiveStatus: 'Live mode — the store is operating normally',
         storeTestStatus: 'Test mode — a warning banner is shown on the store page',
-        settingsSaved: 'Setting saved!'
+        settingsSaved: 'Setting saved!',
+        shippingMethodLabel: 'Shipping',
+        paymentMethodLabel: 'Payment',
+        shippingMagyarPosta: 'Magyar Posta',
+        shippingGLS: 'GLS',
+        shippingDPD: 'DPD',
+        shippingCsomagpont: 'Parcel Point',
+        paymentOnlineCard: 'Online Card',
+        paymentCOD: 'Cash on Delivery',
+        shippingCostLabel: 'Shipping cost',
+        codBadge: 'COD',
+        shippingSettingsTitle: 'Shipping Methods',
+        internationalShipping: 'International Shipping',
+        internationalShippingDesc: 'When disabled, only Hungarian zip codes (4 digits) are accepted.',
+        internationalShippingOn: 'International shipping enabled',
+        internationalShippingOff: 'Domestic shipping only',
+        shippingPriceHuf: 'HUF price',
+        shippingPriceEur: 'EUR price',
+        shippingEnabled: 'Enabled',
+        shippingDisabled: 'Disabled'
     }
 };
 
@@ -1938,6 +2135,16 @@ function fmtDate(iso) {
         return d.toLocaleString('hu-HU', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
     }
     return d.toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+function shippingLabel(method) {
+    const map = { MAGYAR_POSTA: 'shippingMagyarPosta', GLS: 'shippingGLS', DPD: 'shippingDPD', CSOMAGPONT: 'shippingCsomagpont' };
+    return method ? t(map[method] || method) : '\u2014';
+}
+
+function paymentLabel(method) {
+    const map = { ONLINE_CARD: 'paymentOnlineCard', COD: 'paymentCOD' };
+    return method ? t(map[method] || method) : '\u2014';
 }
 
 // ====== INVENTORY STATS ======
@@ -2134,6 +2341,8 @@ function renderOrdersPage() {
                     ${order.customerPhone ? `<span style="color:var(--text-muted);font-weight:600;">${t('customerPhone')}</span><span>${order.customerPhone}</span>` : ''}
                     <span style="color:var(--text-muted);font-weight:600;">${t('customerAddress')}</span><span>${order.customerZip || ''} ${order.customerCity || ''}, ${order.customerStreet || ''}</span>
                     ${order.customerNotes ? `<span style="color:var(--text-muted);font-weight:600;">${t('customerNotes')}</span><span>${order.customerNotes}</span>` : ''}
+                    <span style="color:var(--text-muted);font-weight:600;">${t('shippingMethodLabel')}</span><span>${shippingLabel(order.shippingMethod)}${order.shippingCostHUF != null ? ' (' + fmtPrice(order.shippingCostHUF || 0, order.shippingCostEUR || 0) + ')' : ''}</span>
+                    <span style="color:var(--text-muted);font-weight:600;">${t('paymentMethodLabel')}</span><span>${paymentLabel(order.paymentMethod)}</span>
                 </div>
             </div>` : '';
 
@@ -2157,6 +2366,7 @@ function renderOrdersPage() {
                 ${statusBadge}
                 <div class="order-item-count">${order.items.length} ${t('orderItems')}</div>
                 ${order.discountCode ? `<span style="font-size:11px;color:var(--success);font-weight:600;">${order.discountCode} (-${currentCurrency === 'EUR' ? fmtEUR(order.discountAmountEUR || 0) : fmtHUF(order.discountAmountHUF || 0)})</span>` : ''}
+                ${order.paymentMethod === 'COD' ? `<span style="font-size:10px;background:#e67e22;color:#fff;padding:2px 6px;border-radius:4px;font-weight:700;">${t('codBadge')}</span>` : ''}
                 <div class="order-total-display">${fmtPrice(order.totalHUF, order.totalEUR)}</div>
                 ${statusBtn}
                 <button class="btn-delete-order" onclick="event.stopPropagation(); deleteOrder(${order.id})">${t('deleteOrder')}</button>
@@ -2342,6 +2552,19 @@ function refreshUI() {
     document.getElementById('settingsSectionTitle').textContent = t('settingsTitle');
     document.getElementById('storeLiveLabel').textContent = t('storeLiveLabel');
     document.getElementById('storeLiveDesc').textContent = t('storeLiveDesc');
+
+    // Shipping settings labels
+    document.getElementById('shippingSettingsTitle').textContent = t('shippingSettingsTitle');
+    const shippingMethods = ['MAGYAR_POSTA', 'GLS', 'DPD', 'CSOMAGPONT'];
+    const shippingLabelMap = { MAGYAR_POSTA: 'shippingMagyarPosta', GLS: 'shippingGLS', DPD: 'shippingDPD', CSOMAGPONT: 'shippingCsomagpont' };
+    shippingMethods.forEach(m => {
+        document.getElementById('shippingLabel_' + m).textContent = t(shippingLabelMap[m]);
+        document.getElementById('hufLabel_' + m).textContent = t('shippingPriceHuf');
+        document.getElementById('eurLabel_' + m).textContent = t('shippingPriceEur');
+    });
+    document.getElementById('internationalShippingLabel').textContent = t('internationalShipping');
+    document.getElementById('internationalShippingDesc').textContent = t('internationalShippingDesc');
+
     loadStoreSettings();
 
     renderPriceTable();
@@ -2397,6 +2620,29 @@ async function loadStoreSettings() {
         const data = await res.json();
         document.getElementById('storeLiveToggle').checked = data.storeLive;
         updateStoreLiveUI(data.storeLive);
+
+        // Shipping settings
+        const methodMap = {
+            MAGYAR_POSTA: { enabled: 'shippingMagyarPostaEnabled', huf: 'shippingMagyarPostaHuf', eur: 'shippingMagyarPostaEur' },
+            GLS: { enabled: 'shippingGlsEnabled', huf: 'shippingGlsHuf', eur: 'shippingGlsEur' },
+            DPD: { enabled: 'shippingDpdEnabled', huf: 'shippingDpdHuf', eur: 'shippingDpdEur' },
+            CSOMAGPONT: { enabled: 'shippingCsomagpontEnabled', huf: 'shippingCsomagpontHuf', eur: 'shippingCsomagpontEur' }
+        };
+        Object.keys(methodMap).forEach(m => {
+            const keys = methodMap[m];
+            const enabled = data[keys.enabled] !== false;
+            document.getElementById('shippingToggle_' + m).checked = enabled;
+            document.getElementById('shippingHuf_' + m).value = data[keys.huf] || 0;
+            document.getElementById('shippingEur_' + m).value = data[keys.eur] || 0;
+            document.getElementById('shippingHuf_' + m).disabled = !enabled;
+            document.getElementById('shippingEur_' + m).disabled = !enabled;
+            updateShippingStatusUI(m, enabled);
+        });
+
+        // International shipping
+        const intlEnabled = data.internationalShippingEnabled !== false;
+        document.getElementById('internationalShippingToggle').checked = intlEnabled;
+        updateInternationalShippingUI(intlEnabled);
     } catch (e) {}
 }
 
@@ -2425,6 +2671,76 @@ async function toggleStoreLive() {
         }
     } catch (e) {
         document.getElementById('storeLiveToggle').checked = !isLive;
+    }
+}
+
+function updateShippingStatusUI(method, enabled) {
+    const statusEl = document.getElementById('shippingStatus_' + method);
+    if (enabled) {
+        statusEl.textContent = t('shippingEnabled');
+        statusEl.style.color = '#00d68f';
+    } else {
+        statusEl.textContent = t('shippingDisabled');
+        statusEl.style.color = '#ff4d00';
+    }
+}
+
+function updateInternationalShippingUI(enabled) {
+    const status = document.getElementById('internationalShippingStatus');
+    if (enabled) {
+        status.className = 'settings-status live';
+        status.textContent = t('internationalShippingOn');
+    } else {
+        status.className = 'settings-status test';
+        status.textContent = t('internationalShippingOff');
+    }
+}
+
+const shippingSettingsKeyMap = {
+    MAGYAR_POSTA: { enabled: 'shippingMagyarPostaEnabled', huf: 'shippingMagyarPostaHuf', eur: 'shippingMagyarPostaEur' },
+    GLS: { enabled: 'shippingGlsEnabled', huf: 'shippingGlsHuf', eur: 'shippingGlsEur' },
+    DPD: { enabled: 'shippingDpdEnabled', huf: 'shippingDpdHuf', eur: 'shippingDpdEur' },
+    CSOMAGPONT: { enabled: 'shippingCsomagpontEnabled', huf: 'shippingCsomagpontHuf', eur: 'shippingCsomagpontEur' }
+};
+
+async function saveShippingSetting(methodName) {
+    const keys = shippingSettingsKeyMap[methodName];
+    const enabled = document.getElementById('shippingToggle_' + methodName).checked;
+    const huf = parseInt(document.getElementById('shippingHuf_' + methodName).value) || 0;
+    const eur = parseInt(document.getElementById('shippingEur_' + methodName).value) || 0;
+
+    document.getElementById('shippingHuf_' + methodName).disabled = !enabled;
+    document.getElementById('shippingEur_' + methodName).disabled = !enabled;
+    updateShippingStatusUI(methodName, enabled);
+
+    try {
+        const body = {};
+        body[keys.enabled] = enabled;
+        body[keys.huf] = huf;
+        body[keys.eur] = eur;
+        const res = await fetch('/api/settings', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        if (res.ok) showToast(t('settingsSaved'));
+    } catch (e) {}
+}
+
+async function toggleInternationalShipping() {
+    const enabled = document.getElementById('internationalShippingToggle').checked;
+    try {
+        const res = await fetch('/api/settings', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ internationalShippingEnabled: enabled })
+        });
+        if (res.ok) {
+            updateInternationalShippingUI(enabled);
+            showToast(t('settingsSaved'));
+        }
+    } catch (e) {
+        document.getElementById('internationalShippingToggle').checked = !enabled;
     }
 }
 

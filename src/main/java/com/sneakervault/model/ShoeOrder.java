@@ -37,6 +37,15 @@ public class ShoeOrder {
     private Integer discountAmountHUF;
     private Integer discountAmountEUR;
 
+    @Enumerated(EnumType.STRING)
+    private ShippingMethod shippingMethod;
+
+    @Enumerated(EnumType.STRING)
+    private PaymentMethod paymentMethod;
+
+    private Integer shippingCostHUF;
+    private Integer shippingCostEUR;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
 
@@ -95,4 +104,16 @@ public class ShoeOrder {
 
     public Integer getDiscountAmountEUR() { return discountAmountEUR; }
     public void setDiscountAmountEUR(Integer discountAmountEUR) { this.discountAmountEUR = discountAmountEUR; }
+
+    public ShippingMethod getShippingMethod() { return shippingMethod; }
+    public void setShippingMethod(ShippingMethod shippingMethod) { this.shippingMethod = shippingMethod; }
+
+    public PaymentMethod getPaymentMethod() { return paymentMethod; }
+    public void setPaymentMethod(PaymentMethod paymentMethod) { this.paymentMethod = paymentMethod; }
+
+    public Integer getShippingCostHUF() { return shippingCostHUF; }
+    public void setShippingCostHUF(Integer shippingCostHUF) { this.shippingCostHUF = shippingCostHUF; }
+
+    public Integer getShippingCostEUR() { return shippingCostEUR; }
+    public void setShippingCostEUR(Integer shippingCostEUR) { this.shippingCostEUR = shippingCostEUR; }
 }

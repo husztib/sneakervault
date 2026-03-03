@@ -264,6 +264,51 @@ public class StripeController {
                 metadata.put("discountAmountEUR", String.valueOf(discountAmountEUR));
             }
 
+            // Shipping method & cost
+            ShippingMethod shippingMethod = ShippingMethod.GLS;
+            try {
+                if (req.getShippingMethod() != null) shippingMethod = ShippingMethod.valueOf(req.getShippingMethod());
+            } catch (IllegalArgumentException ignored) {}
+            if (!isShippingMethodEnabled(shippingMethod)) {
+                shippingMethod = getFirstEnabledShippingMethod();
+            }
+
+            // International shipping check
+            if (!isInternationalShippingEnabled()) {
+                String zip = req.getCustomerZip();
+                if (zip != null && !zip.matches("^\\d{4}$")) {
+                    return ResponseEntity.badRequest().body(Map.of("error", "international_shipping_disabled"));
+                }
+            }
+
+            int shipHUF = getShippingCostFromSettings(shippingMethod, false);
+            int shipEUR = getShippingCostFromSettings(shippingMethod, true);
+            int shipCost = isEur ? shipEUR : shipHUF;
+
+            metadata.put("shippingMethod", shippingMethod.name());
+            metadata.put("paymentMethod", "ONLINE_CARD");
+            metadata.put("shippingCostHUF", String.valueOf(shipHUF));
+            metadata.put("shippingCostEUR", String.valueOf(shipEUR));
+
+            // Add shipping as a separate line item
+            String shipLabel = shippingMethod.name().replace('_', ' ');
+            lineItems.add(
+                    SessionCreateParams.LineItem.builder()
+                            .setQuantity(1L)
+                            .setPriceData(
+                                    SessionCreateParams.LineItem.PriceData.builder()
+                                            .setCurrency(currency)
+                                            .setUnitAmount(shipCost * 100L)
+                                            .setProductData(
+                                                    SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                                            .setName("Shipping / Szállítás (" + shipLabel + ")")
+                                                            .build()
+                                            )
+                                            .build()
+                            )
+                            .build()
+            );
+
             SessionCreateParams params = SessionCreateParams.builder()
                     .setMode(SessionCreateParams.Mode.PAYMENT)
                     .setSuccessUrl(successUrl)
@@ -396,6 +441,21 @@ public class StripeController {
             totalEUR -= dEUR;
         }
 
+        // Apply shipping/payment from metadata
+        if (metadata.containsKey("shippingMethod")) {
+            try { order.setShippingMethod(ShippingMethod.valueOf(metadata.get("shippingMethod"))); } catch (IllegalArgumentException ignored) {}
+        }
+        if (metadata.containsKey("paymentMethod")) {
+            try { order.setPaymentMethod(PaymentMethod.valueOf(metadata.get("paymentMethod"))); } catch (IllegalArgumentException ignored) {}
+        }
+        int shipHUF = 0, shipEUR = 0;
+        try { shipHUF = Integer.parseInt(metadata.getOrDefault("shippingCostHUF", "0")); } catch (NumberFormatException ignored) {}
+        try { shipEUR = Integer.parseInt(metadata.getOrDefault("shippingCostEUR", "0")); } catch (NumberFormatException ignored) {}
+        order.setShippingCostHUF(shipHUF);
+        order.setShippingCostEUR(shipEUR);
+        totalHUF += shipHUF;
+        totalEUR += shipEUR;
+
         order.setTotalHUF(Math.max(totalHUF, 0));
         order.setTotalEUR(Math.max(totalEUR, 0));
 
@@ -510,6 +570,36 @@ public class StripeController {
                 }
             }
 
+            // Apply shipping/payment
+            ShippingMethod shippingMethod = ShippingMethod.GLS;
+            try {
+                if (req.getShippingMethod() != null) shippingMethod = ShippingMethod.valueOf(req.getShippingMethod());
+            } catch (IllegalArgumentException ignored) {}
+            if (!isShippingMethodEnabled(shippingMethod)) {
+                shippingMethod = getFirstEnabledShippingMethod();
+            }
+
+            // International shipping check
+            if (!isInternationalShippingEnabled()) {
+                String zip = req.getCustomerZip();
+                if (zip != null && !zip.matches("^\\d{4}$")) {
+                    return ResponseEntity.badRequest().body(Map.of("error", "international_shipping_disabled"));
+                }
+            }
+
+            PaymentMethod paymentMethod = PaymentMethod.ONLINE_CARD;
+            try {
+                if (req.getPaymentMethod() != null) paymentMethod = PaymentMethod.valueOf(req.getPaymentMethod());
+            } catch (IllegalArgumentException ignored) {}
+            int sHUF = getShippingCostFromSettings(shippingMethod, false);
+            int sEUR = getShippingCostFromSettings(shippingMethod, true);
+            order.setShippingMethod(shippingMethod);
+            order.setPaymentMethod(paymentMethod);
+            order.setShippingCostHUF(sHUF);
+            order.setShippingCostEUR(sEUR);
+            totalHUF += sHUF;
+            totalEUR += sEUR;
+
             order.setTotalHUF(Math.max(totalHUF, 0));
             order.setTotalEUR(Math.max(totalEUR, 0));
 
@@ -526,6 +616,197 @@ public class StripeController {
             log.error("Failed to create test order: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    @PostMapping("/cod-order")
+    public ResponseEntity<?> createCodOrder(@RequestBody CheckoutRequest req) {
+        if (req.getItems() == null || req.getItems().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        try {
+            String currency = req.getCurrency() != null ? req.getCurrency() : "HUF";
+            boolean isEur = "EUR".equalsIgnoreCase(currency);
+
+            List<String> soldNames = new ArrayList<>();
+            List<Shoe> validShoes = new ArrayList<>();
+
+            for (CheckoutItemRequest itemReq : req.getItems()) {
+                Optional<Shoe> optShoe = shoeRepository.findById(itemReq.getShoeId());
+                if (optShoe.isEmpty()) continue;
+                Shoe shoe = optShoe.get();
+                if (Boolean.TRUE.equals(shoe.getSold())) {
+                    String name = shoe.getName();
+                    if (shoe.getVariant() != null && !shoe.getVariant().isEmpty()) name += " (" + shoe.getVariant() + ")";
+                    soldNames.add(name);
+                } else {
+                    validShoes.add(shoe);
+                }
+            }
+
+            if (!soldNames.isEmpty()) {
+                return ResponseEntity.status(409).body(Map.of("error", "sold", "soldItems", String.join(", ", soldNames)));
+            }
+            if (validShoes.isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            ShoeOrder order = new ShoeOrder();
+            order.setOrderDate(LocalDateTime.now());
+            order.setCurrency(currency);
+            order.setStatus(OrderStatus.PENDING);
+            order.setCustomerName(safe(req.getCustomerName()));
+            order.setCustomerEmail(safe(req.getCustomerEmail()));
+            order.setCustomerPhone(safe(req.getCustomerPhone()));
+            order.setCustomerZip(safe(req.getCustomerZip()));
+            order.setCustomerCity(safe(req.getCustomerCity()));
+            order.setCustomerStreet(safe(req.getCustomerStreet()));
+            order.setCustomerNotes(safe(req.getCustomerNotes()));
+            order.setLanguage(req.getLanguage() != null ? req.getLanguage() : "hu");
+
+            int totalHUF = 0, totalEUR = 0;
+
+            for (Shoe shoe : validShoes) {
+                OrderItem item = new OrderItem();
+                item.setOrder(order);
+                item.setShoeId(shoe.getId());
+                item.setName(shoe.getName() + (shoe.getVariant() != null && !shoe.getVariant().isEmpty() ? " (" + shoe.getVariant() + ")" : ""));
+                item.setColor(shoe.getColor());
+                item.setStyleCode(shoe.getStyleCode());
+                item.setSizeEUR(shoe.getSizeEUR());
+                item.setSizeUS(shoe.getSizeUS());
+                item.setPrice(shoe.getEffectivePrice());
+                item.setPriceEUR(shoe.getEffectivePriceEUR());
+                item.setImageUrl(shoe.getImageUrl());
+                order.getItems().add(item);
+                totalHUF += shoe.getEffectivePrice();
+                totalEUR += shoe.getEffectivePriceEUR();
+            }
+
+            // Apply discount
+            String discountCode = req.getDiscountCode();
+            if (discountCode != null && !discountCode.isBlank()) {
+                var optDc = discountCodeRepository.findByCodeIgnoreCase(discountCode.trim());
+                if (optDc.isPresent()) {
+                    DiscountCode dc = optDc.get();
+                    boolean valid = Boolean.TRUE.equals(dc.getActive())
+                            && (dc.getExpiresAt() == null || !dc.getExpiresAt().isBefore(LocalDateTime.now()))
+                            && (dc.getMaxUses() == null || dc.getUsedCount() == null || dc.getUsedCount() < dc.getMaxUses());
+                    if (valid) {
+                        int dHUF = 0, dEUR = 0;
+                        if ("PERCENTAGE".equals(dc.getType()) && dc.getPercentOff() != null) {
+                            dHUF = (int) Math.round(totalHUF * dc.getPercentOff() / 100.0);
+                            dEUR = (int) Math.round(totalEUR * dc.getPercentOff() / 100.0);
+                        } else if ("FIXED".equals(dc.getType())) {
+                            dHUF = dc.getFixedAmountHUF() != null ? dc.getFixedAmountHUF() : 0;
+                            dEUR = dc.getFixedAmountEUR() != null ? dc.getFixedAmountEUR() : 0;
+                        }
+                        dHUF = Math.min(dHUF, totalHUF);
+                        dEUR = Math.min(dEUR, totalEUR);
+                        order.setDiscountCode(discountCode.trim().toUpperCase());
+                        order.setDiscountAmountHUF(dHUF);
+                        order.setDiscountAmountEUR(dEUR);
+                        totalHUF -= dHUF;
+                        totalEUR -= dEUR;
+                        dc.setUsedCount((dc.getUsedCount() != null ? dc.getUsedCount() : 0) + 1);
+                        discountCodeRepository.save(dc);
+                    }
+                }
+            }
+
+            // Shipping
+            ShippingMethod shippingMethod = ShippingMethod.GLS;
+            try {
+                if (req.getShippingMethod() != null) shippingMethod = ShippingMethod.valueOf(req.getShippingMethod());
+            } catch (IllegalArgumentException ignored) {}
+            if (!isShippingMethodEnabled(shippingMethod)) {
+                shippingMethod = getFirstEnabledShippingMethod();
+            }
+
+            // International shipping check
+            if (!isInternationalShippingEnabled()) {
+                String zip = req.getCustomerZip();
+                if (zip != null && !zip.matches("^\\d{4}$")) {
+                    return ResponseEntity.badRequest().body(Map.of("error", "international_shipping_disabled"));
+                }
+            }
+
+            int sHUF = getShippingCostFromSettings(shippingMethod, false);
+            int sEUR = getShippingCostFromSettings(shippingMethod, true);
+            order.setShippingMethod(shippingMethod);
+            order.setPaymentMethod(PaymentMethod.COD);
+            order.setShippingCostHUF(sHUF);
+            order.setShippingCostEUR(sEUR);
+            totalHUF += sHUF;
+            totalEUR += sEUR;
+
+            order.setTotalHUF(Math.max(totalHUF, 0));
+            order.setTotalEUR(Math.max(totalEUR, 0));
+
+            validShoes.forEach(s -> s.setSold(true));
+            shoeRepository.saveAll(validShoes);
+
+            ShoeOrder savedOrder = orderRepository.save(order);
+            log.info("COD Order #{} created", savedOrder.getId());
+
+            emailService.sendOrderConfirmation(savedOrder);
+
+            return ResponseEntity.ok(Map.of("success", true, "orderId", savedOrder.getId()));
+        } catch (Exception e) {
+            log.error("Failed to create COD order: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    private int getShippingCostFromSettings(ShippingMethod method, boolean isEur) {
+        StoreSettings s = storeSettingsRepository.findById(1L).orElse(null);
+        if (s == null) {
+            return isEur ? ShippingCosts.getCostEUR(method) : ShippingCosts.getCostHUF(method);
+        }
+        switch (method) {
+            case MAGYAR_POSTA:
+                return isEur
+                        ? (s.getShippingMagyarPostaEur() != null ? s.getShippingMagyarPostaEur() : ShippingCosts.getCostEUR(method))
+                        : (s.getShippingMagyarPostaHuf() != null ? s.getShippingMagyarPostaHuf() : ShippingCosts.getCostHUF(method));
+            case GLS:
+                return isEur
+                        ? (s.getShippingGlsEur() != null ? s.getShippingGlsEur() : ShippingCosts.getCostEUR(method))
+                        : (s.getShippingGlsHuf() != null ? s.getShippingGlsHuf() : ShippingCosts.getCostHUF(method));
+            case DPD:
+                return isEur
+                        ? (s.getShippingDpdEur() != null ? s.getShippingDpdEur() : ShippingCosts.getCostEUR(method))
+                        : (s.getShippingDpdHuf() != null ? s.getShippingDpdHuf() : ShippingCosts.getCostHUF(method));
+            case CSOMAGPONT:
+                return isEur
+                        ? (s.getShippingCsomagpontEur() != null ? s.getShippingCsomagpontEur() : ShippingCosts.getCostEUR(method))
+                        : (s.getShippingCsomagpontHuf() != null ? s.getShippingCsomagpontHuf() : ShippingCosts.getCostHUF(method));
+            default:
+                return isEur ? ShippingCosts.getCostEUR(method) : ShippingCosts.getCostHUF(method);
+        }
+    }
+
+    private boolean isShippingMethodEnabled(ShippingMethod method) {
+        StoreSettings s = storeSettingsRepository.findById(1L).orElse(null);
+        if (s == null) return true;
+        switch (method) {
+            case MAGYAR_POSTA: return !Boolean.FALSE.equals(s.getShippingMagyarPostaEnabled());
+            case GLS: return !Boolean.FALSE.equals(s.getShippingGlsEnabled());
+            case DPD: return !Boolean.FALSE.equals(s.getShippingDpdEnabled());
+            case CSOMAGPONT: return !Boolean.FALSE.equals(s.getShippingCsomagpontEnabled());
+            default: return true;
+        }
+    }
+
+    private ShippingMethod getFirstEnabledShippingMethod() {
+        for (ShippingMethod m : ShippingMethod.values()) {
+            if (isShippingMethodEnabled(m)) return m;
+        }
+        return ShippingMethod.GLS;
+    }
+
+    private boolean isInternationalShippingEnabled() {
+        StoreSettings s = storeSettingsRepository.findById(1L).orElse(null);
+        return s == null || !Boolean.FALSE.equals(s.getInternationalShippingEnabled());
     }
 
     private String safe(String s) {

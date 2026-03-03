@@ -15,6 +15,8 @@ public class CheckoutRequest {
     private String language;
     private String baseUrl;
     private String discountCode;
+    private String shippingMethod;
+    private String paymentMethod;
 
     public String getCurrency() { return currency; }
     public void setCurrency(String currency) { this.currency = currency; }
@@ -51,4 +53,10 @@ public class CheckoutRequest {
 
     public String getDiscountCode() { return discountCode; }
     public void setDiscountCode(String discountCode) { this.discountCode = discountCode; }
+
+    public String getShippingMethod() { return shippingMethod; }
+    public void setShippingMethod(String shippingMethod) { this.shippingMethod = shippingMethod; }
+
+    public String getPaymentMethod() { return paymentMethod; }
+    public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
 }

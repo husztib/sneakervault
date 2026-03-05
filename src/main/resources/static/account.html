@@ -66,6 +66,7 @@
             z-index: 100;
             backdrop-filter: blur(20px);
             transition: background 0.3s, border-color 0.3s;
+            overflow: visible;
         }
 
         .header-top {
@@ -79,9 +80,9 @@
         }
 
         .logo-area { display: flex; align-items: center; gap: 10px; }
-        .logo { display: flex; align-items: center; white-space: nowrap; }
-        .logo a { display: flex; align-items: center; }
-        .logo img { height: 60px; width: auto; }
+        .logo { display: flex; align-items: flex-start; white-space: nowrap; position: relative; z-index: 101; }
+        .logo a { display: flex; align-items: flex-start; }
+        .logo img { height: 250px; width: auto; margin-top: -10px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15)); pointer-events: auto; }
         .logo .logo-light { display: none; }
         [data-theme="light"] .logo .logo-dark { display: none; }
         [data-theme="light"] .logo .logo-light { display: block; }

@@ -49,6 +49,7 @@
             top: 0;
             z-index: 100;
             backdrop-filter: blur(20px);
+            overflow: visible;
         }
 
         .header-top {
@@ -60,8 +61,8 @@
             justify-content: center;
         }
 
-        .logo { display: flex; align-items: center; }
-        .logo img { height: 60px; width: auto; }
+        .logo { display: flex; align-items: flex-start; position: relative; z-index: 101; }
+        .logo img { height: 250px; width: auto; margin-top: -10px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15)); pointer-events: auto; }
         .logo .logo-light { display: none; }
         [data-theme="light"] .logo .logo-dark { display: none; }
         [data-theme="light"] .logo .logo-light { display: block; }

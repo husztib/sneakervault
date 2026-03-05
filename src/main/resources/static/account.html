@@ -79,9 +79,12 @@
         }
 
         .logo-area { display: flex; align-items: center; gap: 10px; }
-        .logo { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; white-space: nowrap; }
-        .logo a { color: var(--text); text-decoration: none; }
-        .logo span { color: var(--accent); }
+        .logo { display: flex; align-items: center; white-space: nowrap; }
+        .logo a { display: flex; align-items: center; }
+        .logo img { height: 40px; width: auto; }
+        .logo .logo-light { display: none; }
+        [data-theme="light"] .logo .logo-dark { display: none; }
+        [data-theme="light"] .logo .logo-light { display: block; }
 
         .header-actions { display: flex; align-items: center; gap: 10px; }
         .settings-toggles { display: flex; gap: 6px; align-items: center; }
@@ -298,7 +301,7 @@
 <header>
     <div class="header-top">
         <div class="logo-area">
-            <div class="logo"><a href="index.html">Boti<span>X</span></a></div>
+            <div class="logo"><a href="index.html"><img class="logo-dark" src="images/botix-logo.png" alt="BotiX"><img class="logo-light" src="images/botix-logo-light.png" alt="BotiX"></a></div>
         </div>
         <div class="header-actions">
             <div class="settings-toggles">

@@ -60,8 +60,11 @@
             justify-content: center;
         }
 
-        .logo { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
-        .logo span { color: var(--accent); }
+        .logo { display: flex; align-items: center; }
+        .logo img { height: 40px; width: auto; }
+        .logo .logo-light { display: none; }
+        [data-theme="light"] .logo .logo-dark { display: none; }
+        [data-theme="light"] .logo .logo-light { display: block; }
 
         .container {
             max-width: 600px;
@@ -131,7 +134,7 @@
 
 <header>
     <div class="header-top">
-        <div class="logo">Boti<span>X</span></div>
+        <div class="logo"><img class="logo-dark" src="images/botix-logo.png" alt="BotiX"><img class="logo-light" src="images/botix-logo-light.png" alt="BotiX"></div>
     </div>
 </header>
 

@@ -34,6 +34,10 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
+    private String logoImgTag() {
+        return "<img src=\"" + baseUrl + "/images/botix-logo.png\" alt=\"BotiX\" style=\"height:48px;width:auto;\">";
+    }
+
     @Async
     public void sendOrderConfirmation(ShoeOrder order) {
         boolean hu = "hu".equals(order.getLanguage());
@@ -105,7 +109,7 @@ public class EmailService {
                 + "<body style=\"margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f5f5;\">"
                 + "<div style=\"max-width:600px;margin:0 auto;background:#ffffff;\">"
                 + "<div style=\"background:#0a0a0a;padding:24px 32px;text-align:center;\">"
-                + "<h1 style=\"color:#fff;margin:0;font-size:24px;\">Boti<span style=\"color:#ff4d00;\">X</span></h1>"
+                + logoImgTag()
                 + "</div>"
                 + "<div style=\"padding:32px;text-align:center;\">"
                 + "<h2 style=\"color:#0a0a0a;margin:0 0 16px;\">Fi\u00f3k aktiv\u00e1l\u00e1s / Account Activation</h2>"
@@ -155,7 +159,7 @@ public class EmailService {
                 + "<body style=\"margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f5f5;\">"
                 + "<div style=\"max-width:600px;margin:0 auto;background:#ffffff;\">"
                 + "<div style=\"background:#0a0a0a;padding:24px 32px;text-align:center;\">"
-                + "<h1 style=\"color:#fff;margin:0;font-size:24px;\">Boti<span style=\"color:#ff4d00;\">X</span></h1>"
+                + logoImgTag()
                 + "</div>"
                 + "<div style=\"padding:32px;text-align:center;\">"
                 + "<h2 style=\"color:#0a0a0a;margin:0 0 8px;\">" + heading + "</h2>"
@@ -197,7 +201,7 @@ public class EmailService {
         return "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"></head><body style=\"margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f5f5;\">"
              + "<div style=\"max-width:600px;margin:0 auto;background:#ffffff;\">"
              + "<div style=\"background:#0a0a0a;padding:24px 32px;text-align:center;\">"
-             + "<h1 style=\"color:#fff;margin:0;font-size:24px;\">Boti<span style=\"color:#ff4d00;\">X</span></h1>"
+             + logoImgTag()
              + "</div>"
              + "<div style=\"padding:32px;\">"
              + "<h2 style=\"color:#0a0a0a;margin:0 0 8px;\">" + lblConfirmation + "</h2>"

@@ -127,8 +127,11 @@
         }
 
         .logo-group { display: flex; align-items: center; gap: 12px; white-space: nowrap; }
-        .logo { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; white-space: nowrap; }
-        .logo span { color: var(--accent); }
+        .logo { display: flex; align-items: center; white-space: nowrap; }
+        .logo img { height: 40px; width: auto; }
+        .logo .logo-light { display: none; }
+        [data-theme="light"] .logo .logo-dark { display: none; }
+        [data-theme="light"] .logo .logo-light { display: block; }
         .logo-slogan { font-size: 12px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; font-weight: 600; }
         .logo-badge { display: inline-flex; align-items: center; gap: 4px; background: linear-gradient(135deg, #ff4d00, #ff8533); color: #fff; font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 4px; }
         .logo-badge svg { flex-shrink: 0; }
@@ -1001,7 +1004,7 @@
 <header>
     <div class="header-top">
         <div class="logo-group">
-            <div class="logo">Boti<span>X</span></div>
+            <div class="logo"><img class="logo-dark" src="images/botix-logo.png" alt="BotiX"><img class="logo-light" src="images/botix-logo-light.png" alt="BotiX"></div>
             <span class="logo-slogan" id="logoSlogan"></span>
             <span class="logo-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> <span id="logoBadge"></span></span>
         </div>

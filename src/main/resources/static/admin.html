@@ -86,8 +86,11 @@
         }
 
         .logo-area { display: flex; align-items: center; gap: 10px; }
-        .logo { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; white-space: nowrap; }
-        .logo span { color: var(--accent); }
+        .logo { display: flex; align-items: center; white-space: nowrap; }
+        .logo img { height: 40px; width: auto; }
+        .logo .logo-light { display: none; }
+        [data-theme="light"] .logo .logo-dark { display: none; }
+        [data-theme="light"] .logo .logo-light { display: block; }
 
         .admin-badge {
             background: var(--accent);
@@ -1087,7 +1090,8 @@
             text-align: center;
         }
 
-        .login-box .logo { font-size: 28px; margin-bottom: 6px; }
+        .login-box .logo { justify-content: center; margin-bottom: 6px; }
+        .login-box .logo img { height: 48px; }
         .login-box .login-subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
 
         .login-box input {
@@ -1137,7 +1141,7 @@
 
 <div class="login-overlay" id="loginOverlay">
     <div class="login-box">
-        <div class="logo">Boti<span>X</span></div>
+        <div class="logo"><img class="logo-dark" src="images/botix-logo.png" alt="BotiX"><img class="logo-light" src="images/botix-logo-light.png" alt="BotiX"></div>
         <div class="login-subtitle">Admin Panel</div>
         <input type="password" id="loginPassword" placeholder="Jelszó / Password" autofocus>
         <button onclick="doLogin()" id="loginBtn">Belépés / Login</button>
@@ -1148,7 +1152,7 @@
 <header>
     <div class="header-top">
         <div class="logo-area">
-            <div class="logo">Boti<span>X</span></div>
+            <div class="logo"><img class="logo-dark" src="images/botix-logo.png" alt="BotiX"><img class="logo-light" src="images/botix-logo-light.png" alt="BotiX"></div>
             <span class="admin-badge">Admin</span>
         </div>
         <div class="header-actions">

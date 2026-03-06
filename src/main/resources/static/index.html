@@ -127,9 +127,9 @@
             gap: 12px;
         }
 
-        .logo-group { display: flex; align-items: center; gap: 8px; white-space: nowrap; flex-shrink: 0; }
-        .logo { display: flex; align-items: flex-start; white-space: nowrap; position: relative; z-index: 101; flex-shrink: 0; }
-        .logo img { height: 250px; width: auto; margin-top: -8px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15)); pointer-events: auto; }
+        .logo-group { display: flex; align-items: center; gap: 12px; white-space: nowrap; flex: 0 0 33.333%; min-width: 0; }
+        .logo { display: flex; align-items: center; flex-shrink: 0; }
+        .logo img { width: 100%; max-width: 320px; height: auto; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15)); pointer-events: auto; }
         .logo .logo-light { display: none; }
         [data-theme="light"] .logo .logo-dark { display: none; }
         [data-theme="light"] .logo .logo-light { display: block; }
@@ -950,7 +950,8 @@
 
         @media (max-width: 768px) {
             .header-top { flex-wrap: wrap; padding: 12px 16px; }
-            .logo img { height: 150px; }
+            .logo-group { flex: 0 0 auto; }
+            .logo img { max-width: 200px; }
             .search-container { order: 3; flex-basis: 100%; max-width: 100%; }
             .header-actions { gap: 8px; }
             .settings-toggles { gap: 4px; }
@@ -1007,7 +1008,7 @@
 <header>
     <div class="header-top">
         <div class="logo-group">
-            <div class="logo"><img class="logo-dark" src="images/botix-logo-light.png" alt="BotiX"><img class="logo-light" src="images/botix-logo.png" alt="BotiX"></div>
+            <div class="logo"><img class="logo-dark" src="images/botix-logo-dark-landscape.png" alt="BotiX"><img class="logo-light" src="images/botix-logo-landscape.png" alt="BotiX"></div>
             <div class="logo-info">
                 <span class="logo-slogan" id="logoSlogan"></span>
                 <span class="logo-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> <span id="logoBadge"></span></span>

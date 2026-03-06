@@ -8,3 +8,5 @@ uploads/
 *.iml
 .vscode/
 .DS_Store
+.env
+docker-compose.yml

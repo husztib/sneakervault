@@ -11,8 +11,8 @@
     <style>
         :root, [data-theme="dark"] {
             --primary: #0a0a0a;
-            --accent: #ff4d00;
-            --accent-hover: #e64500;
+            --accent: #D4781E;
+            --accent-hover: #BF6B18;
             --bg: #050505;
             --card-bg: #1a1a1a;
             --card-hover: #222222;
@@ -223,7 +223,7 @@
 
         .form-input:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(255,77,0,0.15);
+            box-shadow: 0 0 0 3px rgba(212,120,30,0.15);
         }
 
         .form-input::placeholder { color: var(--text-muted); opacity: 0.6; }
@@ -341,7 +341,7 @@
 
         .discount-input:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(255,77,0,0.15);
+            box-shadow: 0 0 0 3px rgba(212,120,30,0.15);
         }
 
         .discount-btn {
@@ -421,7 +421,7 @@
         }
 
         .option-card:hover { border-color: var(--text-muted); }
-        .option-card.selected { border-color: var(--accent); background: rgba(255,77,0,0.08); }
+        .option-card.selected { border-color: var(--accent); background: rgba(212,120,30,0.08); }
 
         .option-card-left { display: flex; align-items: center; gap: 10px; }
         .option-radio {
@@ -852,7 +852,7 @@ function renderPage() {
                     <div class="option-group">
                         <label class="form-label">${t('shippingMethod')}</label>
                         ${enabledShippingMethods.length === 0 ? `
-                            <div style="padding:12px;background:rgba(255,77,0,0.1);border-radius:8px;color:#ff4d00;font-size:13px;font-weight:600;">${t('noShippingMethods')}</div>
+                            <div style="padding:12px;background:rgba(212,120,30,0.1);border-radius:8px;color:#D4781E;font-size:13px;font-weight:600;">${t('noShippingMethods')}</div>
                         ` : `
                         <div class="option-cards">
                             ${enabledShippingMethods.map(m => `

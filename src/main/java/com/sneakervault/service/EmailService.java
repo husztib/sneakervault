@@ -58,7 +58,7 @@ public class EmailService {
 
         if (adminUrl != null && !adminUrl.isBlank()) {
             html = html.replace("BotiX &copy; 2026",
-                    "<a href=\"" + adminUrl + "\" style=\"color:#ff4d00;text-decoration:none;font-weight:600;\">Open Admin Panel</a>"
+                    "<a href=\"" + adminUrl + "\" style=\"color:#D4781E;text-decoration:none;font-weight:600;\">Open Admin Panel</a>"
                     + "<br>BotiX &copy; 2026");
         }
 
@@ -114,7 +114,7 @@ public class EmailService {
                 + "<div style=\"padding:32px;text-align:center;\">"
                 + "<h2 style=\"color:#0a0a0a;margin:0 0 16px;\">Fi\u00f3k aktiv\u00e1l\u00e1s / Account Activation</h2>"
                 + "<p style=\"color:#666;margin:0 0 24px;font-size:14px;\">Kattints az al\u00e1bbi gombra a fi\u00f3kod aktiv\u00e1l\u00e1s\u00e1hoz.<br>Click the button below to activate your account.</p>"
-                + "<a href=\"" + esc(link) + "\" style=\"display:inline-block;padding:14px 32px;background:#ff4d00;color:#fff;text-decoration:none;border-radius:10px;font-weight:700;font-size:15px;\">Aktiv\u00e1l\u00e1s / Activate</a>"
+                + "<a href=\"" + esc(link) + "\" style=\"display:inline-block;padding:14px 32px;background:#D4781E;color:#fff;text-decoration:none;border-radius:10px;font-weight:700;font-size:15px;\">Aktiv\u00e1l\u00e1s / Activate</a>"
                 + "<p style=\"color:#999;margin-top:24px;font-size:12px;\">Ha nem te regisztr\u00e1lt\u00e1l, hagyd figyelmen k\u00edv\u00fcl ezt az emailt.<br>If you didn't register, please ignore this email.</p>"
                 + "</div>"
                 + "<div style=\"background:#f8f9fa;padding:16px 32px;text-align:center;color:#999;font-size:12px;\">"
@@ -166,7 +166,7 @@ public class EmailService {
                 + "<p style=\"color:#666;margin:0 0 24px;font-size:14px;\">" + message + "</p>"
                 + "<div style=\"background:#f8f9fa;border-radius:8px;padding:16px;display:inline-block;\">"
                 + "<span style=\"font-size:14px;color:#666;\">" + (hu ? "\u00d6sszesen: " : "Total: ") + "</span>"
-                + "<span style=\"font-size:20px;font-weight:800;color:#ff4d00;\">" + total + "</span>"
+                + "<span style=\"font-size:20px;font-weight:800;color:#D4781E;\">" + total + "</span>"
                 + "</div>"
                 + "</div>"
                 + "<div style=\"background:#f8f9fa;padding:16px 32px;text-align:center;color:#999;font-size:12px;\">"
@@ -222,7 +222,7 @@ public class EmailService {
              + buildShippingPaymentSection(order, hu)
              + "<div style=\"text-align:right;padding:16px;background:#f8f9fa;border-radius:8px;\">"
              + "<span style=\"font-size:14px;color:#666;\">" + lblTotal + "</span>"
-             + "<span style=\"font-size:20px;font-weight:800;color:#ff4d00;\">" + total + "</span>"
+             + "<span style=\"font-size:20px;font-weight:800;color:#D4781E;\">" + total + "</span>"
              + "</div>"
              + "<p style=\"text-align:center;color:#666;margin-top:24px;font-size:14px;\">" + lblThankYou + "</p>"
              + "</div>"

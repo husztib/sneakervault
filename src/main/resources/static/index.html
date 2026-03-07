@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BotiX - Sneaker Store | Nike, Jordan, Adidas, Vans</title>
-    <meta name="description" content="BotiX Sneaker Store - Eredeti Nike, Jordan, Adidas és Vans cipők széles választéka. Gyors szállítás, megbízható minőség.">
+    <title>BotiX - Prémium Cipőbolt | Nike, Jordan, Adidas, Vans</title>
+    <meta name="description" content="BotiX prémium cipőbolt - Eredeti Nike, Jordan, Adidas és Vans cipők széles választéka. Gyors szállítás, megbízható minőség.">
     <meta name="keywords" content="cipő, sneaker, Nike, Jordan, Adidas, Vans, prémium cipő, eredeti cipő, cipőbolt, BotiX">
     <meta name="author" content="BotiX">
     <meta name="robots" content="index, follow">
@@ -12,7 +12,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <!-- Open Graph -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="BotiX - Sneaker Store">
+    <meta property="og:title" content="BotiX - Prémium Cipőbolt">
     <meta property="og:description" content="Eredeti Nike, Jordan, Adidas és Vans cipők széles választéka. Gyors szállítás, megbízható minőség.">
     <meta property="og:url" content="https://botix.hu/">
     <meta property="og:site_name" content="BotiX">
@@ -22,7 +22,7 @@
     <meta property="og:image:height" content="630">
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="BotiX - Sneaker Store">
+    <meta name="twitter:title" content="BotiX - Prémium Cipőbolt">
     <meta name="twitter:description" content="Eredeti Nike, Jordan, Adidas és Vans cipők széles választéka.">
     <meta name="twitter:image" content="https://botix.hu/og-image.png">
     <!-- JSON-LD Structured Data -->
@@ -31,7 +31,7 @@
         "@context": "https://schema.org",
         "@type": "Store",
         "name": "BotiX",
-        "description": "Sneaker Store - Eredeti Nike, Jordan, Adidas és Vans cipők",
+        "description": "Prémium cipőbolt - Eredeti Nike, Jordan, Adidas és Vans cipők",
         "url": "https://botix.hu",
         "telephone": "+36304149661",
         "email": "info@botix.hu",
@@ -46,8 +46,8 @@
     <style>
         :root, [data-theme="dark"] {
             --primary: #0a0a0a;
-            --accent: #D4781E;
-            --accent-hover: #BF6B18;
+            --accent: #ff4d00;
+            --accent-hover: #e64500;
             --bg: #050505;
             --card-bg: #1a1a1a;
             --card-hover: #222222;
@@ -136,7 +136,7 @@
         [data-theme="light"] .logo .logo-light { display: block; }
         .logo-info { display: flex; flex-direction: column; gap: 4px; justify-content: center; flex-shrink: 0; }
         .logo-slogan { font-size: 12px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; font-weight: 600; white-space: nowrap; }
-        .logo-badge { display: inline-flex; align-items: center; gap: 4px; background: linear-gradient(135deg, #D4781E, #E89530); color: #fff; font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 4px; align-self: flex-start; }
+        .logo-badge { display: inline-flex; align-items: center; gap: 4px; background: linear-gradient(135deg, #ff4d00, #ff8533); color: #fff; font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 4px; align-self: flex-start; }
         .logo-badge svg { flex-shrink: 0; }
 
         .search-container { flex: 1; max-width: 500px; position: relative; }
@@ -156,7 +156,7 @@
         .search-container input:focus {
             border-color: var(--accent);
             background: var(--overlay-strong);
-            box-shadow: 0 0 0 3px rgba(212,120,30,0.15);
+            box-shadow: 0 0 0 3px rgba(255,77,0,0.15);
         }
 
         .search-container input::placeholder { color: var(--text-muted); }
@@ -325,7 +325,7 @@
 
         .product-card:hover {
             transform: translateY(-4px);
-            border-color: rgba(212,120,30,0.3);
+            border-color: rgba(255,77,0,0.3);
             box-shadow: 0 12px 40px var(--shadow-card);
         }
 
@@ -845,7 +845,7 @@
 
         .auth-form .form-input:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(212,120,30,0.15);
+            box-shadow: 0 0 0 3px rgba(255,77,0,0.15);
         }
 
         .auth-form .form-row {
@@ -983,7 +983,7 @@
         ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
 
         .test-mode-banner {
-            background: #E89530;
+            background: #ff8c00;
             color: #fff;
             text-align: center;
             padding: 12px 20px;
@@ -1160,7 +1160,7 @@ const i18n = {
         heroTitle: 'Lépj szintet!',
         heroDesc: 'Eredeti Nike, Jordan, Adidas és Vans cipők. Minden darab 100% eredeti, dobozos.',
         ribbonText: '100% Eredeti',
-        logoSlogan: 'Sneaker Store',
+        logoSlogan: 'Prémium cipőbolt',
         logoBadge: '100% Eredeti',
         brandLabel: 'Márka:',
         typeLabel: 'Típus:',
@@ -1226,7 +1226,7 @@ const i18n = {
         heroTitle: 'Step Up Your Level!',
         heroDesc: 'Authentic Nike, Jordan, Adidas and Vans sneakers. Every pair 100% original, boxed.',
         ribbonText: '100% Authentic',
-        logoSlogan: 'Sneaker Store',
+        logoSlogan: 'Premium sneaker store',
         logoBadge: '100% Authentic',
         brandLabel: 'Brand:',
         typeLabel: 'Type:',

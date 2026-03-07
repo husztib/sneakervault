@@ -3,232 +3,353 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BotiX - Business Card</title>
+    <title>BotiX - Névjegykártya</title>
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 
         body {
-            background: #f0f0f0;
+            background: #e8e8e8;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Montserrat', sans-serif;
             gap: 40px;
-            padding: 40px 20px;
+            padding: 40px;
         }
 
-        h2 { color: #333; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+        h2 {
+            color: #888;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            font-weight: 300;
+        }
+
+        h3 {
+            color: #aaa;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: 400;
+            margin-top: 20px;
+        }
 
         .card {
             width: 340px;
             height: 194px;
-            border-radius: 12px;
+            border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
             position: relative;
         }
 
-        /* ====== FRONT ====== */
+        /* ====== DARK THEME ====== */
+        .dark {
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 30px rgba(245, 130, 32, 0.06);
+        }
+
+        .dark .card-front {
+            background: linear-gradient(145deg, #0d0d0d 0%, #1a1a1a 50%, #0d0d0d 100%);
+        }
+
+        .dark .card-front::before,
+        .dark .card-back::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #f58220, #f7941d, #f58220, transparent);
+        }
+
+        .dark .card-front .person-name { color: #fff; }
+        .dark .card-front .detail { color: rgba(255, 255, 255, 0.5); }
+        .dark .card-front .detail a { color: rgba(255, 255, 255, 0.5); }
+        .dark .card-front .detail a:hover { color: #f58220; }
+        .dark .card-front .scan-text { color: rgba(255, 255, 255, 0.25); }
+        .dark .card-front .qr-box { background: #fff; }
+
+        .dark .accent-bottom,
+        .dark .card-back::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #f58220, #f7941d, #f58220, transparent);
+        }
+
+        .dark .card-back {
+            background: linear-gradient(145deg, #0d0d0d 0%, #1a1a1a 100%);
+        }
+
+        .dark .card-back .url { color: rgba(255, 255, 255, 0.3); }
+        .dark .card-back .corner { border-color: rgba(245, 130, 32, 0.12); }
+        .dark .card-back .logo-img-back { filter: drop-shadow(0 4px 15px rgba(245, 130, 32, 0.3)); }
+
+        /* ====== LIGHT THEME ====== */
+        .light {
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.04);
+        }
+
+        .light .card-front {
+            background: linear-gradient(145deg, #ffffff 0%, #fafafa 50%, #ffffff 100%);
+        }
+
+        .light .card-front::before,
+        .light .card-back::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #f58220, #f7941d, #f58220);
+        }
+
+        .light .card-front .logo-img {
+            filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.15));
+        }
+
+        .light .card-front .person-name { color: #1a1a1a; }
+        .light .card-front .detail { color: rgba(0, 0, 0, 0.45); }
+        .light .card-front .detail svg { fill: #e8751a; }
+        .light .card-front .detail a { color: rgba(0, 0, 0, 0.45); }
+        .light .card-front .detail a:hover { color: #e8751a; }
+        .light .card-front .scan-text { color: rgba(0, 0, 0, 0.25); }
+        .light .card-front .qr-box { background: #fff; border: 1px solid rgba(0,0,0,0.06); }
+
+        .light .accent-bottom,
+        .light .card-back::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #f58220, #f7941d, #f58220);
+        }
+
+        .light .card-back {
+            background: linear-gradient(145deg, #ffffff 0%, #fafafa 100%);
+        }
+
+        .light .card-back .logo-img-back { filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.12)); }
+        .light .card-back .url { color: rgba(0, 0, 0, 0.3); }
+        .light .card-back .corner { border-color: rgba(245, 130, 32, 0.2); }
+
+        /* ====== SHARED CARD STYLES ====== */
         .card-front {
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
             display: flex;
-            padding: 24px;
-            gap: 20px;
+            padding: 22px 24px;
+            gap: 16px;
         }
 
-        .card-front .left { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
-
-        .card-front .logo {
-            font-size: 20px;
-            font-weight: 800;
-            color: #fff;
-            letter-spacing: -0.5px;
+        .card-front .left {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
-        .card-front .logo span { color: #ff4d00; }
 
-        .card-front .info { display: flex; flex-direction: column; gap: 4px; }
+        .card-front .logo-img {
+            height: 42px;
+            width: auto;
+            align-self: flex-start;
+        }
+
+        .dark .card-front .logo-img {
+            filter: drop-shadow(0 2px 8px rgba(245, 130, 32, 0.25));
+        }
+
+        .card-front .info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
 
         .card-front .person-name {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
-            color: #fff;
+            letter-spacing: 0.5px;
             margin-bottom: 6px;
         }
 
         .card-front .detail {
             font-size: 10px;
-            color: rgba(255,255,255,0.6);
             display: flex;
             align-items: center;
-            gap: 6px;
-            letter-spacing: 0.2px;
+            gap: 8px;
+            letter-spacing: 0.3px;
         }
 
-        .card-front .detail .icon {
+        .card-front .detail svg {
             width: 12px;
-            text-align: center;
-            color: #ff4d00;
-            font-weight: 700;
-            font-size: 10px;
+            height: 12px;
+            fill: #f58220;
             flex-shrink: 0;
+        }
+
+        .card-front .detail a {
+            text-decoration: none;
+            transition: color 0.2s;
         }
 
         .card-front .right {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-end;
             gap: 6px;
         }
 
         .card-front .qr-box {
-            background: #fff;
-            border-radius: 8px;
-            padding: 6px;
+            border-radius: 6px;
+            padding: 5px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .card-front .qr-box canvas, .card-front .qr-box img {
-            display: block;
-        }
+        .card-front .qr-box img { display: block; }
 
         .card-front .scan-text {
-            font-size: 8px;
-            color: rgba(255,255,255,0.4);
+            font-size: 7px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
             font-weight: 600;
         }
 
-        .accent-line {
+        .accent-bottom {
             position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            bottom: 0; left: 0; right: 0;
             height: 3px;
-            background: linear-gradient(90deg, #ff4d00, #e64500);
         }
 
-        /* ====== BACK ====== */
         .card-back {
-            background: #ffffff;
-            border: 1px solid #ccc;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            position: relative;
+            gap: 14px;
         }
 
-        .card-back .logo-back {
-            font-size: 28px;
-            font-weight: 800;
-            color: #0a0a0a;
-            letter-spacing: -0.5px;
-        }
-        .card-back .logo-back span { color: #ff4d00; }
-
-        .card-back .tagline {
-            font-size: 10px;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            font-weight: 600;
+        .card-back .logo-img-back {
+            height: 72px;
+            width: auto;
         }
 
         .card-back .url {
             font-size: 9px;
-            color: #aaa;
-            letter-spacing: 0.3px;
-            margin-top: 4px;
+            letter-spacing: 3px;
+            text-transform: lowercase;
+            font-weight: 300;
         }
 
-        .card-back .accent-line-top {
+        .card-back .corner {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #ff4d00, #e64500);
+            width: 30px;
+            height: 30px;
+            border: 1.5px solid;
         }
 
-        .card-back .corner-decor {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            border: 2px solid rgba(255,77,0,0.1);
-        }
-        .card-back .corner-decor.tl { top: 14px; left: 14px; border-right: none; border-bottom: none; border-radius: 4px 0 0 0; }
-        .card-back .corner-decor.br { bottom: 14px; right: 14px; border-left: none; border-top: none; border-radius: 0 0 4px 0; }
+        .card-back .corner.tl { top: 14px; left: 14px; border-right: none; border-bottom: none; border-radius: 3px 0 0 0; }
+        .card-back .corner.br { bottom: 14px; right: 14px; border-left: none; border-top: none; border-radius: 0 0 3px 0; }
 
         .print-hint {
-            color: #999;
-            font-size: 12px;
-            max-width: 400px;
+            color: #888;
+            font-size: 11px;
             text-align: center;
-            line-height: 1.6;
+            line-height: 1.8;
+            font-weight: 300;
         }
 
         @media print {
-            body { background: white !important; gap: 20px; padding: 10px; }
-            h2, .print-hint { display: none; }
-            .card { box-shadow: none !important; border: 1px solid #ccc !important; }
-            .card-front { background: #0a0a0a !important; }
-            .accent-line, .accent-line-top { background: #ff4d00 !important; }
+            body { background: white !important; gap: 15px; padding: 10px; }
+            h2, h3, .print-hint { display: none; }
+            .card { box-shadow: none !important; border: 1px solid #ddd !important; }
         }
     </style>
 </head>
 <body>
 
+<!-- ========== DARK VARIANT ========== -->
+<h3>Dark</h3>
+
 <h2>Eleje</h2>
-<div class="card card-front" id="cardFront">
+<div class="card dark card-front">
     <div class="left">
-        <div class="logo">Boti<span>X</span></div>
+        <img class="logo-img" src="src/main/resources/static/images/botix-logo-landscape.png" alt="BotiX">
         <div class="info">
             <div class="person-name">Husz&aacute;r Botond</div>
-            <div class="detail"><span class="icon">&#9742;</span> +36 30 414 9661</div>
-            <div class="detail"><span class="icon">&#9993;</span> info@botix.hu</div>
-            <div class="detail"><span class="icon">&#9737;</span> botix.hu</div>
+            <div class="detail">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                <a href="https://botix.hu" target="_blank">botix.hu</a>
+            </div>
+            <div class="detail">
+                <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                <a href="mailto:info@botix.hu">info@botix.hu</a>
+            </div>
         </div>
     </div>
     <div class="right">
-        <div class="qr-box" id="qrCode"></div>
+        <div class="qr-box" id="qrCode1"></div>
         <div class="scan-text">Scan me</div>
     </div>
-    <div class="accent-line"></div>
+    <div class="accent-bottom"></div>
 </div>
 
-<h2>H&aacute;tulja</h2>
-<div class="card card-back">
-    <div class="accent-line-top"></div>
-    <div class="corner-decor tl"></div>
-    <div class="logo-back">Boti<span>X</span></div>
-    <div class="tagline">Premium Sneaker Store</div>
+<h2>H&aacute;toldal</h2>
+<div class="card dark card-back">
+    <div class="corner tl"></div>
+    <img class="logo-img-back" src="src/main/resources/static/images/botix-logo-landscape.png" alt="BotiX">
     <div class="url">botix.hu</div>
-    <div class="corner-decor br"></div>
+    <div class="corner br"></div>
+</div>
+
+<!-- ========== LIGHT VARIANT ========== -->
+<h3>Light</h3>
+
+<h2>Eleje</h2>
+<div class="card light card-front">
+    <div class="left">
+        <img class="logo-img" src="src/main/resources/static/images/botix-logo-landscape.png" alt="BotiX">
+        <div class="info">
+            <div class="person-name">Husz&aacute;r Botond</div>
+            <div class="detail">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                <a href="https://botix.hu" target="_blank">botix.hu</a>
+            </div>
+            <div class="detail">
+                <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                <a href="mailto:info@botix.hu">info@botix.hu</a>
+            </div>
+        </div>
+    </div>
+    <div class="right">
+        <div class="qr-box" id="qrCode2"></div>
+        <div class="scan-text">Scan me</div>
+    </div>
+    <div class="accent-bottom"></div>
+</div>
+
+<h2>H&aacute;toldal</h2>
+<div class="card light card-back">
+    <div class="corner tl"></div>
+    <img class="logo-img-back" src="src/main/resources/static/images/botix-logo-landscape.png" alt="BotiX">
+    <div class="url">botix.hu</div>
+    <div class="corner br"></div>
 </div>
 
 <div class="print-hint">
-    <strong>PDF ment&eacute;s:</strong> Ctrl+P (vagy Cmd+P Mac-en) &rarr; &quot;Ment&eacute;s PDF-be&quot; / &quot;Save as PDF&quot;<br>
-    Standard n&eacute;vjegyk&aacute;rtya m&eacute;ret: 90 &times; 50 mm
+    PDF ment&eacute;s: Ctrl+P / Cmd+P &rarr; Save as PDF &middot; M&eacute;ret: 90 &times; 50 mm
 </div>
 
 <script>
     var qr = qrcode(0, 'M');
     qr.addData('https://botix.hu/');
     qr.make();
-
-    var size = 100;
-    var cellSize = Math.floor(size / qr.getModuleCount());
-    var img = qr.createImgTag(cellSize, 0);
-
-    document.getElementById('qrCode').innerHTML = img;
+    var cellSize = Math.floor(90 / qr.getModuleCount());
+    var qrImg = qr.createImgTag(cellSize, 0);
+    document.getElementById('qrCode1').innerHTML = qrImg;
+    document.getElementById('qrCode2').innerHTML = qrImg;
 </script>
 </body>
 </html>
